@@ -1,10 +1,10 @@
 import React from 'react';
-import { Navbar, Nav, Container, Button } from 'react-bootstrap';
+import { Navbar, Nav, Container, Button, Dropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Header = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -23,23 +23,39 @@ const Header = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/">Inicio</Nav.Link>
-            <Nav.Link as={Link} to="/events">Eventos</Nav.Link>
-            
-            {isAuthenticated && (
-              <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
-            )}
+            <Nav.Link as={Link} to="/eventos">Eventos</Nav.Link>
+            <Nav.Link as={Link} to="/resultados">Resultados</Nav.Link>
+            <Nav.Link as={Link} to="/plus">Planes Plus</Nav.Link>
+            <Nav.Link as={Link} to="/contacto">Contacto</Nav.Link>
           </Nav>
           
           <Nav>
             {isAuthenticated ? (
-              <>
-                <Navbar.Text className="me-3">
-                  Hola, {user?.nombre}
-                </Navbar.Text>
-                <Button variant="outline-light" size="sm" onClick={handleLogout}>
-                  Cerrar Sesión
-                </Button>
-              </>
+              <Dropdown align="end">
+                <Dropdown.Toggle variant="outline-light" id="dropdown-user">
+                  👤 {user?.nombre}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item as={Link} to="/cuenta/dashboard">
+                    Mi Cuenta
+                  </Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/cuenta/perfil">
+                    Mi Perfil
+                  </Dropdown.Item>
+                  <Dropdown.Divider />
+                  {isAdmin && (
+                    <>
+                      <Dropdown.Item as={Link} to="/admin/dashboard">
+                        🛠️ Administración
+                      </Dropdown.Item>
+                      <Dropdown.Divider />
+                    </>
+                  )}
+                  <Dropdown.Item onClick={handleLogout}>
+                    Cerrar Sesión
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             ) : (
               <>
                 <Button 
@@ -50,7 +66,7 @@ const Header = () => {
                 >
                   Iniciar Sesión
                 </Button>
-                <Button as={Link} to="/register" variant="primary">
+                <Button as={Link} to="/registro" variant="primary">
                   Registrarse
                 </Button>
               </>
