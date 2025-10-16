@@ -15,6 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/users', require('./routes/users'));
+// Agregar después de las otras rutas
+app.use('/api/queries', require('./routes/queries'));
 
 // Ruta de prueba
 app.get('/api/health', (req, res) => {

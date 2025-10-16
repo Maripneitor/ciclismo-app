@@ -22,6 +22,9 @@ import HistoryPage from '../pages/user/HistoryPage';
 // Páginas de administrador
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import ManageEventsPage from '../pages/admin/ManageEventsPage';
+// En las rutas de admin, agregar:
+<Route path="/admin/consultas" element={<QueriesPage />} />
+import QueriesPage from '../pages/admin/QueriesPage';
 
 const AppRoutes = () => {
   return (
@@ -52,6 +55,7 @@ const AppRoutes = () => {
           <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/eventos" element={<ManageEventsPage />} />
+             <Route path="/admin/consultas" element={<QueriesPage />} />
             <Route path="/admin/usuarios" element={<div>Gestión de Usuarios - Próximamente</div>} />
           </Route>
 
