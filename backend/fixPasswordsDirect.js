@@ -39,7 +39,7 @@ async function fixPasswords() {
       attributes: ['id', 'nombre', 'email', 'role', 'password']
     });
     
-    console.log('\n📋 RESULTADO FINAL:');
+    console.log('\n📋 RESULTAaDO FINAL:');
     console.log('='.repeat(50));
     finalUsers.forEach(user => {
       const isHashed = user.password.startsWith('$2a$');
