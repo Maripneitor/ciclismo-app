@@ -41,7 +41,7 @@ const PORT = process.env.PORT || 5000;
 
 // Sincronizar base de datos y iniciar servidor
 // Sincronizar base de datos y iniciar servidor
-sequelize.sync({ force: true })  // ⚠️ TEMPORAL: Esto borrará datos existentes
+sequelize.sync()  // ⚠️ TEMPORAL: Esto borrará datos existentes
   .then(() => {
     console.log('✅ Base de datos sincronizada (force: true)');
     app.listen(PORT, () => {
