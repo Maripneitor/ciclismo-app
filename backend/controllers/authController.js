@@ -2,109 +2,151 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
 const authController = {
-  register: async (req, res) => {
-    try {
-      const { nombre, email, password, telefono, role = 'usuario' } = req.body;
+    register: async (req, res) => {
+        try {
+            console.log('Registro - Datos recibidos:', req.body);
+            const { nombre_completo, email, contrasena, rol = 'usuario' } = req.body;
 
-      // Verificar si el usuario ya existe
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return res.status(400).json({ message: 'El usuario ya existe' });
-      }
+            // Validar campos requeridos
+            if (!nombre_completo || !email || !contrasena) {
+                return res.status(400).json({
+                    message: 'Todos los campos son requeridos: nombre_completo, email, contrasena'
+                });
+            }
 
-      // Crear usuario
-      const user = await User.create({
-        nombre,
-        email,
-        password,
-        telefono,
-        role
-      });
+            // Verificar si el usuario ya existe
+            const existingUser = await User.findOne({ where: { email } });
+            if (existingUser) {
+                return res.status(400).json({ message: 'El usuario ya existe' });
+            }
 
-      // Generar token
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+            // Crear usuario
+            const user = await User.create({
+                nombre_completo,
+                email,
+                contrasena,
+                rol
+            });
 
-      res.status(201).json({
-        message: 'Usuario registrado exitosamente',
-        token,
-        user: {
-          id: user.id,
-          nombre: user.nombre,
-          email: user.email,
-          role: user.role
+            console.log('✅ Usuario creado:', user.usuario_id);
+
+            // Generar token
+            const token = jwt.sign(
+                {
+                    usuario_id: user.usuario_id,
+                    email: user.email,
+                    rol: user.rol
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+
+            res.status(201).json({
+                message: 'Usuario registrado exitosamente',
+                token,
+                user: {
+                    usuario_id: user.usuario_id,
+                    nombre_completo: user.nombre_completo,
+                    email: user.email,
+                    rol: user.rol
+                }
+            });
+        } catch (error) {
+            console.error('Error en registro:', error);
+            res.status(500).json({
+                message: 'Error en el registro',
+                error: error.message
+            });
         }
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        message: 'Error en el registro', 
-        error: error.message 
-      });
-    }
-  },
+    },
 
-  login: async (req, res) => {
-    try {
-      const { email, password } = req.body;
+    login: async (req, res) => {
+        try {
+            console.log('LOGIN ATTEMPT - Datos recibidos:', req.body);
+            const { email, contrasena } = req.body;
 
-      // Buscar usuario
-      const user = await User.findOne({ where: { email } });
-      if (!user) {
-        return res.status(401).json({ message: 'Credenciales inválidas' });
-      }
+            // Validar campos
+            if (!email || !contrasena) {
+                console.log('Login: Faltan campos');
+                return res.status(400).json({
+                    message: 'Email y contraseña son requeridos'
+                });
+            }
 
-      // Verificar contraseña
-      const isValidPassword = await user.validPassword(password);
-      if (!isValidPassword) {
-        return res.status(401).json({ message: 'Credenciales inválidas' });
-      }
+            console.log('Buscando usuario:', email);
 
-      // Generar token
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+            // Buscar usuario
+            const user = await User.findOne({ where: { email } });
+            console.log('Usuario encontrado:', user ? `Si (ID: ${user.usuario_id})` : 'NO');
 
-      res.json({
-        message: 'Login exitoso',
-        token,
-        user: {
-          id: user.id,
-          nombre: user.nombre,
-          email: user.email,
-          role: user.role
+            if (!user) {
+                console.log('Login: Usuario no encontrado');
+                return res.status(401).json({ message: 'Credenciales inválidas' });
+            }
+
+            // Verificar contraseña
+            console.log('Verificando contraseña...');
+            const isValidPassword = await user.validPassword(contrasena);
+            console.log('Contraseña válida:', isValidPassword);
+
+            if (!isValidPassword) {
+                console.log('Login: Contraseña incorrecta');
+                return res.status(401).json({ message: 'Credenciales inválidas' });
+            }
+
+            // Generar token
+            console.log('Generando token JWT...');
+            const token = jwt.sign(
+                {
+                    usuario_id: user.usuario_id,
+                    email: user.email,
+                    rol: user.rol
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+
+            console.log('LOGIN EXITOSO - Usuario:', user.usuario_id);
+
+            res.json({
+                message: 'Login exitoso',
+                token,
+                user: {
+                    usuario_id: user.usuario_id,
+                    nombre_completo: user.nombre_completo,
+                    email: user.email,
+                    rol: user.rol
+                }
+            });
+        } catch (error) {
+            console.error('ERROR EN LOGIN:', error);
+            console.error('Stack:', error.stack);
+            res.status(500).json({
+                message: 'Error en el login',
+                error: error.message
+            });
         }
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        message: 'Error en el login', 
-        error: error.message 
-      });
-    }
-  },
+    },
 
-  getProfile: async (req, res) => {
-    try {
-      const user = await User.findByPk(req.user.id, {
-        attributes: { exclude: ['password'] }
-      });
-      
-      if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
+    getProfile: async (req, res) => {
+        try {
+            const user = await User.findByPk(req.user.usuario_id, {
+                attributes: { exclude: ['contrasena'] }
+            });
+            
+            if (!user) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
 
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ 
-        message: 'Error al obtener perfil', 
-        error: error.message 
-      });
+            res.json(user);
+        } catch (error) {
+            console.error('Error obteniendo perfil:', error);
+            res.status(500).json({ 
+                message: 'Error al obtener perfil',
+                error: error.message
+            });
+        }
     }
-  }
 };
 
 module.exports = authController;

@@ -33,13 +33,29 @@ const RegisterPage = () => {
       return;
     }
 
+    if (formData.password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await register(formData);
+      // ✅ CORRECCIÓN: Mapear los campos correctamente para el backend
+      const userData = {
+        nombre_completo: formData.nombre,  // Backend espera 'nombre_completo'
+        email: formData.email,
+        contrasena: formData.password,     // Backend espera 'contrasena'
+        telefono: formData.telefono || '', // Opcional
+        rol: 'usuario'                     // Valor por defecto
+      };
+      
+      console.log('📤 Datos de registro enviados:', userData);
+      await register(userData);
       navigate('/dashboard');
     } catch (error) {
-      setError(error.response?.data?.message || 'Error en el registro');
+      setError(error.message || 'Error en el registro');
+      console.error('❌ Error completo en registro:', error);
     } finally {
       setLoading(false);
     }
@@ -102,6 +118,7 @@ const RegisterPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    minLength={6}
                     placeholder="Mínimo 6 caracteres"
                   />
                 </Form.Group>
@@ -144,5 +161,4 @@ const RegisterPage = () => {
   );
 };
 
-// ✅ Asegúrate de que tenga export default
 export default RegisterPage;

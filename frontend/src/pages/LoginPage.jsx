@@ -27,10 +27,18 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      await login(formData);
+      // ✅ CORRECCIÓN: Mapear 'password' a 'contrasena'
+      const credentials = {
+        email: formData.email,
+        contrasena: formData.password  // Cambiar aquí
+      };
+      
+      console.log('📤 Credenciales enviadas:', credentials);
+      await login(credentials);
       navigate('/dashboard');
     } catch (error) {
-      setError(error.response?.data?.message || 'Error en el login');
+      setError(error.message || 'Error en el login');
+      console.error('❌ Error completo:', error);
     } finally {
       setLoading(false);
     }
@@ -66,7 +74,7 @@ const LoginPage = () => {
                   <Form.Label>Contraseña</Form.Label>
                   <Form.Control
                     type="password"
-                    name="password"
+                    name="password" // Puedes mantener 'password' en el formulario
                     value={formData.password}
                     onChange={handleChange}
                     required
@@ -100,5 +108,4 @@ const LoginPage = () => {
   );
 };
 
-// ✅ Asegúrate de que tenga export default
 export default LoginPage;

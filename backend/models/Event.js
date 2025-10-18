@@ -2,43 +2,48 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Event = sequelize.define('Event', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  nombre: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  descripcion: {
-    type: DataTypes.TEXT
-  },
-  fecha: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
-  ubicacion: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  distancia: {
-    type: DataTypes.FLOAT
-  },
-  tipo: {
-    type: DataTypes.ENUM('ruta', 'montaña', 'urbano', 'competitivo', 'recreativo')
-  },
-  maxParticipantes: {
-    type: DataTypes.INTEGER
-  },
-  precio: {
-    type: DataTypes.DECIMAL(10, 2),
-    defaultValue: 0
-  },
-  estado: {
-    type: DataTypes.ENUM('activo', 'cancelado', 'completado', 'proximamente'),
-    defaultValue: 'proximamente'
-  }
+    evento_id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    organizador_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    nombre: {
+        type: DataTypes.STRING(150),
+        allowNull: false
+    },
+    fecha: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    descripcion: {
+        type: DataTypes.TEXT
+    },
+    estado: {
+        type: DataTypes.ENUM('Próximo', 'En Curso', 'Finalizado'),
+        allowNull: false,
+        defaultValue: 'Próximo'
+    },
+    cuota_inscripcion: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0.00
+    },
+    maximo_participantes: {
+        type: DataTypes.INTEGER
+    },
+    maximo_miembros_por_equipo: {
+        type: DataTypes.INTEGER
+    },
+    permite_union_a_equipos: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    }
+}, {
+    tableName: 'eventos',
+    timestamps: false
 });
 
 module.exports = Event;

@@ -24,16 +24,23 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para manejar respuestas de error
+// Interceptor para manejar respuestas - CORREGIDO
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // CORRECCIÓN: Devuelve solo los datos, no toda la respuesta
+    return response.data;
+  },
   (error) => {
+    console.error('API Error:', error.response?.data || error.message);
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
-    return Promise.reject(error);
+    
+    // CORRECCIÓN: Devuelve el error formateado
+    return Promise.reject(error.response?.data || error);
   }
 );
 

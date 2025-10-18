@@ -26,8 +26,8 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
-      const response = await authAPI.getProfile();
-      setUser(response.data);
+      const userData = await authAPI.getProfile();
+      setUser(userData);
     } catch (error) {
       console.error('Error cargando usuario:', error);
       logout();
@@ -38,16 +38,22 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
+      console.log('📤 Enviando credenciales:', credentials);
+      
       const response = await authAPI.login(credentials);
-      const { token, user } = response.data;
+      console.log('📥 Respuesta del login:', response);
+      
+      // AHORA SÍ: response ya es los datos directos del backend
+      const { token, user } = response;
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setToken(token);
       setUser(user);
       
-      return response.data;
+      return response;
     } catch (error) {
+      console.error('❌ Error en login:', error);
       throw error;
     }
   };
@@ -55,15 +61,17 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      const { token, user } = response.data;
+      // AHORA SÍ: response ya es los datos directos
+      const { token, user } = response;
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setToken(token);
       setUser(user);
       
-      return response.data;
+      return response;
     } catch (error) {
+      console.error('❌ Error en registro:', error);
       throw error;
     }
   };
@@ -83,8 +91,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     loading,
     isAuthenticated: !!token && !!user,
-    isAdmin: user?.role === 'admin',
-    isOrganizer: user?.role === 'organizador' || user?.role === 'admin'
+    isAdmin: user?.rol === 'admin',
+    isOrganizer: user?.rol === 'organizador' || user?.rol === 'admin'
   };
 
   return (
