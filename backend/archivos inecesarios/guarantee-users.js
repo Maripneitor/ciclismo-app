@@ -1,4 +1,4 @@
-const { User, sequelize } = require('./models');
+const { User, sequelize } = require('../models');
 const bcrypt = require('bcryptjs');
 
 async function guaranteeUsers() {

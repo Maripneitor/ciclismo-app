@@ -1,5 +1,5 @@
 // /home/maripneitor/ciclismo-app/backend/fixPasswordsDirect.js
-const { sequelize, User } = require('./models');
+const { sequelize, User } = require('../models');
 const bcrypt = require('bcryptjs');
 
 async function fixPasswords() {
