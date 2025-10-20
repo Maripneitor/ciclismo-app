@@ -1,8 +1,8 @@
+// src/services/api.js - VERSIÓN MEJORADA
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
-// Crear instancia de axios
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// Interceptor para agregar token a las peticiones
+// Interceptor para agregar token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -24,38 +24,68 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para manejar respuestas - CORREGIDO
+// Interceptor para respuestas
 api.interceptors.response.use(
-  (response) => {
-    // CORRECCIÓN: Devuelve solo los datos, no toda la respuesta
-    return response.data;
-  },
+  (response) => response.data,
   (error) => {
     console.error('API Error:', error.response?.data || error.message);
-    
+
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
-    
-    // CORRECCIÓN: Devuelve el error formateado
+
     return Promise.reject(error.response?.data || error);
   }
 );
 
+// Servicios de Autenticación
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   register: (userData) => api.post('/auth/register', userData),
   getProfile: () => api.get('/auth/me'),
+  updateProfile: (profileData) => api.put('/auth/profile', profileData),
 };
 
+// Servicios de Eventos
 export const eventsAPI = {
   getAll: () => api.get('/events'),
   getById: (id) => api.get(`/events/${id}`),
   create: (eventData) => api.post('/events', eventData),
   update: (id, eventData) => api.put(`/events/${id}`, eventData),
   delete: (id) => api.delete(`/events/${id}`),
+  getCategories: (eventId) => api.get(`/events/${eventId}/categories`),
+  registerToEvent: (registrationData) => api.post('/events/register', registrationData),
+};
+
+// Servicios de Usuarios
+export const usersAPI = {
+  getAll: () => api.get('/users'),
+  getById: (id) => api.get(`/users/${id}`),
+  update: (id, userData) => api.put(`/users/${id}`, userData),
+  delete: (id) => api.delete(`/users/${id}`),
+  getUserEvents: () => api.get('/users/my-events'),
+  getUserRegistrations: () => api.get('/users/my-registrations'),
+};
+
+// Servicios de Equipos
+export const teamsAPI = {
+  getAll: () => api.get('/teams'),
+  create: (teamData) => api.post('/teams', teamData),
+  update: (id, teamData) => api.put(`/teams/${id}`, teamData),
+  delete: (id) => api.delete(`/teams/${id}`),
+  join: (inviteCode) => api.post('/teams/join', { inviteCode }),
+  getMyTeams: () => api.get('/teams/my-teams'),
+};
+
+// Servicios de Consultas
+export const queriesAPI = {
+  getStats: () => api.get('/queries/stats'),
+  getUserStats: () => api.get('/queries/users-stats'),
+  getEventStats: () => api.get('/queries/events-stats'),
+  getTopOrganizers: () => api.get('/queries/top-organizadores'),
+  getEventDetails: (id) => api.get(`/queries/event-details/${id}`),
 };
 
 export default api;

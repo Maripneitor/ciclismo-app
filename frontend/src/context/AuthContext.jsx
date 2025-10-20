@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx - VERSIÓN CORREGIDA
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authAPI } from '../services/api';
 
@@ -38,22 +39,19 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      console.log('📤 Enviando credenciales:', credentials);
-      
+      console.log('Enviando credenciales:', credentials);
       const response = await authAPI.login(credentials);
-      console.log('📥 Respuesta del login:', response);
-      
-      // AHORA SÍ: response ya es los datos directos del backend
+      console.log('Respuesta del login:', response);
+
       const { token, user } = response;
-      
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setToken(token);
       setUser(user);
-      
+
       return response;
     } catch (error) {
-      console.error('❌ Error en login:', error);
+      console.error('Error en login:', error);
       throw error;
     }
   };
@@ -61,17 +59,16 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      // AHORA SÍ: response ya es los datos directos
       const { token, user } = response;
-      
+
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setToken(token);
       setUser(user);
-      
+
       return response;
     } catch (error) {
-      console.error('❌ Error en registro:', error);
+      console.error('Error en registro:', error);
       throw error;
     }
   };
@@ -83,16 +80,31 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateProfile = async (profileData) => {
+    try {
+      const updatedUser = await authAPI.updateProfile(profileData);
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error) {
+      console.error('Error actualizando perfil:', error);
+      throw error;
+    }
+  };
+
+  // ✅ CORREGIDO: Eliminar el doble pipe
   const value = {
     user,
     token,
     login,
     register,
     logout,
+    updateProfile,
     loading,
     isAuthenticated: !!token && !!user,
     isAdmin: user?.rol === 'admin',
-    isOrganizer: user?.rol === 'organizador' || user?.rol === 'admin'
+    isOrganizer: user?.rol === 'organizador' || user?.rol === 'admin',
+    isUser: user?.rol === 'usuario' || user?.rol === 'organizador' || user?.rol === 'admin'
   };
 
   return (

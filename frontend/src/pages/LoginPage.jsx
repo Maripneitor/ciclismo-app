@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -13,6 +13,9 @@ const LoginPage = () => {
   
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleChange = (e) => {
     setFormData({
@@ -27,18 +30,15 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // ✅ CORRECCIÓN: Mapear 'password' a 'contrasena'
       const credentials = {
         email: formData.email,
-        contrasena: formData.password  // Cambiar aquí
+        contrasena: formData.password
       };
       
-      console.log('📤 Credenciales enviadas:', credentials);
       await login(credentials);
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (error) {
       setError(error.message || 'Error en el login');
-      console.error('❌ Error completo:', error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ const LoginPage = () => {
                   <Form.Label>Contraseña</Form.Label>
                   <Form.Control
                     type="password"
-                    name="password" // Puedes mantener 'password' en el formulario
+                    name="password"
                     value={formData.password}
                     onChange={handleChange}
                     required

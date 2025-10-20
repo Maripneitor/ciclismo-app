@@ -1,10 +1,12 @@
+// src/components/PrivateRoute.jsx - VERSIÓN MEJORADA
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Spinner, Container } from 'react-bootstrap';
 
 const PrivateRoute = () => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -16,7 +18,12 @@ const PrivateRoute = () => {
     );
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+  // CORRECCIÓN: Guardar la ubicación actual para redirigir después del login
+  return isAuthenticated ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
+  );
 };
 
 export default PrivateRoute;

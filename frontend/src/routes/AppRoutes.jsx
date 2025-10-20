@@ -1,7 +1,9 @@
+// src/routes/AppRoutes.jsx - VERSIÓN TEMPORAL
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PrivateRoute from '../components/PrivateRoute';
 import AdminRoute from '../components/AdminRoute';
+import OrganizerRoute from '../components/OrganizerRoute';
 import UserAccountLayout from '../components/layout/UserAccountLayout';
 import Layout from '../components/layout/Layout';
 
@@ -15,23 +17,30 @@ import ContactPage from '../pages/ContactPage';
 import SubscriptionPage from '../pages/SubscriptionPage';
 
 // Páginas de usuario
-import DashboardPage from '../pages/user/DashboardPage';
+import EnhancedDashboardPage from '../pages/user/EnhancedDashboardPage';
 import ProfilePage from '../pages/user/ProfilePage';
 import HistoryPage from '../pages/user/HistoryPage';
+// import MyRegistrationsPage from '../pages/user/MyRegistrationsPage'; // Temporalmente comentado
+// import MyTeamsPage from '../pages/user/MyTeamsPage'; // Temporalmente comentado
+
+// Páginas de organizador
+import OrganizerDashboardPage from '../pages/organizer/OrganizerDashboardPage';
+// import OrganizerEventsPage from '../pages/organizer/OrganizerEventsPage'; // Temporalmente comentado
+// import CreateEventPage from '../pages/organizer/CreateEventPage'; // Temporalmente comentado
 
 // Páginas de administrador
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import ManageEventsPage from '../pages/admin/ManageEventsPage';
-// En las rutas de admin, agregar:
-<Route path="/admin/consultas" element={<QueriesPage />} />
+// import ManageUsersPage from '../pages/admin/ManageUsersPage'; // Temporalmente comentado
 import QueriesPage from '../pages/admin/QueriesPage';
+// import SystemSettingsPage from '../pages/admin/SystemSettingsPage'; // Temporalmente comentado
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Layout>
         <Routes>
-          {/* --- Rutas Públicas --- */}
+          {/* Rutas Públicas */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
@@ -40,23 +49,33 @@ const AppRoutes = () => {
           <Route path="/contacto" element={<ContactPage />} />
           <Route path="/plus" element={<SubscriptionPage />} />
 
-          {/* --- Rutas Privadas de Usuario --- */}
+          {/* Rutas Privadas de Usuario */}
           <Route element={<PrivateRoute />}>
             <Route element={<UserAccountLayout />}>
-              <Route path="/cuenta/dashboard" element={<DashboardPage />} />
+              <Route path="/cuenta/dashboard" element={<EnhancedDashboardPage />} />
               <Route path="/cuenta/perfil" element={<ProfilePage />} />
               <Route path="/cuenta/historial" element={<HistoryPage />} />
-              <Route path="/cuenta/eventos" element={<div>Mis Eventos - Próximamente</div>} />
+              {/* <Route path="/cuenta/inscripciones" element={<MyRegistrationsPage />} /> */}
+              {/* <Route path="/cuenta/equipos" element={<MyTeamsPage />} /> */}
               <Route path="/cuenta/configuracion" element={<div>Configuración - Próximamente</div>} />
             </Route>
           </Route>
 
-          {/* --- Rutas Privadas de Admin --- */}
+          {/* Rutas de Organizador */}
+          <Route element={<OrganizerRoute />}>
+            <Route path="/organizador/dashboard" element={<OrganizerDashboardPage />} />
+            {/* <Route path="/organizador/eventos" element={<OrganizerEventsPage />} /> */}
+            {/* <Route path="/organizador/eventos/nuevo" element={<CreateEventPage />} /> */}
+            {/* <Route path="/organizador/eventos/editar/:id" element={<CreateEventPage />} /> */}
+          </Route>
+
+          {/* Rutas de Administrador */}
           <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/eventos" element={<ManageEventsPage />} />
-             <Route path="/admin/consultas" element={<QueriesPage />} />
-            <Route path="/admin/usuarios" element={<div>Gestión de Usuarios - Próximamente</div>} />
+            {/* <Route path="/admin/usuarios" element={<ManageUsersPage />} /> */}
+            <Route path="/admin/consultas" element={<QueriesPage />} />
+            {/* <Route path="/admin/configuracion" element={<SystemSettingsPage />} /> */}
           </Route>
 
           {/* Ruta 404 */}
