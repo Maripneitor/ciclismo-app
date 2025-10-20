@@ -1,4 +1,3 @@
-// En components/common/Navbar.jsx
 import React from 'react';
 import { Navbar as BootstrapNavbar, Nav, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';

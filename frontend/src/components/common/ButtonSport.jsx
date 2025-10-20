@@ -1,4 +1,3 @@
-// src/components/common/ButtonSport.jsx
 import React from 'react';
 import { Button } from 'react-bootstrap';
 

@@ -7,20 +7,17 @@ const authController = {
             console.log('Registro - Datos recibidos:', req.body);
             const { nombre_completo, email, contrasena, rol = 'usuario' } = req.body;
 
-            // Validar campos requeridos
             if (!nombre_completo || !email || !contrasena) {
                 return res.status(400).json({
                     message: 'Todos los campos son requeridos: nombre_completo, email, contrasena'
                 });
             }
 
-            // Verificar si el usuario ya existe
             const existingUser = await User.findOne({ where: { email } });
             if (existingUser) {
                 return res.status(400).json({ message: 'El usuario ya existe' });
             }
 
-            // Crear usuario
             const user = await User.create({
                 nombre_completo,
                 email,
@@ -28,9 +25,8 @@ const authController = {
                 rol
             });
 
-            console.log('✅ Usuario creado:', user.usuario_id);
+            console.log('Usuario creado:', user.usuario_id);
 
-            // Generar token
             const token = jwt.sign(
                 {
                     usuario_id: user.usuario_id,
@@ -65,7 +61,6 @@ const authController = {
             console.log('LOGIN ATTEMPT - Datos recibidos:', req.body);
             const { email, contrasena } = req.body;
 
-            // Validar campos
             if (!email || !contrasena) {
                 console.log('Login: Faltan campos');
                 return res.status(400).json({
@@ -75,7 +70,6 @@ const authController = {
 
             console.log('Buscando usuario:', email);
 
-            // Buscar usuario
             const user = await User.findOne({ where: { email } });
             console.log('Usuario encontrado:', user ? `Si (ID: ${user.usuario_id})` : 'NO');
 
@@ -84,7 +78,6 @@ const authController = {
                 return res.status(401).json({ message: 'Credenciales inválidas' });
             }
 
-            // Verificar contraseña
             console.log('Verificando contraseña...');
             const isValidPassword = await user.validPassword(contrasena);
             console.log('Contraseña válida:', isValidPassword);
@@ -94,7 +87,6 @@ const authController = {
                 return res.status(401).json({ message: 'Credenciales inválidas' });
             }
 
-            // Generar token
             console.log('Generando token JWT...');
             const token = jwt.sign(
                 {

@@ -1,4 +1,4 @@
-    import React from 'react';
+import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -16,11 +16,10 @@ const DashboardPage = () => {
       </Row>
 
       <Row className="g-4">
-        {/* Tarjeta de Próximo Evento */}
         <Col md={6}>
           <Card className="h-100">
             <Card.Body>
-              <Card.Title>🚴 Mi Próximo Evento</Card.Title>
+              <Card.Title>Mi Próximo Evento</Card.Title>
               <Card.Text>
                 No tienes eventos próximos registrados.
               </Card.Text>
@@ -31,11 +30,10 @@ const DashboardPage = () => {
           </Card>
         </Col>
 
-        {/* Tarjeta de Último Resultado */}
         <Col md={6}>
           <Card className="h-100">
             <Card.Body>
-              <Card.Title>📊 Mi Último Resultado</Card.Title>
+              <Card.Title>Mi Último Resultado</Card.Title>
               <Card.Text>
                 Aún no has participado en eventos.
               </Card.Text>
@@ -46,7 +44,6 @@ const DashboardPage = () => {
           </Card>
         </Col>
 
-        {/* Estadísticas Rápidas */}
         <Col md={4}>
           <Card>
             <Card.Body className="text-center">
@@ -75,7 +72,6 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
-      {/* Acciones Rápidas */}
       <Row className="mt-4">
         <Col>
           <Card>

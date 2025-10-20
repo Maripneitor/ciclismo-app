@@ -1,4 +1,3 @@
-// src/pages/organizer/OrganizerDashboardPage.jsx - Versión corregida
 import React, { useState, useEffect } from 'react';
 import { 
   Container, 
@@ -31,7 +30,6 @@ const OrganizerDashboardPage = () => {
   const loadOrganizerEvents = async () => {
     try {
       setLoading(true);
-      // Intentar cargar eventos del organizador, si no existe, cargar todos
       let response;
       try {
         response = await eventsAPI.getOrganizerEvents();
@@ -41,11 +39,10 @@ const OrganizerDashboardPage = () => {
       }
       
       const eventsData = response.data || response;
-      setEvents(Array.isArray(eventsData) ? eventsData.slice(0, 10) : []); // Limitar para demo
+      setEvents(Array.isArray(eventsData) ? eventsData.slice(0, 10) : []);
     } catch (error) {
       console.error('Error loading events:', error);
       setError('Error cargando eventos. Usando datos de demostración.');
-      // Datos de demostración
       setEvents([
         {
           id: 1,
@@ -111,15 +108,11 @@ const OrganizerDashboardPage = () => {
     e.preventDefault();
     try {
       if (selectedEvent) {
-        // En un entorno real, aquí llamarías a la API
-        // await eventsAPI.update(selectedEvent.id, formData);
         setSuccess('Evento actualizado correctamente (modo demostración)');
       } else {
-        // await eventsAPI.create(formData);
         setSuccess('Evento creado correctamente (modo demostración)');
       }
       setShowModal(false);
-      // Recargar eventos después de un momento
       setTimeout(() => {
         loadOrganizerEvents();
       }, 1000);
@@ -132,7 +125,6 @@ const OrganizerDashboardPage = () => {
   const handleDeleteEvent = async (eventId) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este evento?')) {
       try {
-        // await eventsAPI.delete(eventId);
         setSuccess('Evento eliminado correctamente (modo demostración)');
         loadOrganizerEvents();
       } catch (error) {
@@ -154,13 +146,13 @@ const OrganizerDashboardPage = () => {
 
   const getEventTypeIcon = (type) => {
     const icons = {
-      'ruta': '🛣️',
-      'montana': '⛰️',
-      'urbano': '🏙️',
-      'competitivo': '🏆',
-      'recreativo': '😊'
+      'ruta': '',
+      'montana': '',
+      'urbano': '',
+      'competitivo': '',
+      'recreativo': ''
     };
-    return icons[type] || '🚴';
+    return icons[type] || '';
   };
 
   const stats = {
@@ -175,11 +167,11 @@ const OrganizerDashboardPage = () => {
         <Col>
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <h2>🎯 Panel del Organizador</h2>
+              <h2>Panel del Organizador</h2>
               <p className="text-muted">Gestiona tus eventos de ciclismo</p>
             </div>
             <Button variant="primary" onClick={handleCreateEvent}>
-              ➕ Crear Evento
+              Crear Evento
             </Button>
           </div>
         </Col>
@@ -188,12 +180,11 @@ const OrganizerDashboardPage = () => {
       {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
       {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
 
-      {/* Estadísticas */}
       <Row className="mb-4">
         <Col md={4}>
           <Card className="text-center stat-card">
             <Card.Body>
-              <div className="text-primary mb-2 fs-1">📅</div>
+              <div className="text-primary mb-2 fs-1"></div>
               <h3 className="text-primary">{stats.totalEvents}</h3>
               <p className="text-muted mb-0">Total Eventos</p>
             </Card.Body>
@@ -202,7 +193,7 @@ const OrganizerDashboardPage = () => {
         <Col md={4}>
           <Card className="text-center stat-card">
             <Card.Body>
-              <div className="text-success mb-2 fs-1">📊</div>
+              <div className="text-success mb-2 fs-1"></div>
               <h3 className="text-success">{stats.activeEvents}</h3>
               <p className="text-muted mb-0">Eventos Activos</p>
             </Card.Body>
@@ -211,7 +202,7 @@ const OrganizerDashboardPage = () => {
         <Col md={4}>
           <Card className="text-center stat-card">
             <Card.Body>
-              <div className="text-info mb-2 fs-1">👥</div>
+              <div className="text-info mb-2 fs-1"></div>
               <h3 className="text-info">{stats.totalParticipants}</h3>
               <p className="text-muted mb-0">Total Participantes</p>
             </Card.Body>
@@ -219,10 +210,9 @@ const OrganizerDashboardPage = () => {
         </Col>
       </Row>
 
-      {/* Lista de Eventos */}
       <Card>
         <Card.Header className="d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">📋 Mis Eventos</h5>
+          <h5 className="mb-0">Mis Eventos</h5>
           <Badge bg="primary" pill>
             {events.length} eventos
           </Badge>
@@ -237,7 +227,7 @@ const OrganizerDashboardPage = () => {
             </div>
           ) : events.length === 0 ? (
             <div className="text-center py-5">
-              <div className="text-muted mb-3 fs-1">📭</div>
+              <div className="text-muted mb-3 fs-1"></div>
               <p className="text-muted">No tienes eventos creados aún.</p>
               <Button variant="primary" onClick={handleCreateEvent}>
                 Crear Primer Evento
@@ -285,7 +275,7 @@ const OrganizerDashboardPage = () => {
                       </small>
                     </td>
                     <td>
-                      <small>📍 {event.ubicacion}</small>
+                      <small> {event.ubicacion}</small>
                     </td>
                     <td>
                       <Badge bg="info" pill>
@@ -305,7 +295,7 @@ const OrganizerDashboardPage = () => {
                           onClick={() => handleEditEvent(event)}
                           title="Editar evento"
                         >
-                          ✏️
+                          
                         </Button>
                         <Button 
                           variant="outline-danger" 
@@ -313,7 +303,7 @@ const OrganizerDashboardPage = () => {
                           onClick={() => handleDeleteEvent(event.id)}
                           title="Eliminar evento"
                         >
-                          🗑️
+                          
                         </Button>
                       </div>
                     </td>
@@ -325,11 +315,10 @@ const OrganizerDashboardPage = () => {
         </Card.Body>
       </Card>
 
-      {/* Modal para Crear/Editar Evento */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {selectedEvent ? '✏️ Editar Evento' : '➕ Crear Nuevo Evento'}
+            {selectedEvent ? 'Editar Evento' : 'Crear Nuevo Evento'}
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmitEvent}>
@@ -337,7 +326,7 @@ const OrganizerDashboardPage = () => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>📝 Nombre del Evento *</Form.Label>
+                  <Form.Label>Nombre del Evento *</Form.Label>
                   <Form.Control
                     type="text"
                     value={formData.nombre || ''}
@@ -349,7 +338,7 @@ const OrganizerDashboardPage = () => {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>📅 Fecha y Hora *</Form.Label>
+                  <Form.Label>Fecha y Hora *</Form.Label>
                   <Form.Control
                     type="datetime-local"
                     value={formData.fecha || ''}
@@ -361,7 +350,7 @@ const OrganizerDashboardPage = () => {
             </Row>
 
             <Form.Group className="mb-3">
-              <Form.Label>📄 Descripción</Form.Label>
+              <Form.Label>Descripción</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -374,7 +363,7 @@ const OrganizerDashboardPage = () => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>📍 Ubicación *</Form.Label>
+                  <Form.Label>Ubicación *</Form.Label>
                   <Form.Control
                     type="text"
                     value={formData.ubicacion || ''}
@@ -386,7 +375,7 @@ const OrganizerDashboardPage = () => {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>📏 Distancia (km)</Form.Label>
+                  <Form.Label>Distancia (km)</Form.Label>
                   <Form.Control
                     type="number"
                     value={formData.distancia || ''}
@@ -401,30 +390,30 @@ const OrganizerDashboardPage = () => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>🚴 Tipo de Evento</Form.Label>
+                  <Form.Label>Tipo de Evento</Form.Label>
                   <Form.Select
                     value={formData.tipo || 'ruta'}
                     onChange={(e) => setFormData({...formData, tipo: e.target.value})}
                   >
-                    <option value="ruta">🛣️ Ruta</option>
-                    <option value="montana">⛰️ Montaña</option>
-                    <option value="urbano">🏙️ Urbano</option>
-                    <option value="competitivo">🏆 Competitivo</option>
-                    <option value="recreativo">😊 Recreativo</option>
+                    <option value="ruta">Ruta</option>
+                    <option value="montana">Montaña</option>
+                    <option value="urbano">Urbano</option>
+                    <option value="competitivo">Competitivo</option>
+                    <option value="recreativo">Recreativo</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>📊 Estado</Form.Label>
+                  <Form.Label>Estado</Form.Label>
                   <Form.Select
                     value={formData.estado || 'proximamente'}
                     onChange={(e) => setFormData({...formData, estado: e.target.value})}
                   >
-                    <option value="proximamente">⏳ Próximamente</option>
-                    <option value="activo">✅ Activo</option>
-                    <option value="completado">🎯 Completado</option>
-                    <option value="cancelado">❌ Cancelado</option>
+                    <option value="proximamente">Próximamente</option>
+                    <option value="activo">Activo</option>
+                    <option value="completado">Completado</option>
+                    <option value="cancelado">Cancelado</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -432,17 +421,17 @@ const OrganizerDashboardPage = () => {
             
             <Alert variant="info" className="mt-3">
               <small>
-                💡 <strong>Modo demostración:</strong> Los datos se guardarán localmente. 
+                <strong>Modo demostración:</strong> Los datos se guardarán localmente. 
                 En producción, se conectaría con el backend.
               </small>
             </Alert>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowModal(false)}>
-              ✋ Cancelar
+              Cancelar
             </Button>
             <Button variant="primary" type="submit">
-              {selectedEvent ? '💾 Guardar Cambios' : '🚀 Crear Evento'}
+              {selectedEvent ? 'Guardar Cambios' : 'Crear Evento'}
             </Button>
           </Modal.Footer>
         </Form>

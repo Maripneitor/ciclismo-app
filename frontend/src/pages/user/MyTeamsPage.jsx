@@ -1,4 +1,3 @@
-// src/pages/user/MyTeamsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { teamsAPI } from '../../services/api';
@@ -34,7 +33,6 @@ const MyTeamsPage = () => {
     } catch (error) {
       console.error('Error cargando equipos:', error);
       setError('Error al cargar tus equipos');
-      // Datos de ejemplo para desarrollo
       setTeams([
         {
           equipo_id: 1,
@@ -139,12 +137,11 @@ const MyTeamsPage = () => {
         <Col>
           <Card>
             <Card.Header>
-              <h5 className="mb-0">👥 Mis Equipos</h5>
+              <h5 className="mb-0">Mis Equipos</h5>
             </Card.Header>
             <Card.Body>
               {teams.length === 0 ? (
                 <div className="text-center py-5">
-                  <div className="text-muted mb-3 fs-1">👥</div>
                   <p className="text-muted">No perteneces a ningún equipo aún.</p>
                   <div className="d-flex gap-2 justify-content-center">
                     <Button variant="primary" onClick={() => setShowCreateModal(true)}>
@@ -212,7 +209,6 @@ const MyTeamsPage = () => {
         </Col>
       </Row>
 
-      {/* Modal Crear Equipo */}
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Crear Nuevo Equipo</Modal.Title>
@@ -251,7 +247,6 @@ const MyTeamsPage = () => {
         </Form>
       </Modal>
 
-      {/* Modal Unirse a Equipo */}
       <Modal show={showJoinModal} onHide={() => setShowJoinModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Unirse a un Equipo</Modal.Title>

@@ -6,14 +6,13 @@ const Registration = require('./Registration');
 const Category = require('./Category');
 const Route = require('./Route');
 
-// Definir relaciones
+
 User.hasMany(Event, { foreignKey: 'organizador_id', as: 'eventosOrganizados' });
 Event.belongsTo(User, { foreignKey: 'organizador_id', as: 'organizador' });
 
 User.hasMany(Team, { foreignKey: 'capitan_usuario_id', as: 'equiposCapitaneados' });
 Team.belongsTo(User, { foreignKey: 'capitan_usuario_id', as: 'capitan' });
 
-// Relación muchos a muchos entre usuarios y equipos
 const TeamMember = sequelize.define('TeamMember', {}, { 
     tableName: 'miembros_equipos', 
     timestamps: false 

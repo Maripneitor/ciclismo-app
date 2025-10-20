@@ -8,11 +8,10 @@ const HomePage = () => {
 
   return (
     <Container>
-      {/* Hero Section */}
       <Row className="hero-section py-5 mb-4">
         <Col lg={6}>
           <h1 className="display-4 fw-bold mb-4">
-            Gestiona tus Eventos de Ciclismo 🚴‍♂️
+            Gestiona tus Eventos de Ciclismo
           </h1>
           <p className="lead mb-4">
             La plataforma todo en uno para organizar, participar y seguir 
@@ -48,18 +47,17 @@ const HomePage = () => {
                 fontSize: '5rem'
               }}
             >
-              🚴‍♂️
+              
             </div>
           </div>
         </Col>
       </Row>
 
-      {/* Features Section */}
       <Row className="mb-5">
         <Col md={4} className="mb-4">
           <Card className="h-100 text-center">
             <Card.Body>
-              <div className="feature-icon mb-3">📅</div>
+              <div className="feature-icon mb-3"></div>
               <Card.Title>Gestión de Eventos</Card.Title>
               <Card.Text>
                 Crea y gestiona eventos de ciclismo fácilmente. 
@@ -71,7 +69,7 @@ const HomePage = () => {
         <Col md={4} className="mb-4">
           <Card className="h-100 text-center">
             <Card.Body>
-              <div className="feature-icon mb-3">👥</div>
+              <div className="feature-icon mb-3"></div>
               <Card.Title>Comunidad Activa</Card.Title>
               <Card.Text>
                 Conecta con otros ciclistas. Participa en eventos 
@@ -83,7 +81,7 @@ const HomePage = () => {
         <Col md={4} className="mb-4">
           <Card className="h-100 text-center">
             <Card.Body>
-              <div className="feature-icon mb-3">📊</div>
+              <div className="feature-icon mb-3"></div>
               <Card.Title>Seguimiento de Resultados</Card.Title>
               <Card.Text>
                 Analiza tu desempeño con estadísticas detalladas 
@@ -97,5 +95,4 @@ const HomePage = () => {
   );
 };
 
-// ✅ Asegúrate de que tenga export default
 export default HomePage;

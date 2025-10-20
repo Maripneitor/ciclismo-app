@@ -32,7 +32,7 @@ const ManageEventsPage = () => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este evento?')) {
       try {
         await eventsAPI.delete(eventId);
-        loadEvents(); // Recargar la lista
+        loadEvents();
       } catch (error) {
         console.error('Error deleting event:', error);
         alert('Error al eliminar el evento');
@@ -151,7 +151,6 @@ const ManageEventsPage = () => {
         </Card.Body>
       </Card>
 
-      {/* Modal de Edición */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Editar Evento</Modal.Title>

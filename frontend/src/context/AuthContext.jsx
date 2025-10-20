@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx - VERSIÓN CORREGIDA
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authAPI } from '../services/api';
 
@@ -92,7 +91,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ CORREGIDO: Eliminar el doble pipe
   const value = {
     user,
     token,

@@ -41,21 +41,20 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      // ✅ CORRECCIÓN: Mapear los campos correctamente para el backend
       const userData = {
-        nombre_completo: formData.nombre,  // Backend espera 'nombre_completo'
+        nombre_completo: formData.nombre,
         email: formData.email,
-        contrasena: formData.password,     // Backend espera 'contrasena'
-        telefono: formData.telefono || '', // Opcional
-        rol: 'usuario'                     // Valor por defecto
+        contrasena: formData.password,
+        telefono: formData.telefono || '',
+        rol: 'usuario'
       };
       
-      console.log('📤 Datos de registro enviados:', userData);
+      console.log('Datos de registro enviados:', userData);
       await register(userData);
       navigate('/dashboard');
     } catch (error) {
       setError(error.message || 'Error en el registro');
-      console.error('❌ Error completo en registro:', error);
+      console.error('Error completo en registro:', error);
     } finally {
       setLoading(false);
     }

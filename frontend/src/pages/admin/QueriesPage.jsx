@@ -78,12 +78,11 @@ const QueriesPage = () => {
 
       {error && <Alert variant="danger">{error}</Alert>}
 
-      {/* Estadísticas Generales */}
       <Row className="mb-4">
         <Col>
           <Card>
             <Card.Header className="d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">📊 Estadísticas Generales</h5>
+              <h5 className="mb-0">Estadísticas Generales</h5>
               <Button onClick={fetchStats} disabled={loading}>
                 {loading ? <Spinner size="sm" /> : 'Actualizar'}
               </Button>
@@ -119,11 +118,10 @@ const QueriesPage = () => {
       </Row>
 
       <Row className="g-4">
-        {/* Estadísticas de Usuarios */}
         <Col lg={6}>
           <Card>
             <Card.Header>
-              <h5 className="mb-0">👥 Estadísticas de Usuarios</h5>
+              <h5 className="mb-0">Estadísticas de Usuarios</h5>
             </Card.Header>
             <Card.Body>
               {userStats ? (
@@ -161,11 +159,10 @@ const QueriesPage = () => {
           </Card>
         </Col>
 
-        {/* Estadísticas de Eventos */}
         <Col lg={6}>
           <Card>
             <Card.Header>
-              <h5 className="mb-0">🚴 Estadísticas de Eventos</h5>
+              <h5 className="mb-0">Estadísticas de Eventos</h5>
             </Card.Header>
             <Card.Body>
               {eventStats ? (
@@ -206,12 +203,11 @@ const QueriesPage = () => {
         </Col>
       </Row>
 
-      {/* Próximos Eventos */}
       <Row className="mt-4">
         <Col>
           <Card>
             <Card.Header>
-              <h5 className="mb-0">📅 Próximos Eventos</h5>
+              <h5 className="mb-0">Próximos Eventos</h5>
             </Card.Header>
             <Card.Body>
               {eventStats?.proximos_eventos ? (

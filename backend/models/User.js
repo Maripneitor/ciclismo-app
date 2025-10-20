@@ -39,7 +39,7 @@ const User = sequelize.define('User', {
     },
     telefono: {
         type: DataTypes.STRING(20),
-        allowNull: true // Hacerla opcional para compatibilidad
+        allowNull: true
     }
 }, {
     tableName: 'usuarios',

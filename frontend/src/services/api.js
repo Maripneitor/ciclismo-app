@@ -1,4 +1,3 @@
-// src/services/api.js - VERSIÓN MEJORADA
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -10,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Interceptor para agregar token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -24,7 +22,6 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para respuestas
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
@@ -40,7 +37,6 @@ api.interceptors.response.use(
   }
 );
 
-// Servicios de Autenticación
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   register: (userData) => api.post('/auth/register', userData),
@@ -48,7 +44,6 @@ export const authAPI = {
   updateProfile: (profileData) => api.put('/auth/profile', profileData),
 };
 
-// Servicios de Eventos
 export const eventsAPI = {
   getAll: () => api.get('/events'),
   getById: (id) => api.get(`/events/${id}`),
@@ -59,7 +54,6 @@ export const eventsAPI = {
   registerToEvent: (registrationData) => api.post('/events/register', registrationData),
 };
 
-// Servicios de Usuarios
 export const usersAPI = {
   getAll: () => api.get('/users'),
   getById: (id) => api.get(`/users/${id}`),
@@ -69,7 +63,6 @@ export const usersAPI = {
   getUserRegistrations: () => api.get('/users/my-registrations'),
 };
 
-// Servicios de Equipos
 export const teamsAPI = {
   getAll: () => api.get('/teams'),
   create: (teamData) => api.post('/teams', teamData),
@@ -79,7 +72,6 @@ export const teamsAPI = {
   getMyTeams: () => api.get('/teams/my-teams'),
 };
 
-// Servicios de Consultas
 export const queriesAPI = {
   getStats: () => api.get('/queries/stats'),
   getUserStats: () => api.get('/queries/users-stats'),

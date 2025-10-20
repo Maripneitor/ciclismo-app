@@ -3,16 +3,13 @@ const bcrypt = require('bcryptjs');
 
 async function initUsers() {
     try {
-        console.log('🔄 Inicializando usuarios de prueba...');
+        console.log('Inicializando usuarios de prueba...');
 
-        // Conectar a la base de datos
         await sequelize.authenticate();
-        console.log('✅ Conexión a PostgreSQL establecida');
+        console.log('Conexión a PostgreSQL establecida');
 
-        // Generar contraseña hasheada
         const hashedPassword = await bcrypt.hash('password123', 10);
 
-        // Definir los usuarios a crear
         const usersToCreate = [
             {
                 nombre_completo: 'Administrador Principal',
@@ -40,9 +37,8 @@ async function initUsers() {
             }
         ];
 
-        console.log('👥 Creando usuarios...');
+        console.log('Creando usuarios...');
 
-        // Crear usuarios (ignorar si ya existen)
         for (const userData of usersToCreate) {
             try {
                 const [user, created] = await User.findOrCreate({
@@ -51,11 +47,10 @@ async function initUsers() {
                 });
 
                 if (created) {
-                    console.log(`✅ Usuario creado: ${userData.email} (${userData.rol})`);
+                    console.log(`Usuario creado: ${userData.email} (${userData.rol})`);
                 } else {
-                    console.log(`⚠️ Usuario ya existe: ${userData.email}`);
+                    console.log(`Usuario ya existe: ${userData.email}`);
                     
-                    // Actualizar contraseña y datos del usuario existente
                     await User.update(
                         { 
                             contrasena: hashedPassword,
@@ -66,20 +61,19 @@ async function initUsers() {
                         },
                         { where: { email: userData.email } }
                     );
-                    console.log(`✅ Usuario actualizado: ${userData.email}`);
+                    console.log(`Usuario actualizado: ${userData.email}`);
                 }
             } catch (error) {
-                console.error(`❌ Error con ${userData.email}:`, error.message);
+                console.error(`Error con ${userData.email}:`, error.message);
             }
         }
 
-        // Verificar usuarios creados
-        console.log('\n📋 VERIFICACIÓN DE USUARIOS:');
+        console.log('\nVERIFICACIÓN DE USUARIOS:');
         const allUsers = await User.findAll({
             attributes: ['usuario_id', 'nombre_completo', 'email', 'rol', 'puede_crear_equipo']
         });
 
-        console.log('\n👥 LISTA DE USUARIOS:');
+        console.log('\nLISTA DE USUARIOS:');
         allUsers.forEach(user => {
             console.log(`   ${user.usuario_id}. ${user.nombre_completo}`);
             console.log(`      Email: ${user.email}`);
@@ -88,21 +82,20 @@ async function initUsers() {
             console.log('');
         });
 
-        console.log('✅ USUARIOS INICIALIZADOS CORRECTAMENTE!');
-        console.log('\n🔑 CREDENCIALES PARA PROBAR:');
-        console.log('   👑 Admin: admin@ciclismo.com / password123');
-        console.log('   🎯 Organizador: organizador@ciclismo.com / password123');
-        console.log('   👤 Usuario: usuario@ciclismo.com / password123');
+        console.log('USUARIOS INICIALIZADOS CORRECTAMENTE!');
+        console.log('\nCREDENCIALES PARA PROBAR:');
+        console.log('   Admin: admin@ciclismo.com / password123');
+        console.log('   Organizador: organizador@ciclismo.com / password123');
+        console.log('   Usuario: usuario@ciclismo.com / password123');
 
     } catch (error) {
-        console.error('❌ Error inicializando usuarios:', error);
+        console.error('Error inicializando usuarios:', error);
     } finally {
         await sequelize.close();
-        console.log('\n🔒 Conexión cerrada');
+        console.log('\nConexión cerrada');
     }
 }
 
-// Ejecutar si se llama directamente
 if (require.main === module) {
     initUsers();
 }

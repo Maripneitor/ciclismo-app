@@ -24,7 +24,6 @@ const DashboardPage = () => {
       const response = await eventsAPI.getAll();
       setEvents(response.data);
       
-      // Calcular estadísticas básicas
       const upcoming = response.data.filter(event => 
         new Date(event.fecha) > new Date()
       ).length;
@@ -55,7 +54,6 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
-      {/* Estadísticas rápidas */}
       <Row className="mb-4">
         <Col md={3}>
           <Card className="text-center">
@@ -92,21 +90,20 @@ const DashboardPage = () => {
       </Row>
 
       <Row className="g-4">
-        {/* Próximo Evento */}
         <Col lg={6}>
           <Card className="h-100">
             <Card.Header>
-              <h5 className="mb-0">🚴 Mi Próximo Evento</h5>
+              <h5 className="mb-0">Mi Próximo Evento</h5>
             </Card.Header>
             <Card.Body>
               {upcomingEvents.length > 0 ? (
                 <div>
                   <h6>{upcomingEvents[0].nombre}</h6>
                   <p className="text-muted mb-2">
-                    📍 {upcomingEvents[0].ubicacion}
+                    {upcomingEvents[0].ubicacion}
                   </p>
                   <p className="text-muted mb-2">
-                    📅 {new Date(upcomingEvents[0].fecha).toLocaleDateString('es-ES', {
+                    {new Date(upcomingEvents[0].fecha).toLocaleDateString('es-ES', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
@@ -114,7 +111,7 @@ const DashboardPage = () => {
                     })}
                   </p>
                   <p className="text-muted mb-3">
-                    📏 {upcomingEvents[0].distancia} km • {upcomingEvents[0].tipo}
+                    {upcomingEvents[0].distancia} km • {upcomingEvents[0].tipo}
                   </p>
                   <div className="d-flex gap-2">
                     <Button variant="primary" size="sm">
@@ -137,11 +134,10 @@ const DashboardPage = () => {
           </Card>
         </Col>
 
-        {/* Progreso Mensual */}
         <Col lg={6}>
           <Card className="h-100">
             <Card.Header>
-              <h5 className="mb-0">📈 Mi Progreso</h5>
+              <h5 className="mb-0">Mi Progreso</h5>
             </Card.Header>
             <Card.Body>
               <div className="mb-3">
@@ -171,11 +167,10 @@ const DashboardPage = () => {
           </Card>
         </Col>
 
-        {/* Acciones Rápidas */}
         <Col md={12}>
           <Card>
             <Card.Header>
-              <h5 className="mb-0">⚡ Acciones Rápidas</h5>
+              <h5 className="mb-0">Acciones Rápidas</h5>
             </Card.Header>
             <Card.Body>
               <div className="d-flex gap-3 flex-wrap">
@@ -201,11 +196,10 @@ const DashboardPage = () => {
           </Card>
         </Col>
 
-        {/* Eventos Próximos */}
         <Col md={12}>
           <Card>
             <Card.Header className="d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">📅 Próximos Eventos</h5>
+              <h5 className="mb-0">Próximos Eventos</h5>
               <Button as={Link} to="/eventos" variant="outline-primary" size="sm">
                 Ver Todos
               </Button>
@@ -219,10 +213,10 @@ const DashboardPage = () => {
                         <Card.Body>
                           <h6>{event.nombre}</h6>
                           <p className="text-muted small mb-1">
-                            📍 {event.ubicacion}
+                            {event.ubicacion}
                           </p>
                           <p className="text-muted small mb-2">
-                            📅 {new Date(event.fecha).toLocaleDateString()}
+                            {new Date(event.fecha).toLocaleDateString()}
                           </p>
                           <div className="d-flex justify-content-between align-items-center">
                             <span className="badge bg-primary">

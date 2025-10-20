@@ -19,11 +19,9 @@ const ContactPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simular envío del formulario
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 5000);
     
-    // Reset form
     setFormData({
       nombre: '',
       email: '',
@@ -122,17 +120,17 @@ const ContactPage = () => {
                   <h5>Información de Contacto</h5>
                   
                   <div className="mb-4">
-                    <h6>📧 Email</h6>
+                    <h6>Email</h6>
                     <p className="text-muted mb-0">info@ciclismoapp.com</p>
                   </div>
 
                   <div className="mb-4">
-                    <h6>📞 Teléfono</h6>
+                    <h6>Teléfono</h6>
                     <p className="text-muted mb-0">+34 912 345 678</p>
                   </div>
 
                   <div className="mb-4">
-                    <h6>🕒 Horario de Atención</h6>
+                    <h6>Horario de Atención</h6>
                     <p className="text-muted mb-0">
                       Lunes - Viernes: 9:00 - 18:00<br />
                       Sábados: 10:00 - 14:00
@@ -140,7 +138,7 @@ const ContactPage = () => {
                   </div>
 
                   <div>
-                    <h6>📍 Dirección</h6>
+                    <h6>Dirección</h6>
                     <p className="text-muted mb-0">
                       Calle del Ciclismo, 123<br />
                       28001 Madrid, España

@@ -1,4 +1,3 @@
-// src/components/forms/RegistrationForm.jsx
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Button, Alert, Card } from 'react-bootstrap';
 import { eventsAPI } from '../../services/api';
@@ -27,11 +26,9 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
 
   const loadEventData = async () => {
     try {
-      // Cargar categorías del evento
       const cats = await eventsAPI.getCategories(event.evento_id);
       setCategories(cats);
       
-      // Cargar equipos del usuario
       const userTeams = await teamsAPI.getMyTeams();
       setTeams(userTeams);
     } catch (error) {

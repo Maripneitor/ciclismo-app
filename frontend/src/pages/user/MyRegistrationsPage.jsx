@@ -1,4 +1,3 @@
-// src/pages/user/MyRegistrationsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Alert } from 'react-bootstrap';
 import { usersAPI } from '../../services/api';
@@ -22,7 +21,6 @@ const MyRegistrationsPage = () => {
     } catch (error) {
       console.error('Error cargando inscripciones:', error);
       setError('Error al cargar tus inscripciones');
-      // Datos de ejemplo para desarrollo
       setRegistrations([
         {
           inscripcion_id: 1,
@@ -103,12 +101,11 @@ const MyRegistrationsPage = () => {
         <Col>
           <Card>
             <Card.Header>
-              <h5 className="mb-0">📋 Lista de Inscripciones</h5>
+              <h5 className="mb-0">Lista de Inscripciones</h5>
             </Card.Header>
             <Card.Body>
               {registrations.length === 0 ? (
                 <div className="text-center py-5">
-                  <div className="text-muted mb-3 fs-1">📭</div>
                   <p className="text-muted">No tienes inscripciones activas.</p>
                   <Button variant="primary" href="/eventos">
                     Explorar Eventos
@@ -174,7 +171,6 @@ const MyRegistrationsPage = () => {
         </Col>
       </Row>
 
-      {/* Estadísticas rápidas */}
       <Row className="mt-4">
         <Col md={3}>
           <Card className="text-center">

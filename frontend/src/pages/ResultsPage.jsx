@@ -6,7 +6,6 @@ const ResultsPage = () => {
   const { isAuthenticated, user } = useAuth();
   const [activeTab, setActiveTab] = useState('publicos');
 
-  // Datos de ejemplo
   const publicResults = [
     { id: 1, evento: 'Gran Fondo Sierra Nevada', fecha: '2024-01-15', ganador: 'Carlos Rodríguez', tiempo: '2:45:30' },
     { id: 2, evento: 'Carrera Montaña Madrid', fecha: '2024-01-10', ganador: 'Ana Martínez', tiempo: '3:15:45' },
@@ -32,7 +31,7 @@ const ResultsPage = () => {
         onSelect={(tab) => setActiveTab(tab)}
         className="mb-4"
       >
-        <Tab eventKey="publicos" title="📊 Resultados Públicos">
+        <Tab eventKey="publicos" title="Resultados Públicos">
           <Card>
             <Card.Header>
               <h5 className="mb-0">Resultados de Todos los Eventos</h5>
@@ -69,7 +68,7 @@ const ResultsPage = () => {
         </Tab>
 
         {isAuthenticated && (
-          <Tab eventKey="personales" title="🎯 Mis Resultados">
+          <Tab eventKey="personales" title="Mis Resultados">
             <Card>
               <Card.Header>
                 <h5 className="mb-0">Mi Historial de Resultados</h5>

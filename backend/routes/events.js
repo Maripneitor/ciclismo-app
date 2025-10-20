@@ -3,7 +3,6 @@ const router = express.Router();
 const { Event } = require('../models');
 const { auth, authorize } = require('../middleware/auth');
 
-// GET /api/events - Obtener todos los eventos (público)
 router.get('/', async (req, res) => {
     try {
         const events = await Event.findAll({
@@ -18,7 +17,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET /api/events/:id - Obtener un evento específico
 router.get('/:id', async (req, res) => {
     try {
         const event = await Event.findByPk(req.params.id);
@@ -34,7 +32,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST /api/events - Crear nuevo evento (solo organizadores y admin)
 router.post('/', auth, authorize('organizador', 'admin'), async (req, res) => {
     try {
         const eventData = {
@@ -55,7 +52,6 @@ router.post('/', auth, authorize('organizador', 'admin'), async (req, res) => {
     }
 });
 
-// PUT /api/events/:id - Actualizar evento
 router.put('/:id', auth, authorize('organizador', 'admin'), async (req, res) => {
     try {
         const event = await Event.findByPk(req.params.id);
@@ -63,7 +59,6 @@ router.put('/:id', auth, authorize('organizador', 'admin'), async (req, res) => 
             return res.status(404).json({ message: 'Evento no encontrado' });
         }
 
-        // Verificar que el usuario es el organizador o admin
         if (event.organizador_id !== req.user.usuario_id && req.user.rol !== 'admin') {
             return res.status(403).json({
                 message: 'No tienes permisos para editar este evento'
@@ -83,7 +78,6 @@ router.put('/:id', auth, authorize('organizador', 'admin'), async (req, res) => 
     }
 });
 
-// DELETE /api/events/:id - Eliminar evento
 router.delete('/:id', auth, authorize('organizador', 'admin'), async (req, res) => {
     try {
         const event = await Event.findByPk(req.params.id);
@@ -91,7 +85,6 @@ router.delete('/:id', auth, authorize('organizador', 'admin'), async (req, res) 
             return res.status(404).json({ message: 'Evento no encontrado' });
         }
 
-        // Verificar que el usuario es el organizador o admin
         if (event.organizador_id !== req.user.usuario_id && req.user.rol !== 'admin') {
             return res.status(403).json({
                 message: 'No tienes permisos para eliminar este evento'

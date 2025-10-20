@@ -3,7 +3,6 @@ const router = express.Router();
 const { User, Event, Registration, sequelize } = require('../models');
 const { auth, authorize } = require('../middleware/auth');
 
-// GET /api/queries/stats - Estadísticas generales
 router.get('/stats', async (req, res) => {
   try {
     const stats = await sequelize.query(`
@@ -21,7 +20,6 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// GET /api/queries/users-stats - Estadísticas de usuarios
 router.get('/users-stats', auth, authorize('admin'), async (req, res) => {
   try {
     const userStats = await User.findAll({
@@ -52,7 +50,6 @@ router.get('/users-stats', auth, authorize('admin'), async (req, res) => {
   }
 });
 
-// GET /api/queries/events-stats - Estadísticas de eventos
 router.get('/events-stats', async (req, res) => {
   try {
     const eventStats = await Event.findAll({
@@ -86,7 +83,6 @@ router.get('/events-stats', async (req, res) => {
   }
 });
 
-// GET /api/queries/top-organizadores - Top organizadores
 router.get('/top-organizadores', async (req, res) => {
   try {
     const topOrganizadores = await sequelize.query(`
@@ -111,7 +107,6 @@ router.get('/top-organizadores', async (req, res) => {
   }
 });
 
-// GET /api/queries/event-details/:id - Detalles completos de un evento
 router.get('/event-details/:id', async (req, res) => {
   try {
     const eventId = req.params.id;

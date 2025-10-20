@@ -3,10 +3,9 @@ const bcrypt = require('bcryptjs');
 
 async function fixDatabaseFinal() {
     try {
-        console.log('🔧 INICIANDO REPARACIÓN COMPLETA DE LA BASE DE DATOS...');
-        
-        // Paso 1: Verificar la restricción actual
-        console.log('📋 Verificando restricciones existentes...');
+        console.log('INICIANDO REPARACIÓN COMPLETA DE LA BASE DE DATOS...');
+
+        console.log('Verificando restricciones existentes...');
         const constraints = await sequelize.query(`
             SELECT 
                 conname as constraint_name,
@@ -18,37 +17,33 @@ async function fixDatabaseFinal() {
             type: sequelize.QueryTypes.SELECT
         });
         
-        console.log('🔍 Restricciones encontradas:');
+        console.log('Restricciones encontradas:');
         constraints.forEach(constraint => {
             console.log(`   - ${constraint.constraint_name}: ${constraint.constraint_definition}`);
         });
-        
-        // Paso 2: Eliminar restricciones CHECK existentes
-        console.log('🔄 Eliminando restricciones CHECK existentes...');
+
+        console.log('Eliminando restricciones CHECK existentes...');
         for (const constraint of constraints) {
             if (constraint.constraint_name.includes('rol_check')) {
                 await sequelize.query(`
                     ALTER TABLE usuarios DROP CONSTRAINT "${constraint.constraint_name}"
                 `);
-                console.log(`✅ Restricción eliminada: ${constraint.constraint_name}`);
+                console.log(`Restricción eliminada: ${constraint.constraint_name}`);
             }
         }
-        
-        // Paso 3: Crear nueva restricción que incluya 'admin'
-        console.log('➕ Creando nueva restricción CHECK...');
+
+        console.log('Creando nueva restricción CHECK...');
         await sequelize.query(`
             ALTER TABLE usuarios 
             ADD CONSTRAINT usuarios_rol_check 
             CHECK (rol IN ('usuario', 'organizador', 'admin'))
         `);
-        console.log('✅ Nueva restricción CHECK creada');
-        
-        // Paso 4: Generar contraseña hasheada
-        console.log('🔑 Generando contraseña hasheada...');
+        console.log('Nueva restricción CHECK creada');
+
+        console.log('Generando contraseña hasheada...');
         const hashedPassword = await bcrypt.hash('password123', 10);
-        
-        // Paso 5: Actualizar usuarios
-        console.log('👤 Actualizando usuarios...');
+
+        console.log('Actualizando usuarios...');
         const updateResult = await sequelize.query(`
             UPDATE usuarios 
             SET 
@@ -74,10 +69,9 @@ async function fixDatabaseFinal() {
             type: sequelize.QueryTypes.UPDATE
         });
         
-        console.log('✅ Usuarios actualizados correctamente');
-        
-        // Paso 6: Verificar cambios finales
-        console.log('\n📊 VERIFICACIÓN FINAL:');
+        console.log('Usuarios actualizados correctamente');
+
+        console.log('\nVERIFICACIÓN FINAL:');
         const users = await sequelize.query(`
             SELECT 
                 usuario_id, 
@@ -103,8 +97,7 @@ async function fixDatabaseFinal() {
             console.log(`      Longitud contraseña: ${user.password_length} caracteres`);
             console.log('');
         });
-        
-        // Verificar la nueva restricción
+
         const newConstraints = await sequelize.query(`
             SELECT pg_get_constraintdef(oid) as constraint_def
             FROM pg_constraint 
@@ -114,28 +107,27 @@ async function fixDatabaseFinal() {
             type: sequelize.QueryTypes.SELECT
         });
         
-        console.log('🔒 RESTRICCIÓN CHECK ACTUAL:');
+        console.log('RESTRICCIÓN CHECK ACTUAL:');
         newConstraints.forEach(constraint => {
             console.log(`   ${constraint.constraint_def}`);
         });
         
-        console.log('\n🎉 REPARACIÓN COMPLETADA EXITOSAMENTE!');
-        console.log('\n🔑 CREDENCIALES PARA LOGIN:');
-        console.log('   👑 Admin: admin@ciclismo.com / password123');
-        console.log('   🎯 Organizador: organizador@ciclismo.com / password123');
-        console.log('   👤 Usuario: usuario@ciclismo.com / password123');
-        console.log('\n🚀 Ahora puedes reiniciar el servidor y probar el login.');
+        console.log('\nREPARACIÓN COMPLETADA EXITOSAMENTE!');
+        console.log('\nCREDENCIALES PARA LOGIN:');
+        console.log('  Admin: admin@ciclismo.com / password123');
+        console.log(' Organizador: organizador@ciclismo.com / password123');
+        console.log('   Usuario: usuario@ciclismo.com / password123');
+        console.log('\n Ahora puedes reiniciar el servidor y probar el login.');
         
     } catch (error) {
-        console.error('❌ Error en la reparación:', error);
+        console.error('Error en la reparación:', error);
         console.error('Detalles:', error.message);
     } finally {
         await sequelize.close();
-        console.log('\n🔒 Conexión a la base de datos cerrada.');
+        console.log('\nConexión a la base de datos cerrada.');
     }
 }
 
-// Ejecutar si se llama directamente
 if (require.main === module) {
     fixDatabaseFinal();
 }
