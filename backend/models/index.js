@@ -5,14 +5,17 @@ const Team = require('./Team');
 const Registration = require('./Registration');
 const Category = require('./Category');
 const Route = require('./Route');
+const TallaPlayera = require('./TallaPlayera');
+const Resultado = require('./Resultado');
 
-
+// Definir relaciones
 User.hasMany(Event, { foreignKey: 'organizador_id', as: 'eventosOrganizados' });
 Event.belongsTo(User, { foreignKey: 'organizador_id', as: 'organizador' });
 
 User.hasMany(Team, { foreignKey: 'capitan_usuario_id', as: 'equiposCapitaneados' });
 Team.belongsTo(User, { foreignKey: 'capitan_usuario_id', as: 'capitan' });
 
+// Relacion muchos a muchos entre usuarios y equipos
 const TeamMember = sequelize.define('TeamMember', {}, { 
     tableName: 'miembros_equipos', 
     timestamps: false 
@@ -47,6 +50,15 @@ Category.belongsTo(Event, { foreignKey: 'evento_id', as: 'evento' });
 Event.hasMany(Route, { foreignKey: 'evento_id', as: 'rutas' });
 Route.belongsTo(Event, { foreignKey: 'evento_id', as: 'evento' });
 
+Registration.belongsTo(TallaPlayera, { foreignKey: 'talla_playera_id', as: 'talla' });
+TallaPlayera.hasMany(Registration, { foreignKey: 'talla_playera_id', as: 'inscripciones' });
+
+Event.hasMany(Resultado, { foreignKey: 'evento_id', as: 'resultados' });
+Resultado.belongsTo(Event, { foreignKey: 'evento_id', as: 'evento' });
+
+User.hasMany(Resultado, { foreignKey: 'usuario_id', as: 'resultados' });
+Resultado.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+
 module.exports = {
     sequelize,
     User,
@@ -55,5 +67,7 @@ module.exports = {
     Registration,
     Category,
     Route,
+    TallaPlayera,
+    Resultado,
     TeamMember
 };

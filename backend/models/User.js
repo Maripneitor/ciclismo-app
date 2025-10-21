@@ -58,8 +58,6 @@ const User = sequelize.define('User', {
     }
 });
 
-User.prototype.validPassword = function(password) {
-    return bcrypt.compare(password, this.contrasena);
-};
+// **ELIMINAR el método validPassword problemático - usar bcrypt.compare directamente**
 
 module.exports = User;

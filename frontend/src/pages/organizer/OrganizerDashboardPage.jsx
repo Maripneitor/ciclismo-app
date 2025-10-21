@@ -9,7 +9,8 @@ import {
   Badge,
   Modal,
   Form,
-  Alert
+  Alert,
+  ProgressBar
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { eventsAPI } from '../../services/api';
@@ -20,6 +21,13 @@ const OrganizerDashboardPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [formData, setFormData] = useState({});
+  const [stats, setStats] = useState({
+    totalEvents: 0,
+    activeEvents: 0,
+    totalParticipants: 0,
+    upcomingEvents: 0,
+    completedEvents: 0
+  });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -39,34 +47,60 @@ const OrganizerDashboardPage = () => {
       }
       
       const eventsData = response.data || response;
-      setEvents(Array.isArray(eventsData) ? eventsData.slice(0, 10) : []);
+      const eventsArray = Array.isArray(eventsData) ? eventsData.slice(0, 10) : [];
+      setEvents(eventsArray);
+
+      const now = new Date();
+      const statsData = {
+        totalEvents: eventsArray.length,
+        activeEvents: eventsArray.filter(e => e.estado === 'activo' || e.estado === 'En Curso').length,
+        upcomingEvents: eventsArray.filter(e => e.estado === 'proximamente' || e.estado === 'Próximo').length,
+        completedEvents: eventsArray.filter(e => e.estado === 'completado' || e.estado === 'Finalizado').length,
+        totalParticipants: eventsArray.reduce((sum, event) => sum + (event.inscritos || 0), 0)
+      };
+      setStats(statsData);
+
     } catch (error) {
       console.error('Error loading events:', error);
       setError('Error cargando eventos. Usando datos de demostración.');
-      setEvents([
+      const demoEvents = [
         {
           id: 1,
+          evento_id: 1,
           nombre: 'Gran Fondo Sierra Nevada',
           descripcion: 'Evento de montaña en la sierra nevada',
           fecha: '2024-02-15T08:00:00',
           ubicacion: 'Granada, España',
           distancia: 120,
+          distancia_km: 120,
           tipo: 'montana',
           estado: 'activo',
-          inscritos: 45
+          inscritos: 45,
+          maximo_participantes: 100
         },
         {
           id: 2,
+          evento_id: 2,
           nombre: 'Carrera Nocturna Madrid',
           descripcion: 'Carrera urbana nocturna por el centro de Madrid',
           fecha: '2024-02-20T20:00:00',
           ubicacion: 'Madrid, España',
           distancia: 45,
+          distancia_km: 45,
           tipo: 'urbano',
           estado: 'proximamente',
-          inscritos: 28
+          inscritos: 28,
+          maximo_participantes: 50
         }
-      ]);
+      ];
+      setEvents(demoEvents);
+      setStats({
+        totalEvents: demoEvents.length,
+        activeEvents: demoEvents.filter(e => e.estado === 'activo').length,
+        upcomingEvents: demoEvents.filter(e => e.estado === 'proximamente').length,
+        completedEvents: 0,
+        totalParticipants: demoEvents.reduce((sum, event) => sum + (event.inscritos || 0), 0)
+      });
     } finally {
       setLoading(false);
     }
@@ -95,7 +129,7 @@ const OrganizerDashboardPage = () => {
       descripcion: event.descripcion || '',
       fecha: event.fecha ? event.fecha.split('.')[0].slice(0, 16) : '',
       ubicacion: event.ubicacion || '',
-      distancia: event.distancia || '',
+      distancia: event.distancia || event.distancia_km || '',
       tipo: event.tipo || 'ruta',
       estado: event.estado || 'proximamente'
     });
@@ -136,9 +170,12 @@ const OrganizerDashboardPage = () => {
 
   const getStatusVariant = (status) => {
     switch (status) {
-      case 'activo': return 'success';
-      case 'proximamente': return 'warning';
-      case 'completado': return 'secondary';
+      case 'activo':
+      case 'En Curso': return 'success';
+      case 'proximamente':
+      case 'Próximo': return 'warning';
+      case 'completado':
+      case 'Finalizado': return 'secondary';
       case 'cancelado': return 'danger';
       default: return 'secondary';
     }
@@ -148,6 +185,7 @@ const OrganizerDashboardPage = () => {
     const icons = {
       'ruta': '',
       'montana': '',
+      'montaña': '',
       'urbano': '',
       'competitivo': '',
       'recreativo': ''
@@ -155,10 +193,15 @@ const OrganizerDashboardPage = () => {
     return icons[type] || '';
   };
 
-  const stats = {
-    totalEvents: events.length,
-    activeEvents: events.filter(e => e.estado === 'activo').length,
-    totalParticipants: events.reduce((sum, event) => sum + (event.inscritos || 0), 0)
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No definida';
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -181,7 +224,7 @@ const OrganizerDashboardPage = () => {
       {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
 
       <Row className="mb-4">
-        <Col md={4}>
+        <Col md={2}>
           <Card className="text-center stat-card">
             <Card.Body>
               <div className="text-primary mb-2 fs-1"></div>
@@ -190,21 +233,104 @@ const OrganizerDashboardPage = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col md={4}>
+        <Col md={2}>
           <Card className="text-center stat-card">
             <Card.Body>
               <div className="text-success mb-2 fs-1"></div>
               <h3 className="text-success">{stats.activeEvents}</h3>
-              <p className="text-muted mb-0">Eventos Activos</p>
+              <p className="text-muted mb-0">Activos</p>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={4}>
+        <Col md={2}>
+          <Card className="text-center stat-card">
+            <Card.Body>
+              <div className="text-warning mb-2 fs-1"></div>
+              <h3 className="text-warning">{stats.upcomingEvents}</h3>
+              <p className="text-muted mb-0">Próximos</p>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={2}>
           <Card className="text-center stat-card">
             <Card.Body>
               <div className="text-info mb-2 fs-1"></div>
               <h3 className="text-info">{stats.totalParticipants}</h3>
-              <p className="text-muted mb-0">Total Participantes</p>
+              <p className="text-muted mb-0">Participantes</p>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={2}>
+          <Card className="text-center stat-card">
+            <Card.Body>
+              <div className="text-secondary mb-2 fs-1"></div>
+              <h3 className="text-secondary">{stats.completedEvents}</h3>
+              <p className="text-muted mb-0">Finalizados</p>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={2}>
+          <Card className="text-center stat-card">
+            <Card.Body>
+              <div className="text-dark mb-2 fs-1"></div>
+              <h3 className="text-dark">
+                {stats.totalEvents > 0 ? Math.round((stats.completedEvents / stats.totalEvents) * 100) : 0}%
+              </h3>
+              <p className="text-muted mb-0">Tasa de éxito</p>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row className="mb-4">
+        <Col>
+          <Card>
+            <Card.Header>
+              <h5 className="mb-0">Resumen de Actividad</h5>
+            </Card.Header>
+            <Card.Body>
+              <Row>
+                <Col md={6}>
+                  <div className="mb-3">
+                    <div className="d-flex justify-content-between mb-1">
+                      <span>Distribución de Eventos</span>
+                    </div>
+                    <div className="mb-2">
+                      <small>Próximos: {stats.upcomingEvents}</small>
+                      <ProgressBar 
+                        now={stats.totalEvents > 0 ? (stats.upcomingEvents / stats.totalEvents) * 100 : 0} 
+                        variant="warning" 
+                        className="mb-1" 
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <small>En Curso: {stats.activeEvents}</small>
+                      <ProgressBar 
+                        now={stats.totalEvents > 0 ? (stats.activeEvents / stats.totalEvents) * 100 : 0} 
+                        variant="success" 
+                        className="mb-1" 
+                      />
+                    </div>
+                    <div>
+                      <small>Finalizados: {stats.completedEvents}</small>
+                      <ProgressBar 
+                        now={stats.totalEvents > 0 ? (stats.completedEvents / stats.totalEvents) * 100 : 0} 
+                        variant="secondary" 
+                        className="mb-1" 
+                      />
+                    </div>
+                  </div>
+                </Col>
+                <Col md={6}>
+                  <div className="text-center">
+                    <h6>Participación Promedio</h6>
+                    <div className="display-4 text-primary">
+                      {stats.totalEvents > 0 ? Math.round(stats.totalParticipants / stats.totalEvents) : 0}
+                    </div>
+                    <p className="text-muted">participantes por evento</p>
+                  </div>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
         </Col>
@@ -212,10 +338,18 @@ const OrganizerDashboardPage = () => {
 
       <Card>
         <Card.Header className="d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Mis Eventos</h5>
-          <Badge bg="primary" pill>
-            {events.length} eventos
-          </Badge>
+          <div>
+            <h5 className="mb-0">Mis Eventos</h5>
+            <small className="text-muted">Gestiona todos tus eventos creados</small>
+          </div>
+          <div>
+            <Badge bg="primary" className="me-2">
+              Total: {events.length}
+            </Badge>
+            <Button variant="outline-primary" size="sm" onClick={handleCreateEvent}>
+              Nuevo Evento
+            </Button>
+          </div>
         </Card.Header>
         <Card.Body>
           {loading ? (
@@ -230,7 +364,7 @@ const OrganizerDashboardPage = () => {
               <div className="text-muted mb-3 fs-1"></div>
               <p className="text-muted">No tienes eventos creados aún.</p>
               <Button variant="primary" onClick={handleCreateEvent}>
-                Crear Primer Evento
+                Crear Mi Primer Evento
               </Button>
             </div>
           ) : (
@@ -247,7 +381,7 @@ const OrganizerDashboardPage = () => {
               </thead>
               <tbody>
                 {events.map((event) => (
-                  <tr key={event.id}>
+                  <tr key={event.evento_id || event.id}>
                     <td>
                       <div className="d-flex align-items-start">
                         <span className="fs-5 me-2">
@@ -262,25 +396,39 @@ const OrganizerDashboardPage = () => {
                               </small>
                             </div>
                           )}
+                          <div>
+                            <small className="text-muted">
+                              {event.distancia_km || event.distancia || '0'} km • {event.tipo}
+                            </small>
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <small>
-                        {event.fecha ? new Date(event.fecha).toLocaleDateString('es-ES', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        }) : 'No definida'}
-                      </small>
+                      <small>{formatDate(event.fecha)}</small>
                     </td>
                     <td>
-                      <small> {event.ubicacion}</small>
+                      <small>{event.ubicacion}</small>
                     </td>
                     <td>
-                      <Badge bg="info" pill>
-                        {event.inscritos || 0}
-                      </Badge>
+                      <div className="d-flex align-items-center">
+                        <Badge bg="info" pill className="me-2">
+                          {event.inscritos || 0}
+                        </Badge>
+                        {event.maximo_participantes && (
+                          <small className="text-muted">
+                            / {event.maximo_participantes}
+                          </small>
+                        )}
+                      </div>
+                      {event.maximo_participantes && (
+                        <ProgressBar 
+                          now={event.inscritos ? (event.inscritos / event.maximo_participantes) * 100 : 0} 
+                          variant="success" 
+                          size="sm" 
+                          className="mt-1"
+                        />
+                      )}
                     </td>
                     <td>
                       <Badge bg={getStatusVariant(event.estado)}>
@@ -297,10 +445,19 @@ const OrganizerDashboardPage = () => {
                         >
                           
                         </Button>
+                        <Button
+                          as={Link}
+                          to={`/evento/${event.evento_id || event.id}`}
+                          variant="outline-info"
+                          size="sm"
+                          title="Ver evento"
+                        >
+                          
+                        </Button>
                         <Button 
                           variant="outline-danger" 
                           size="sm"
-                          onClick={() => handleDeleteEvent(event.id)}
+                          onClick={() => handleDeleteEvent(event.evento_id || event.id)}
                           title="Eliminar evento"
                         >
                           

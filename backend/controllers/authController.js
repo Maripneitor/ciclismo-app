@@ -1,23 +1,28 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { User } = require('../models');
 
 const authController = {
     register: async (req, res) => {
         try {
-            console.log('Registro - Datos recibidos:', req.body);
+            console.log('📝 Registro - Datos recibidos:', req.body);
             const { nombre_completo, email, contrasena, rol = 'usuario' } = req.body;
 
+            // Validar campos requeridos
             if (!nombre_completo || !email || !contrasena) {
                 return res.status(400).json({
                     message: 'Todos los campos son requeridos: nombre_completo, email, contrasena'
                 });
             }
 
+            // Verificar si el usuario ya existe
             const existingUser = await User.findOne({ where: { email } });
+
             if (existingUser) {
                 return res.status(400).json({ message: 'El usuario ya existe' });
             }
 
+            // Crear usuario
             const user = await User.create({
                 nombre_completo,
                 email,
@@ -25,8 +30,9 @@ const authController = {
                 rol
             });
 
-            console.log('Usuario creado:', user.usuario_id);
+            console.log('✅ Usuario creado:', user.usuario_id);
 
+            // Generar token
             const token = jwt.sign(
                 {
                     usuario_id: user.usuario_id,
@@ -48,7 +54,7 @@ const authController = {
                 }
             });
         } catch (error) {
-            console.error('Error en registro:', error);
+            console.error('❌ Error en registro:', error);
             res.status(500).json({
                 message: 'Error en el registro',
                 error: error.message
@@ -58,36 +64,50 @@ const authController = {
 
     login: async (req, res) => {
         try {
-            console.log('LOGIN ATTEMPT - Datos recibidos:', req.body);
+            console.log('🔐 LOGIN ATTEMPT - Datos recibidos:', req.body);
             const { email, contrasena } = req.body;
 
+            // Validar campos
             if (!email || !contrasena) {
-                console.log('Login: Faltan campos');
+                console.log('❌ Login: Faltan campos');
                 return res.status(400).json({
                     message: 'Email y contraseña son requeridos'
                 });
             }
 
-            console.log('Buscando usuario:', email);
+            console.log('🔍 Buscando usuario:', email);
 
-            const user = await User.findOne({ where: { email } });
-            console.log('Usuario encontrado:', user ? `Si (ID: ${user.usuario_id})` : 'NO');
+            // Buscar usuario INCLUYENDO la contraseña
+            const user = await User.findOne({ 
+                where: { email },
+                attributes: { include: ['contrasena'] }
+            });
+            
+            console.log('👤 Usuario encontrado:', user ? `Si (ID: ${user.usuario_id})` : 'NO');
 
             if (!user) {
-                console.log('Login: Usuario no encontrado');
+                console.log('❌ Login: Usuario no encontrado');
                 return res.status(401).json({ message: 'Credenciales inválidas' });
             }
 
-            console.log('Verificando contraseña...');
-            const isValidPassword = await user.validPassword(contrasena);
-            console.log('Contraseña válida:', isValidPassword);
+            // **VERIFICACIÓN DIRECTA CON bcrypt.compare - SIN MÉTODOS PROBLEMÁTICOS**
+            console.log('🔑 Verificando contraseña...');
+            console.log('📧 Email:', user.email);
+            console.log('👤 Nombre completo:', user.nombre_completo);
+            console.log('🎯 Rol:', user.rol);
+            console.log('🗝️ Hash en DB:', user.contrasena ? 'EXISTE' : 'NO EXISTE');
+            
+            // Verificar contraseña DIRECTAMENTE con bcrypt
+            const isValidPassword = await bcrypt.compare(contrasena, user.contrasena);
+            console.log('✅ Contraseña válida:', isValidPassword);
 
             if (!isValidPassword) {
-                console.log('Login: Contraseña incorrecta');
+                console.log('❌ Login: Contraseña incorrecta');
                 return res.status(401).json({ message: 'Credenciales inválidas' });
             }
 
-            console.log('Generando token JWT...');
+            // Generar token
+            console.log('🎫 Generando token JWT...');
             const token = jwt.sign(
                 {
                     usuario_id: user.usuario_id,
@@ -98,22 +118,23 @@ const authController = {
                 { expiresIn: '24h' }
             );
 
-            console.log('LOGIN EXITOSO - Usuario:', user.usuario_id);
+            console.log('🎉 LOGIN EXITOSO - Usuario:', user.nombre_completo);
 
             res.json({
                 message: 'Login exitoso',
                 token,
                 user: {
                     usuario_id: user.usuario_id,
-                    nombre_completo: user.nombre_completo,
+                    nombre_completo: user.nombre_completo, // **CORREGIDO: usar nombre_completo**
                     email: user.email,
                     rol: user.rol
                 }
             });
+
         } catch (error) {
-            console.error('ERROR EN LOGIN:', error);
-            console.error('Stack:', error.stack);
-            res.status(500).json({
+            console.error('💥 ERROR EN LOGIN:', error);
+            console.error('📋 Stack:', error.stack);
+            res.status(500).json({ 
                 message: 'Error en el login',
                 error: error.message
             });
@@ -122,22 +143,20 @@ const authController = {
 
     getProfile: async (req, res) => {
         try {
-            const user = await User.findByPk(req.user.usuario_id, {
-                attributes: { exclude: ['contrasena'] }
+            const user = await User.findByPk(req.user.usuario_id, {  
+                attributes: { exclude: ['contrasena'] } 
+            });  
+            if (!user) {  
+                return res.status(404).json({ message: 'Usuario no encontrado' });  
+            }  
+            res.json(user);  
+        } catch (error) {  
+            console.error('Error obteniendo perfil:', error);  
+            res.status(500).json({  
+                message: 'Error al obtener perfil',  
+                error: error.message  
             });
-            
-            if (!user) {
-                return res.status(404).json({ message: 'Usuario no encontrado' });
-            }
-
-            res.json(user);
-        } catch (error) {
-            console.error('Error obteniendo perfil:', error);
-            res.status(500).json({ 
-                message: 'Error al obtener perfil',
-                error: error.message
-            });
-        }
+        }  
     }
 };
 

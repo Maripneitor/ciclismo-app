@@ -9,16 +9,18 @@ import {
   ProgressBar, 
   Alert,
   Badge,
-  Spinner
+  Spinner,
+  ListGroup
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { eventsAPI } from '../../services/api';
+import { eventsAPI, usersAPI, registrationsAPI } from '../../services/api';
 
 const EnhancedDashboardPage = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [userEvents, setUserEvents] = useState([]);
+  const [registrations, setRegistrations] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,23 +33,39 @@ const EnhancedDashboardPage = () => {
     try {
       setLoading(true);
       
-      const eventsResponse = await eventsAPI.getAll();
+      const [eventsResponse, registrationsResponse, userEventsResponse] = await Promise.all([
+        eventsAPI.getAll(),
+        registrationsAPI.getAll().catch(() => []),
+        usersAPI.getUserEvents().catch(() => [])
+      ]);
+
       const eventsData = eventsResponse.data || eventsResponse;
       setEvents(Array.isArray(eventsData) ? eventsData : []);
+      setRegistrations(Array.isArray(registrationsResponse) ? registrationsResponse : []);
+      setUserEvents(Array.isArray(userEventsResponse) ? userEventsResponse : []);
 
-      try {
-        const userEventsResponse = await eventsAPI.getUserEvents();
-        setUserEvents(userEventsResponse.data || userEventsResponse || []);
-      } catch (userEventsError) {
-        setUserEvents([]);
-      }
+      const now = new Date();
+      const upcomingEvents = eventsData.filter(event => 
+        event.fecha && new Date(event.fecha) > now
+      );
+      const completedEvents = eventsData.filter(event => 
+        event.fecha && new Date(event.fecha) <= now
+      );
 
       const calculatedStats = {
         total_usuarios: 0,
         total_eventos: eventsData.length,
-        total_inscripciones: 0,
+        total_inscripciones: registrationsResponse.length || 0,
         total_admins: 0,
-        total_organizadores: 0
+        total_organizadores: 0,
+        upcomingEvents: upcomingEvents.length,
+        completedEvents: completedEvents.length,
+        myRegistrations: registrationsResponse.length || 0,
+        totalDistance: eventsData.reduce((sum, event) => 
+          sum + (parseFloat(event.distancia_km || event.distancia) || 0), 0
+        ),
+        participationRate: eventsData.length > 0 ? 
+          Math.round(((registrationsResponse.length || 0) / eventsData.length) * 100) : 0
       };
       setStats(calculatedStats);
 
@@ -81,12 +99,18 @@ const EnhancedDashboardPage = () => {
       ]);
       
       setUserEvents([]);
+      setRegistrations([]);
       setStats({
         total_usuarios: 1247,
         total_eventos: 89,
         total_inscripciones: 2543,
         total_admins: 3,
-        total_organizadores: 15
+        total_organizadores: 15,
+        upcomingEvents: 2,
+        completedEvents: 0,
+        myRegistrations: 0,
+        totalDistance: 165,
+        participationRate: 25
       });
     } finally {
       setLoading(false);
@@ -115,7 +139,9 @@ const EnhancedDashboardPage = () => {
       completedEvents: completedEvents.length,
       totalDistance,
       totalEvents: eventsToUse.length,
-      userSpecificData: userEvents.length > 0
+      userSpecificData: userEvents.length > 0,
+      myRegistrations: registrations.length,
+      participationRate: stats?.participationRate || 0
     };
 
     if (stats) {
@@ -141,9 +167,22 @@ const EnhancedDashboardPage = () => {
     return icons[type] || '';
   };
 
+  const getStatusVariant = (status) => {
+    switch (status) {
+      case 'Próximo': return 'warning';
+      case 'En Curso': return 'success';
+      case 'Finalizado': return 'secondary';
+      default: return 'secondary';
+    }
+  };
+
   const dashboardStats = calculateStats();
   const upcomingEvents = events
     .filter(event => event.fecha && new Date(event.fecha) > new Date())
+    .slice(0, 3);
+
+  const myUpcomingRegistrations = registrations
+    .filter(reg => reg.evento && new Date(reg.evento.fecha) > new Date())
     .slice(0, 3);
 
   if (loading) {
@@ -189,51 +228,63 @@ const EnhancedDashboardPage = () => {
       )}
 
       <Row className="mb-4">
-        <Col md={3}>
-          <Card className="stat-card h-100">
-            <Card.Body className="text-center">
+        <Col md={2}>
+          <Card className="stat-card h-100 text-center">
+            <Card.Body>
               <div className="stat-icon text-primary">Próximos</div>
               <h3 className="text-primary mt-2">{dashboardStats.upcomingEvents}</h3>
-              <p className="text-muted mb-0">Próximos Eventos</p>
-              {!dashboardStats.userSpecificData && (
-                <small className="text-muted">Disponibles</small>
-              )}
+              <p className="text-muted mb-0">Próximos</p>
+              <small className="text-muted">Eventos</small>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="stat-card h-100">
-            <Card.Body className="text-center">
+        <Col md={2}>
+          <Card className="stat-card h-100 text-center">
+            <Card.Body>
               <div className="stat-icon text-success">Completados</div>
               <h3 className="text-success mt-2">{dashboardStats.completedEvents}</h3>
-              <p className="text-muted mb-0">Completados</p>
-              {!dashboardStats.userSpecificData && (
-                <small className="text-muted">Totales</small>
-              )}
+              <p className="text-muted mb-0">Eventos</p>
+              <small className="text-muted">Completados</small>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="stat-card h-100">
-            <Card.Body className="text-center">
+        <Col md={2}>
+          <Card className="stat-card h-100 text-center">
+            <Card.Body>
               <div className="stat-icon text-warning">Distancia</div>
               <h3 className="text-warning mt-2">{dashboardStats.totalDistance}km</h3>
-              <p className="text-muted mb-0">Distancia Total</p>
-              {!dashboardStats.userSpecificData && (
-                <small className="text-muted">Acumulada</small>
-              )}
+              <p className="text-muted mb-0">Distancia</p>
+              <small className="text-muted">Total</small>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="stat-card h-100">
-            <Card.Body className="text-center">
+        <Col md={2}>
+          <Card className="stat-card h-100 text-center">
+            <Card.Body>
               <div className="stat-icon text-info">Total</div>
               <h3 className="text-info mt-2">{dashboardStats.totalEvents}</h3>
-              <p className="text-muted mb-0">Total Eventos</p>
-              {!dashboardStats.userSpecificData && (
-                <small className="text-muted">En plataforma</small>
-              )}
+              <p className="text-muted mb-0">Total</p>
+              <small className="text-muted">Eventos</small>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={2}>
+          <Card className="stat-card h-100 text-center">
+            <Card.Body>
+              <div className="stat-icon text-secondary">Inscripciones</div>
+              <h3 className="text-secondary mt-2">{dashboardStats.myRegistrations}</h3>
+              <p className="text-muted mb-0">Mis</p>
+              <small className="text-muted">Inscripciones</small>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={2}>
+          <Card className="stat-card h-100 text-center">
+            <Card.Body>
+              <div className="stat-icon text-dark">Participación</div>
+              <h3 className="text-dark mt-2">{dashboardStats.participationRate}%</h3>
+              <p className="text-muted mb-0">Tasa de</p>
+              <small className="text-muted">Participación</small>
             </Card.Body>
           </Card>
         </Col>
@@ -242,57 +293,41 @@ const EnhancedDashboardPage = () => {
       <Row className="g-4">
         <Col lg={6}>
           <Card className="h-100">
-            <Card.Header className="bg-primary text-white">
-              <h5 className="mb-0">Próximo Evento Destacado</h5>
+            <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">Mis Próximas Inscripciones</h5>
+              <Badge bg="light" text="dark">
+                {myUpcomingRegistrations.length}
+              </Badge>
             </Card.Header>
             <Card.Body>
-              {upcomingEvents.length > 0 ? (
-                <div>
-                  <div className="d-flex align-items-start mb-3">
-                    <span className="fs-2 me-3">
-                      {getEventTypeIcon(upcomingEvents[0].tipo)}
-                    </span>
-                    <div>
-                      <h5>{upcomingEvents[0].nombre}</h5>
-                      <p className="text-muted mb-1">
-                        {upcomingEvents[0].ubicacion}
-                      </p>
-                      <p className="text-muted mb-1">
-                        {new Date(upcomingEvents[0].fecha).toLocaleDateString('es-ES', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
-                      <Badge bg="primary" className="me-2">
-                        {upcomingEvents[0].distancia_km || upcomingEvents[0].distancia || '0'} km
-                      </Badge>
-                      <Badge bg="outline-secondary">
-                        {upcomingEvents[0].tipo || 'General'}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="d-flex gap-2">
-                    <Button 
-                      as={Link} 
-                      to="/eventos" 
-                      variant="primary" 
-                      size="sm"
-                    >
-                      Ver Detalles
-                    </Button>
-                    <Button variant="outline-secondary" size="sm">
-                      Prepara tu Ruta
-                    </Button>
-                  </div>
-                </div>
+              {myUpcomingRegistrations.length > 0 ? (
+                <ListGroup variant="flush">
+                  {myUpcomingRegistrations.map(registration => (
+                    <ListGroup.Item key={registration.inscripcion_id} className="px-0">
+                      <div className="d-flex align-items-center">
+                        <span className="fs-5 me-3">
+                          {getEventTypeIcon(registration.evento?.tipo)}
+                        </span>
+                        <div className="flex-grow-1">
+                          <h6 className="mb-1">{registration.evento?.nombre}</h6>
+                          <small className="text-muted">
+                            {registration.evento?.fecha ? 
+                              new Date(registration.evento.fecha).toLocaleDateString('es-ES') : 
+                              'Fecha por definir'
+                            }
+                          </small>
+                        </div>
+                        <Badge bg={getStatusVariant(registration.evento?.estado)}>
+                          {registration.evento?.estado}
+                        </Badge>
+                      </div>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
               ) : (
                 <div className="text-center py-4">
-                  <div className="text-muted mb-3 fs-1">Sin eventos</div>
-                  <p className="text-muted mb-3">No hay eventos próximos disponibles.</p>
+                  <div className="text-muted mb-3 fs-1">Sin inscripciones</div>
+                  <p className="text-muted">No tienes inscripciones próximas.</p>
                   <Button as={Link} to="/eventos" variant="primary">
                     Explorar Eventos
                   </Button>
@@ -356,93 +391,44 @@ const EnhancedDashboardPage = () => {
           </Card>
         </Col>
 
-        <Col md={12}>
-          <Card>
-            <Card.Header>
-              <h5 className="mb-0">Acciones Rápidas</h5>
-            </Card.Header>
-            <Card.Body>
-              <div className="d-flex gap-3 flex-wrap">
-                <Button as={Link} to="/eventos" variant="primary" className="action-btn">
-                  Explorar Eventos
-                </Button>
-                <Button as={Link} to="/cuenta/perfil" variant="outline-primary" className="action-btn">
-                  Editar Perfil
-                </Button>
-                <Button as={Link} to="/cuenta/historial" variant="outline-success" className="action-btn">
-                  Ver Historial
-                </Button>
-                <Button as={Link} to="/resultados" variant="outline-info" className="action-btn">
-                  Ver Resultados
-                </Button>
-                
-                {(user?.rol === 'organizador' || user?.rol === 'admin') && (
-                  <Button as={Link} to="/organizador/dashboard" variant="outline-warning" className="action-btn">
-                    Panel Organizador
-                  </Button>
-                )}
-                
-                {user?.rol === 'admin' && (
-                  <Button as={Link} to="/admin/dashboard" variant="outline-danger" className="action-btn">
-                    Panel Admin
-                  </Button>
-                )}
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col md={12}>
-          <Card>
+        <Col lg={6}>
+          <Card className="h-100">
             <Card.Header className="d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Próximos Eventos Disponibles</h5>
+              <h5 className="mb-0">Próximos Eventos Destacados</h5>
               <Button as={Link} to="/eventos" variant="outline-primary" size="sm">
                 Ver Todos
               </Button>
             </Card.Header>
             <Card.Body>
               {upcomingEvents.length > 0 ? (
-                <Row>
-                  {upcomingEvents.map((event) => (
-                    <Col md={4} key={event.evento_id || event.id} className="mb-3">
-                      <Card className="h-100 event-card">
-                        <Card.Body>
-                          <div className="d-flex align-items-start mb-2">
-                            <span className="fs-4 me-2">
-                              {getEventTypeIcon(event.tipo)}
-                            </span>
-                            <Badge 
-                              bg={
-                                event.estado === 'activo' ? 'success' :
-                                event.estado === 'proximamente' ? 'warning' : 'secondary'
-                              }
-                              className="ms-auto"
-                            >
-                              {event.estado || 'disponible'}
-                            </Badge>
-                          </div>
-                          
-                          <h6 className="mb-2">{event.nombre}</h6>
+                <ListGroup variant="flush">
+                  {upcomingEvents.map(event => (
+                    <ListGroup.Item key={event.evento_id} className="px-0">
+                      <div className="d-flex align-items-start">
+                        <span className="fs-4 me-3">
+                          {getEventTypeIcon(event.tipo)}
+                        </span>
+                        <div className="flex-grow-1">
+                          <h6 className="mb-1">{event.nombre}</h6>
                           <p className="text-muted small mb-1">
                             {event.ubicacion}
                           </p>
                           <p className="text-muted small mb-2">
-                            {event.fecha ? new Date(event.fecha).toLocaleDateString() : 'Fecha por definir'}
+                            {event.fecha ? new Date(event.fecha).toLocaleDateString('es-ES') : 'Fecha por definir'}
                           </p>
-                          
                           <div className="d-flex justify-content-between align-items-center">
                             <Badge bg="light" text="dark">
                               {event.distancia_km || event.distancia || '0'}km
                             </Badge>
-                            <Button variant="primary" size="sm">
-                              Inscribirse
-                            </Button>
+                            <Badge bg={getStatusVariant(event.estado)}>
+                              {event.estado}
+                            </Badge>
                           </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
+                        </div>
+                      </div>
+                    </ListGroup.Item>
                   ))}
-                </Row>
+                </ListGroup>
               ) : (
                 <div className="text-center py-4">
                   <p className="text-muted">No hay eventos próximos disponibles.</p>
@@ -451,6 +437,45 @@ const EnhancedDashboardPage = () => {
                   </Button>
                 </div>
               )}
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col lg={6}>
+          <Card className="h-100">
+            <Card.Header>
+              <h5 className="mb-0">Acciones Rápidas</h5>
+            </Card.Header>
+            <Card.Body>
+              <div className="d-grid gap-2">
+                <Button as={Link} to="/eventos" variant="primary" size="lg" className="text-start">
+                  Explorar Eventos
+                </Button>
+                <Button as={Link} to="/cuenta/inscripciones" variant="outline-primary" size="lg" className="text-start">
+                  Mis Inscripciones
+                </Button>
+                <Button as={Link} to="/cuenta/equipos" variant="outline-success" size="lg" className="text-start">
+                  Mis Equipos
+                </Button>
+                <Button as={Link} to="/cuenta/perfil" variant="outline-info" size="lg" className="text-start">
+                  Mi Perfil
+                </Button>
+                <Button as={Link} to="/resultados" variant="outline-warning" size="lg" className="text-start">
+                  Ver Resultados
+                </Button>
+                
+                {(user?.rol === 'organizador' || user?.rol === 'admin') && (
+                  <Button as={Link} to="/organizador/dashboard" variant="outline-dark" size="lg" className="text-start">
+                    Panel Organizador
+                  </Button>
+                )}
+                
+                {user?.rol === 'admin' && (
+                  <Button as={Link} to="/admin/dashboard" variant="outline-danger" size="lg" className="text-start">
+                    Panel Admin
+                  </Button>
+                )}
+              </div>
             </Card.Body>
           </Card>
         </Col>
