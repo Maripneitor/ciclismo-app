@@ -124,30 +124,30 @@ const HomePage = () => {
                 setError('Error al cargar los datos. Por favor, intenta nuevamente.');
 
                 // Datos de ejemplo para desarrollo
-                setFeaturedEvents([
-                    {
-                        id: 1,
-                        nombre: 'Gran Fondo Sierra Nevada',
-                        descripcion: 'Evento de montaña en la sierra nevada',
-                        fecha: '2024-06-15T08:00:00',
-                        ubicacion: 'Granada, España',
-                        distancia_km: 120,
-                        tipo: 'montaña',
-                        estado: 'Próximo',
-                        cuota_inscripcion: 50.00
-                    },
-                    {
-                        id: 2,
-                        nombre: 'Carrera Nocturna Madrid',
-                        descripcion: 'Carrera urbana nocturna por el centro de Madrid',
-                        fecha: '2024-07-20T20:00:00',
-                        ubicacion: 'Madrid, España',
-                        distancia_km: 45,
-                        tipo: 'urbano',
-                        estado: 'Próximo',
-                        cuota_inscripcion: 25.00
-                    }
-                ]);
+               setFeaturedEvents([
+    {
+        id: 1,
+        nombre: 'Gran Fondo Sierra Nevada',
+        descripcion: 'Evento de montaña en la sierra nevada',
+        fecha: '2024-06-15T08:00:00',
+        ubicacion: 'Granada, España',
+        distancia_km: 120,
+        tipo: 'montaña',
+        estado: 'Próximo',
+        cuota_inscripcion: 50.00
+    },
+    {
+        id: 2,
+        nombre: 'Carrera Nocturna Madrid',
+        descripcion: 'Carrera urbana nocturna por el centro de Madrid',
+        fecha: '2024-07-20T20:00:00',
+        ubicacion: 'Madrid, España',
+        distancia_km: 45,
+        tipo: 'urbano',
+        estado: 'Próximo',
+        cuota_inscripcion: 25.00
+    }
+]);
             }
         } finally {
             if (isMounted.current) {
@@ -200,9 +200,7 @@ const HomePage = () => {
                 event.fecha && new Date(event.fecha) <= new Date()
             );
 
-            const totalDistance = userEvents.reduce((sum, event) =>
-                sum + (parseFloat(event.distancia_km || event.distancia || 0)), 0
-            );
+            const totalDistance = userEvents.reduce((sum, event) => sum + (parseFloat(event.distancia_km || event.distancia || 0)), 0);
 
             const weeklyDistance = userEvents.length > 0 ?
                 Math.round(totalDistance / userEvents.length) : 0;
@@ -324,13 +322,13 @@ const HomePage = () => {
     };
 
     const routeTypes = [
-        { type: 'all', label: 'Todas', icon: '🌍' },
-        { type: 'ruta', label: 'Ruta', icon: '🚴' },
-        { type: 'montaña', label: 'Montaña', icon: '⛰️' },
-        { type: 'urbano', label: 'Urbano', icon: '🏙️' },
-        { type: 'competitivo', label: 'Competitivo', icon: '🏆' },
-        { type: 'recreativo', label: 'Recreativo', icon: '😊' }
-    ];
+    { type: 'all', label: 'Todas', icon: '🚴' },
+    { type: 'ruta', label: 'Ruta', icon: '🛣️' },
+    { type: 'montaña', label: 'Montaña', icon: '⛰️' },
+    { type: 'urbano', label: 'Urbano', icon: '🏙️' },
+    { type: 'competitivo', label: 'Competitivo', icon: '🏆' },
+    { type: 'recreativo', label: 'Recreativo', icon: '😊' }
+];
 
     const filteredEvents = activeFilter === 'all'
         ? featuredEvents
@@ -353,115 +351,7 @@ const HomePage = () => {
     return (
         <div className={`homepage-modern ${darkMode ? 'dark-mode' : 'light-mode'}`}>
             
-            {/* Navigation Bar */}
-            <Navbar expand="lg" className="modern-navbar" fixed="top">
-                <Container>
-                    <Navbar.Brand as={Link} to="/" className="navbar-brand-modern">
-                        <span className="brand-icon">🚴</span>
-                        <strong>Ciclismo</strong>App
-                    </Navbar.Brand>
-
-                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="me-auto">
-                            <Nav.Link as={Link} to="/eventos" className="nav-link-modern">
-                                Eventos
-                            </Nav.Link>
-                            <Nav.Link as={Link} to="/resultados" className="nav-link-modern">
-                                Resultados
-                            </Nav.Link>
-                            <Nav.Link as={Link} to="/comunidad" className="nav-link-modern">
-                                Comunidad
-                            </Nav.Link>
-                        </Nav>
-
-                        {/* Barra de Búsqueda */}
-                        <div className="search-container me-3">
-                            <InputGroup className="modern-search">
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Buscar eventos, rutas..."
-                                    value={searchQuery}
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                    className="search-input"
-                                    aria-label="Buscar eventos"
-                                    role="searchbox"
-                                />
-                                <Button variant="outline-primary" className="search-btn">
-                                    🔍
-                                </Button>
-                            </InputGroup>
-
-                            {showSearchResults && (
-                                <div className="search-results-dropdown">
-                                    {searchResults.length > 0 ? (
-                                        searchResults.map(event => (
-                                            <div key={event.id} className="search-result-item">
-                                                <Link
-                                                    to={`/evento/${event.id}`}
-                                                    onClick={() => setShowSearchResults(false)}
-                                                    className="text-decoration-none"
-                                                >
-                                                    <strong>{event.nombre}</strong>
-                                                    <small>{event.ubicacion} • {event.distancia_km || '0'}km</small>
-                                                </Link>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="search-result-item text-muted">
-                                            No se encontraron resultados
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Toggle de Tema */}
-                        <Button
-                            variant="outline-light"
-                            className="theme-toggle me-2"
-                            onClick={toggleDarkMode}
-                            aria-label={darkMode ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-                        >
-                            {darkMode ? '☀️' : '🌙'}
-                        </Button>
-
-                        {/* User Menu */}
-                        {isAuthenticated ? (
-                            <Dropdown align="end">
-                                <Dropdown.Toggle variant="outline-light" className="user-dropdown-toggle">
-                                    <span className="user-avatar">👤</span>
-                                    {user?.nombre || user?.nombre_completo || 'Usuario'}
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu className="user-dropdown-menu">
-                                    <Dropdown.Item as={Link} to="/cuenta/dashboard">
-                                        Mi Dashboard
-                                    </Dropdown.Item>
-                                    <Dropdown.Item as={Link} to="/cuenta/inscripciones">
-                                        Mis Inscripciones
-                                    </Dropdown.Item>
-                                    <Dropdown.Item as={Link} to="/cuenta/resultados">
-                                        Mis Resultados
-                                    </Dropdown.Item>
-                                    <Dropdown.Divider />
-                                    <Dropdown.Item onClick={handleLogout}>
-                                        Cerrar Sesión
-                                    </Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        ) : (
-                            <div className="auth-buttons">
-                                <Button as={Link} to="/login" variant="outline-light" className="me-2">
-                                    Iniciar Sesión
-                                </Button>
-                                <Button as={Link} to="/registro" variant="primary" className="btn-gradient">
-                                    Registrarse
-                                </Button>
-                            </div>
-                        )}
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
+           
 
             {/* Hero Section */}
             <section className="hero-gradient-section">
@@ -775,14 +665,14 @@ const HomePage = () => {
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <strong>💰 ${event.cuota_inscripcion || 0}</strong>
                                                     <div className="d-flex gap-2">
-                                                        <Button 
-                                                            as={Link} 
-                                                            to={`/evento/${event.id}`}
-                                                            variant="outline-primary"
-                                                            size="sm"
-                                                        >
-                                                            Ver
-                                                        </Button>
+                                                       <Button
+    as={Link}
+    to={`/evento/${event.id}`}
+    variant="outline-primary"
+    size="sm"
+> 
+Ver
+</Button>
                                                         <Button 
                                                             variant="primary"
                                                             onClick={() => navigate(`/evento/${event.id}`)}

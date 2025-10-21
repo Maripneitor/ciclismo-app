@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Navbar, Nav, Container, Button, Dropdown, InputGroup, Form } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const Header = () => {
     const { user, logout, isAuthenticated, isAdmin, isOrganizer } = useAuth();
@@ -191,23 +192,21 @@ const Header = () => {
                         </Dropdown>
                     ) : (
                         <div className="auth-buttons">
-                            <Button 
-                                as={Link} 
-                                to="/login" 
-                                variant="outline-light" 
-                                className="me-2"
-                            >
-                                Iniciar Sesión
-                            </Button>
-                            <Button 
-                                as={Link} 
-                                to="/registro" 
-                                variant="primary" 
-                                className="btn-gradient"
-                            >
-                                Registrarse
-                            </Button>
-                        </div>
+    <Button 
+        as={Link} 
+        to="/login" 
+        className="btn-gradient me-2"
+    >
+        Iniciar Sesión
+    </Button>
+    <Button 
+        as={Link} 
+        to="/registro" 
+        className="btn-gradient"
+    >
+        Registrarsse
+    </Button>
+</div>
                     )}
                 </Navbar.Collapse>
             </Container>

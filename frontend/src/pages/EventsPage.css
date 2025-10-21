@@ -1,0 +1,331 @@
+.events-page {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    min-height: 100vh;
+}
+
+/* Hero Section Mejorada */
+.events-hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.events-hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.events-hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Cards Mejoradas */
+.event-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 12px;
+    background: var(--bs-card-bg);
+    border: 1px solid var(--bs-border-color);
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-color: var(--bs-primary);
+}
+
+/* Textos para modo oscuro */
+.event-card .card-title a {
+    color: var(--bs-heading-color) !important;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.event-card .card-title a:hover {
+    color: var(--bs-primary) !important;
+}
+
+.event-card .card-text {
+    color: var(--bs-secondary-color) !important;
+}
+
+.event-card .text-muted {
+    color: var(--bs-secondary-color) !important;
+}
+
+.event-card .text-dark {
+    color: var(--bs-body-color) !important;
+}
+
+/* Estadísticas */
+.event-stats .stat-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.event-stats .stat-label {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color) !important;
+}
+
+/* Progress Bar */
+.cupo-progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+/* Badges */
+.hero-badge {
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 600;
+}
+
+/* Filtros Mejorados */
+.glass-card {
+    background: var(--bs-card-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Inputs y Selects para modo oscuro */
+.search-input,
+.search-input:focus {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.search-input::placeholder {
+    color: var(--bs-secondary-color) !important;
+}
+
+.form-select {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.form-select:focus {
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25) !important;
+}
+
+.form-label {
+    color: var(--bs-body-color) !important;
+    font-weight: 600;
+}
+
+/* Botones */
+.btn-outline-primary {
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+}
+
+.btn-outline-secondary {
+    border-color: var(--bs-secondary);
+    color: var(--bs-secondary);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    color: white;
+}
+
+/* Dropdown para modo oscuro */
+.dropdown-menu {
+    background-color: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+}
+
+.dropdown-item {
+    color: var(--bs-body-color) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+}
+
+/* Modal para modo oscuro */
+.modal-content {
+    background-color: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.modal-header {
+    border-bottom-color: var(--bs-border-color) !important;
+}
+
+.modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Alertas */
+.alert-light {
+    background-color: rgba(var(--bs-light-rgb), 0.1) !important;
+    border-color: var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Títulos y textos principales */
+.section-title,
+.hero-title {
+    color: var(--bs-heading-color) !important;
+}
+
+.section-subtitle,
+.hero-subtitle {
+    color: var(--bs-secondary-color) !important;
+}
+
+/* Estados de los eventos */
+.event-status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Iconos de eventos */
+.event-icon {
+    filter: brightness(0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .event-card-list {
+        margin-bottom: 1rem;
+    }
+    
+    .hero-title {
+        font-size: 2rem !important;
+    }
+    
+    .section-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .events-hero-section {
+        padding: 3rem 0 !important;
+    }
+}
+
+/* Mejoras de hover */
+.hover-primary:hover {
+    color: var(--bs-primary) !important;
+}
+
+/* Estados de botones */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Efectos de transición */
+.event-card,
+.btn,
+.form-control,
+.form-select {
+    transition: all 0.3s ease;
+}
+
+/* Mejora visual para los badges de estadísticas */
+.event-stats .stat-item {
+    padding: 8px 0;
+    border-radius: 8px;
+    background: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+/* Colores específicos para los números de stats */
+.stat-number.text-success { color: var(--bs-success) !important; }
+.stat-number.text-warning { color: var(--bs-warning) !important; }
+.stat-number.text-info { color: var(--bs-info) !important; }
+.stat-number.text-primary { color: var(--bs-primary) !important; }
+
+/* Mejora para el botón de limpiar filtros */
+.btn-outline-secondary {
+    padding: 0.375rem 0.75rem;
+}
+
+/* Asegurar contraste en todos los elementos */
+.text-gray-700 { color: var(--bs-body-color) !important; }
+.text-gray-800 { color: var(--bs-body-color) !important; }
+.text-gray-900 { color: var(--bs-heading-color) !important; }
+
+/* Mejora para el CTA section */
+.cta-card {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%) !important;
+    color: white !important;
+}
+
+.cta-card .text-primary,
+.cta-card .text-gray-700 {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Agrega estas clases para las mejoras */
+.hover-primary:hover {
+    color: #0d6efd !important;
+    transition: color 0.2s ease-in-out;
+}
+
+.event-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.event-card-list {
+    border-left: 4px solid #0d6efd;
+}
+
+.cupo-progress {
+    height: 6px;
+    border-radius: 3px;
+}
+
+.stat-item {
+    padding: 8px 4px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.stat-number {
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .event-stats .stat-number {
+        font-size: 1rem !important;
+    }
+    
+    .event-card .btn-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

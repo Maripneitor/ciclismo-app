@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
         const events = await Event.findAll({
             order: [['fecha', 'ASC']]
         });
-        res.json(events);
+        res.json(events); // CORRECCIÓN: events no event
     } catch (error) {
         res.status(500).json({
             message: 'Error obteniendo eventos',
@@ -32,13 +32,12 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', auth, authorize('organizador', 'admin'), async (req, res) => {
+router.post('/', auth, authorize('organization', 'admin'), async (req, res) => {
     try {
         const eventData = {
             ...req.body,
-            organizador_id: req.user.usuario_id
+            organization_id: req.user.usuario_id
         };
-
         const event = await Event.create(eventData);
         res.status(201).json({
             message: 'Evento creado exitosamente',
@@ -52,19 +51,17 @@ router.post('/', auth, authorize('organizador', 'admin'), async (req, res) => {
     }
 });
 
-router.put('/:id', auth, authorize('organizador', 'admin'), async (req, res) => {
+router.put('/:id', auth, authorize('organization', 'admin'), async (req, res) => {
     try {
         const event = await Event.findByPk(req.params.id);
         if (!event) {
             return res.status(404).json({ message: 'Evento no encontrado' });
         }
-
-        if (event.organizador_id !== req.user.usuario_id && req.user.rol !== 'admin') {
+        if (event.organization_id !== req.user.usuario_id && req.user.rol !== 'admin') {
             return res.status(403).json({
                 message: 'No tienes permisos para editar este evento'
             });
         }
-
         await event.update(req.body);
         res.json({
             message: 'Evento actualizado exitosamente',
@@ -78,19 +75,17 @@ router.put('/:id', auth, authorize('organizador', 'admin'), async (req, res) => 
     }
 });
 
-router.delete('/:id', auth, authorize('organizador', 'admin'), async (req, res) => {
+router.delete('/:id', auth, authorize('organization', 'admin'), async (req, res) => {
     try {
         const event = await Event.findByPk(req.params.id);
         if (!event) {
             return res.status(404).json({ message: 'Evento no encontrado' });
         }
-
-        if (event.organizador_id !== req.user.usuario_id && req.user.rol !== 'admin') {
+        if (event.organization_id !== req.user.usuario_id && req.user.rol !== 'admin') {
             return res.status(403).json({
                 message: 'No tienes permisos para eliminar este evento'
             });
         }
-
         await event.destroy();
         res.json({ message: 'Evento eliminado exitosamente' });
     } catch (error) {
