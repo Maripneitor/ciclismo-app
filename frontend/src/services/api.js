@@ -111,6 +111,8 @@ export const usersAPI = {
   getUserEvents: () => api.get('/users/my-events'),
   getUserRegistrations: () => api.get('/users/my-registrations'),
   getUserResults: () => api.get('/users/my-results'),
+  // Nueva función mejorada
+  getMyEvents: () => api.get('/users/my-events'),
 };
 
 // Servicios de Equipos
@@ -124,11 +126,16 @@ export const teamsAPI = {
   getById: (id) => api.get(`/teams/${id}`),
 };
 
-// Servicios de Inscripciones
+// Servicios de Inscripciones - ACTUALIZADO
 export const registrationsAPI = {
   getAll: () => api.get('/registrations'),
   getTallas: () => api.get('/registrations/tallas'),
   delete: (id) => api.delete(`/registrations/${id}`),
+  
+  // Nuevas funciones mejoradas
+  getUserRegistrations: () => api.get('/registrations/my-registrations'),
+  registerForEvent: (eventId) => api.post('/registrations', { eventId }),
+  cancelRegistration: (registrationId) => api.delete(`/registrations/${registrationId}`),
 };
 
 // Servicios de Consultas
