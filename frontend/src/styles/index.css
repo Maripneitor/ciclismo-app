@@ -1,6 +1,10 @@
 /* frontend/src/styles/index.css */
 @import './theme.css';
 @import './homepage.css';
+/* frontend/src/styles/index.css */
+@import './hero-stable.css';
+
+/* Tus otros estilos existentes */
 
 /* Reset global responsivo */
 * {

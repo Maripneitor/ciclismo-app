@@ -1,3 +1,4 @@
+// frontend/src/components/ErrorBoundary.jsx
 import React from 'react';
 
 class ErrorBoundary extends React.Component {
@@ -11,23 +12,31 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    // Actualiza el estado para que el siguiente renderizado muestre la UI alternativa
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
-    // Puedes también registrar el error en un servicio de reporte de errores
     this.setState({
       error: error,
       errorInfo: errorInfo
     });
     
-    console.error('Error capturado por Error Boundary:', error, errorInfo);
+    console.error('Error capturado por Error Boundary:', error);
+    // NO console.error del stack completo para evitar loops
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    // MEJORA: Reset error boundary cuando las props cambian
-    if (prevProps.children !== this.props.children) {
+  // AGREGAR ESTE MÉTODO PARA PREVENIR EL ERROR
+  shouldComponentUpdate(nextProps, nextState) {
+    // Prevenir updates si hay error y las props no cambiaron
+    if (this.state.hasError && !nextState.hasError) {
+      return true;
+    }
+    return !this.state.hasError;
+  }
+
+  componentDidUpdate(prevProps) {
+    // Reset error boundary cuando las props cambian
+    if (prevProps.children !== this.props.children && this.state.hasError) {
       this.setState({ 
         hasError: false, 
         error: null, 
@@ -38,37 +47,21 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      // Puedes renderizar cualquier UI alternativa
       return (
-        <div className="error-boundary">
-          <div className="error-content glass-card p-4">
-            <h2 className="text-gradient">¡Algo salió mal!</h2>
-            <div className="error-details mt-3">
-              <details className="error-stack">
-                <summary>Detalles del error (para desarrolladores)</summary>
-                {this.state.error && this.state.error.toString()}
-                <br />
-                {this.state.errorInfo && this.state.errorInfo.componentStack}
-              </details>
+        <div className="error-boundary p-4 m-4 border border-danger rounded">
+          <div className="error-content">
+            <h2 className="text-danger">¡Algo salió mal!</h2>
+            <p>La aplicación encontró un error inesperado.</p>
+            
+            {/* SOLUCIÓN: Botón simple sin manipulación compleja del DOM */}
+            <div className="d-grid gap-2">
+              <button 
+                className="btn btn-primary"
+                onClick={() => window.location.reload()}
+              >
+                🔄 Recargar Página
+              </button>
             </div>
-            {/* MEJORA: Botón de reintentar en lugar de recargar toda la página */}
-            <button 
-              className="btn btn-primary mt-3"
-              onClick={() => this.setState({ 
-                hasError: false, 
-                error: null, 
-                errorInfo: null 
-              })}
-            >
-              Reintentar
-            </button>
-            {/* MEJORA: Botón adicional para recargar página si es necesario */}
-            <button 
-              className="btn btn-secondary mt-3 ms-2"
-              onClick={() => window.location.reload()}
-            >
-              Recargar Página
-            </button>
           </div>
         </div>
       );

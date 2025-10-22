@@ -1,0 +1,651 @@
+/* frontend/src/styles/hero-enhanced.css */
+.hero-section {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero-bg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.hero-gradient-bg {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    rgba(30, 60, 114, 0.9) 0%,
+    rgba(42, 82, 152, 0.8) 50%,
+    rgba(58, 123, 213, 0.7) 100%
+  );
+}
+
+/* Partículas animadas en el fondo */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: floatParticle 20s infinite linear;
+}
+
+.particle-1 {
+  width: 4px;
+  height: 4px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 25s;
+}
+
+.particle-2 {
+  width: 6px;
+  height: 6px;
+  top: 60%;
+  left: 80%;
+  animation-delay: 5s;
+  animation-duration: 30s;
+}
+
+.particle-3 {
+  width: 3px;
+  height: 3px;
+  top: 80%;
+  left: 20%;
+  animation-delay: 10s;
+  animation-duration: 20s;
+}
+
+.particle-4 {
+  width: 5px;
+  height: 5px;
+  top: 40%;
+  left: 90%;
+  animation-delay: 15s;
+}
+
+.particle-5 {
+  width: 4px;
+  height: 4px;
+  top: 10%;
+  left: 50%;
+  animation-delay: 7s;
+  animation-duration: 35s;
+}
+
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(100px);
+    opacity: 0;
+  }
+}
+
+/* Badge con animación de pop */
+.badge-pop-in {
+  opacity: 0;
+  transform: scale(0.8) translateY(-20px);
+  animation: badgePopIn 0.8s ease-out forwards;
+}
+
+@keyframes badgePopIn {
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Animaciones base */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.slide-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideUp 0.8s ease-out forwards;
+}
+
+.delay-1 {
+  animation-delay: 0.3s;
+}
+
+.delay-2 {
+  animation-delay: 0.6s;
+}
+
+.stats-fade-in {
+  opacity: 0;
+  animation: fadeIn 1s ease-out 0.9s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Título mejorado con múltiples líneas */
+.enhanced-title {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  min-height: 140px;
+}
+
+.title-line {
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.highlight-line {
+  color: #ffc107;
+  background: linear-gradient(45deg, #ffc107, #ff6b00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.highlight-line::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(45deg, #ffc107, #ff6b00);
+  animation: underlinePulse 2s ease-in-out infinite;
+}
+
+@keyframes underlinePulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scaleX(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* Subtítulo con efecto de máquina de escribir */
+.typing-subtitle {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out 2s forwards;
+  min-height: 1.5em;
+  border-right: 2px solid transparent;
+}
+
+/* Cursor de escritura */
+.typing-cursor {
+  color: #ffc107;
+  font-weight: bold;
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Estadísticas con animación escalonada */
+.stat-pop-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: statPopIn 0.6s ease-out forwards;
+}
+
+@keyframes statPopIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botones animados */
+.btn-animated {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: buttonSlideIn 0.6s ease-out forwards;
+}
+
+@keyframes buttonSlideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos para los contadores */
+.hero-stats {
+  margin: 2rem 0;
+}
+
+.stat-item {
+  padding: 1rem 1.5rem;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 120px;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.stat-number {
+  font-weight: 700;
+  font-size: 1.75rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+}
+
+/* Contadores animados */
+.counter {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-actions .btn-hero-primary {
+  background: linear-gradient(45deg, #ffc107, #ff8c00);
+  border: none;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  color: #000;
+}
+
+.hero-actions .btn-hero-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+  color: #000;
+}
+
+.hero-actions .btn-hero-secondary {
+  border: 2px solid #fff;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.hero-actions .btn-hero-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+/* Animación del ciclista mejorada */
+.enhanced-cycling-animation {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.cycling-scene {
+  position: relative;
+  transition: transform 0.1s ease-out;
+}
+
+.bike-container {
+  position: relative;
+  transition: transform 0.1s ease-out;
+}
+
+.bicycle {
+  position: relative;
+  width: 200px;
+  height: 120px;
+}
+
+.frame {
+  position: absolute;
+  width: 150px;
+  height: 80px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 0 0;
+  top: 20px;
+  left: 25px;
+}
+
+.wheel {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.front-wheel {
+  top: 50px;
+  left: 0;
+}
+
+.rear-wheel {
+  top: 50px;
+  right: 0;
+}
+
+.wheel-spoke {
+  position: absolute;
+  width: 2px;
+  height: 30px;
+  background: #fff;
+  top: 50%;
+  left: 50%;
+  transform-origin: center top;
+}
+
+.wheel-spoke:nth-child(1) { transform: translate(-50%, -50%) rotate(0deg); }
+.wheel-spoke:nth-child(2) { transform: translate(-50%, -50%) rotate(120deg); }
+.wheel-spoke:nth-child(3) { transform: translate(-50%, -50%) rotate(240deg); }
+
+.pedals {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  top: 60px;
+  left: 80px;
+}
+
+.pedal {
+  position: absolute;
+  width: 20px;
+  height: 4px;
+  background: #fff;
+  top: 50%;
+}
+
+.left-pedal {
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.right-pedal {
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.cyclist {
+  position: absolute;
+  width: 30px;
+  height: 50px;
+  top: 10px;
+  left: 85px;
+}
+
+.body {
+  position: absolute;
+  width: 20px;
+  height: 30px;
+  background: #fff;
+  border-radius: 40% 40% 0 0;
+  top: 0;
+  left: 5px;
+}
+
+.head {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: #fff;
+  border-radius: 50%;
+  top: -10px;
+  left: 7px;
+}
+
+.arms, .legs {
+  position: absolute;
+  width: 3px;
+  height: 20px;
+  background: #fff;
+  top: 15px;
+}
+
+.arms {
+  left: 3px;
+  transform: rotate(-30deg);
+}
+
+.legs {
+  left: 17px;
+  transform: rotate(30deg);
+}
+
+.moving-road {
+  position: absolute;
+  bottom: 0;
+  left: -50px;
+  right: -50px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.road-line {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffc107, transparent);
+  animation: roadMove 1.5s linear infinite;
+}
+
+.road-line:nth-child(1) { 
+  width: 100px; 
+  bottom: 0; 
+  animation-delay: 0s; 
+}
+.road-line:nth-child(2) { 
+  width: 80px; 
+  bottom: 0; 
+  animation-delay: 0.5s; 
+}
+.road-line:nth-child(3) { 
+  width: 120px; 
+  bottom: 0; 
+  animation-delay: 1s; 
+}
+
+@keyframes roadMove {
+  0% { transform: translateX(-100px); }
+  100% { transform: translateX(400px); }
+}
+
+.cycling-visual {
+  position: relative;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bike-icon {
+  font-size: 5rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.hero-badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Scroll indicator mejorado */
+.scroll-indicator-enhanced {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.scroll-arrow-enhanced {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.arrow-line {
+  width: 2px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1px;
+  transition: transform 0.3s ease;
+}
+
+.arrow-line:nth-child(1) { opacity: 0.3; }
+.arrow-line:nth-child(2) { opacity: 0.6; }
+.arrow-line:nth-child(3) { opacity: 0.9; }
+
+.scroll-text {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  animation: fadeInOut 2s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .enhanced-title {
+    font-size: 2rem;
+    text-align: center;
+    min-height: 100px;
+  }
+  
+  .bicycle {
+    transform: scale(0.8);
+  }
+  
+  .enhanced-cycling-animation {
+    height: 200px;
+  }
+  
+  .hero-stats {
+    justify-content: center !important;
+    flex-wrap: wrap;
+  }
+  
+  .stat-item {
+    padding: 0.8rem 1rem;
+    min-width: 100px;
+    margin: 0.5rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .bike-icon {
+    font-size: 4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .enhanced-title {
+    font-size: 1.8rem;
+  }
+  
+  .hero-stats {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stat-item {
+    width: 150px;
+    margin: 0.5rem 0;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-actions .btn {
+    width: 100%;
+    max-width: 250px;
+  }
+}
