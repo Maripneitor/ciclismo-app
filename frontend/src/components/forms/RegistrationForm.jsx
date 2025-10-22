@@ -378,4 +378,4 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
     );
 };
 
-export default RegistrationForm;events.js
+export default RegistrationForm;

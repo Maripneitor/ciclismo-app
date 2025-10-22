@@ -1,5 +1,5 @@
-// frontend/src/pages/EventsPage.jsx - ACTUALIZADA
-import React, { useState, useEffect } from 'react';
+// frontend/src/pages/EventsPage.jsx - VERSIÓN FINAL MEJORADA
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container, Row, Col, Card, Button, Spinner, Alert, Form,
   Badge, InputGroup, Dropdown, ButtonGroup
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { eventsAPI, registrationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import EnhancedEventCard from '../components/events/EnhancedEventCard';
+import AdvancedSearchFilters from '../components/events/AdvancedSearchFilters';
 import './EventsPage.css';
 
 const EventsPage = () => {
@@ -18,20 +19,24 @@ const EventsPage = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  // Filtros mejorados
+  // Filtros avanzados
   const [filters, setFilters] = useState({
+    tipos: [],
+    distancia: [0, 200],
+    precio: [0, 100],
+    fecha: null,
+    ubicacion: '',
+    bounds: null,
     search: '',
-    tipo: 'all',
     estado: 'all',
-    dificultad: 'all',
-    distancia: 'all',
-    precio: 'all'
+    dificultad: 'all'
   });
 
   const [sortBy, setSortBy] = useState('fecha');
   const [viewMode, setViewMode] = useState('grid');
   const [loadingEvents, setLoadingEvents] = useState([]);
   const [registrationMessage, setRegistrationMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadEvents();
@@ -39,7 +44,7 @@ const EventsPage = () => {
 
   useEffect(() => {
     filterAndSortEvents();
-  }, [events, filters, sortBy]);
+  }, [events, filters, sortBy, searchQuery]);
 
   const loadEvents = async () => {
     try {
@@ -109,6 +114,38 @@ const EventsPage = () => {
           dificultad: 'Extrema',
           elevacion: 1800,
           imagen: '/images/events/pirineos-extreme.jpg'
+        },
+        {
+          id: 5,
+          nombre: 'Tour Costa del Sol',
+          descripcion: 'Ruta costera con vistas espectaculares al mar Mediterráneo. Perfecta para disfrutar del buen clima.',
+          fecha: '2024-10-12T09:00:00',
+          ubicacion: 'Málaga, España',
+          distancia_km: 95,
+          tipo: 'ruta',
+          estado: 'Próximo',
+          cuota_inscripcion: 40.00,
+          participantes_inscritos: 60,
+          cupo_maximo: 120,
+          dificultad: 'Media',
+          elevacion: 400,
+          imagen: '/images/events/costa-sol.jpg'
+        },
+        {
+          id: 6,
+          nombre: 'Urban Sprint Valencia',
+          descripcion: 'Carrera urbana rápida por el centro histórico y la Ciudad de las Artes y las Ciencias.',
+          fecha: '2024-11-08T18:00:00',
+          ubicacion: 'Valencia, España',
+          distancia_km: 30,
+          tipo: 'urbano',
+          estado: 'Próximo',
+          cuota_inscripcion: 20.00,
+          participantes_inscritos: 80,
+          cupo_maximo: 150,
+          dificultad: 'Baja',
+          elevacion: 50,
+          imagen: '/images/events/valencia-urban.jpg'
         }
       ];
 
@@ -121,52 +158,56 @@ const EventsPage = () => {
     }
   };
 
-  const filterAndSortEvents = () => {
+  const filterAndSortEvents = useCallback(() => {
     let filtered = [...events];
 
-    // Aplicar filtros
+    // Aplicar filtros avanzados
     if (filters.search) {
+      const query = filters.search.toLowerCase();
       filtered = filtered.filter(event =>
-        event.nombre?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        event.descripcion?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        event.ubicacion?.toLowerCase().includes(filters.search.toLowerCase())
+        event.nombre?.toLowerCase().includes(query) ||
+        event.descripcion?.toLowerCase().includes(query) ||
+        event.ubicacion?.toLowerCase().includes(query)
       );
     }
 
-    if (filters.tipo !== 'all') {
-      filtered = filtered.filter(event => event.tipo === filters.tipo);
+    // Filtro por tipos
+    if (filters.tipos.length > 0) {
+      filtered = filtered.filter(event => 
+        filters.tipos.includes(event.tipo)
+      );
     }
 
+    // Filtro por distancia (slider)
+    filtered = filtered.filter(event => 
+      event.distancia_km >= filters.distancia[0] &&
+      event.distancia_km <= filters.distancia[1]
+    );
+
+    // Filtro por precio (slider)
+    filtered = filtered.filter(event => 
+      event.cuota_inscripcion >= filters.precio[0] &&
+      event.cuota_inscripcion <= filters.precio[1]
+    );
+
+    // Filtro por fecha
+    if (filters.fecha) {
+      const filterDate = new Date(filters.fecha).toDateString();
+      filtered = filtered.filter(event => 
+        new Date(event.fecha).toDateString() === filterDate
+      );
+    }
+
+    // Filtro por estado
     if (filters.estado !== 'all') {
       filtered = filtered.filter(event => event.estado === filters.estado);
     }
 
+    // Filtro por dificultad
     if (filters.dificultad !== 'all') {
-      filtered = filtered.filter(event => event.dificultad?.toLowerCase() === filters.dificultad);
-    }
-
-    if (filters.distancia !== 'all') {
-      filtered = filtered.filter(event => {
-        const distancia = event.distancia_km || 0;
-        switch (filters.distancia) {
-          case 'corta': return distancia <= 50;
-          case 'media': return distancia > 50 && distancia <= 100;
-          case 'larga': return distancia > 100;
-          default: return true;
-        }
-      });
-    }
-
-    if (filters.precio !== 'all') {
-      filtered = filtered.filter(event => {
-        const precio = event.cuota_inscripcion || 0;
-        switch (filters.precio) {
-          case 'gratis': return precio === 0;
-          case 'economico': return precio > 0 && precio <= 25;
-          case 'premium': return precio > 25;
-          default: return true;
-        }
-      });
+      filtered = filtered.filter(event => 
+        event.dificultad?.toLowerCase() === filters.dificultad
+      );
     }
 
     // Ordenar
@@ -189,23 +230,30 @@ const EventsPage = () => {
     });
 
     setFilteredEvents(filtered);
+  }, [events, filters, sortBy]);
+
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
-  const handleFilterChange = (key, value) => {
+  const handleSearch = (query) => {
     setFilters(prev => ({
       ...prev,
-      [key]: value
+      search: query
     }));
   };
 
   const clearFilters = () => {
     setFilters({
+      tipos: [],
+      distancia: [0, 200],
+      precio: [0, 100],
+      fecha: null,
+      ubicacion: '',
+      bounds: null,
       search: '',
-      tipo: 'all',
       estado: 'all',
-      dificultad: 'all',
-      distancia: 'all',
-      precio: 'all'
+      dificultad: 'all'
     });
     setSortBy('fecha');
   };
@@ -246,7 +294,17 @@ const EventsPage = () => {
     }
   };
 
-  if (loading) {
+  const activeFiltersCount = Object.values(filters).filter(filter => {
+    if (Array.isArray(filter)) {
+      if (filter === filters.distancia) return filter[0] !== 0 || filter[1] !== 200;
+      if (filter === filters.precio) return filter[0] !== 0 || filter[1] !== 100;
+      return filter.length > 0;
+    }
+    if (filter instanceof Date) return true;
+    return filter !== null && filter !== '' && filter !== undefined && filter !== 'all';
+  }).length;
+
+  if (loading && events.length === 0) {
     return (
       <div className="events-page">
         <Container className="d-flex justify-content-center align-items-center min-vh-100">
@@ -323,110 +381,41 @@ const EventsPage = () => {
           </Alert>
         )}
 
-        {/* Filtros Mejorados */}
-        <Card className="mb-4">
-          <Card.Body>
-            <Row className="g-3">
-              <Col md={3}>
-                <Form.Group>
-                  <Form.Label>🔍 Buscar</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Nombre, ubicación..."
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>🚴 Tipo</Form.Label>
-                  <Form.Select
-                    value={filters.tipo}
-                    onChange={(e) => handleFilterChange('tipo', e.target.value)}
-                  >
-                    <option value="all">Todos</option>
-                    <option value="ruta">Ruta</option>
-                    <option value="montaña">Montaña</option>
-                    <option value="urbano">Urbano</option>
-                    <option value="competitivo">Competitivo</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>📅 Estado</Form.Label>
-                  <Form.Select
-                    value={filters.estado}
-                    onChange={(e) => handleFilterChange('estado', e.target.value)}
-                  >
-                    <option value="all">Todos</option>
-                    <option value="Próximo">Próximo</option>
-                    <option value="En Curso">En Curso</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>💪 Dificultad</Form.Label>
-                  <Form.Select
-                    value={filters.dificultad}
-                    onChange={(e) => handleFilterChange('dificultad', e.target.value)}
-                  >
-                    <option value="all">Todas</option>
-                    <option value="baja">Baja</option>
-                    <option value="media">Media</option>
-                    <option value="alta">Alta</option>
-                    <option value="extrema">Extrema</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>🛣️ Distancia</Form.Label>
-                  <Form.Select
-                    value={filters.distancia}
-                    onChange={(e) => handleFilterChange('distancia', e.target.value)}
-                  >
-                    <option value="all">Todas</option>
-                    <option value="corta">Corta (&lt;50km)</option>
-                    <option value="media">Media (51-100km)</option>
-                    <option value="larga">Larga (&gt;100km)</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={1} className="d-flex align-items-end">
-                <Button
-                  variant="outline-secondary"
-                  onClick={clearFilters}
-                  className="w-100"
-                  title="Limpiar filtros"
-                >
-                  🗑️
-                </Button>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+        {/* Buscador y Filtros Avanzados */}
+        <AdvancedSearchFilters
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          events={events}
+          onSearch={handleSearch}
+        />
 
-        {/* Resultados */}
+        {/* Información de Resultados */}
         <Row className="mb-4">
           <Col>
             <div className="d-flex justify-content-between align-items-center">
-              <Badge bg="primary" className="fs-6 px-3 py-2">
-                {filteredEvents.length} eventos encontrados
-              </Badge>
-              {(filters.search || filters.tipo !== 'all' || filters.estado !== 'all') && (
-                <Badge bg="info" className="ms-2 fs-6 px-3 py-2">
-                  Filtros activos
+              <div>
+                <Badge bg="primary" className="fs-6 px-3 py-2">
+                  {filteredEvents.length} eventos encontrados
                 </Badge>
-              )}
+                {activeFiltersCount > 0 && (
+                  <Badge bg="info" className="ms-2 fs-6 px-3 py-2">
+                    {activeFiltersCount} filtros activos
+                  </Badge>
+                )}
+              </div>
+              <Button
+                variant="outline-secondary"
+                onClick={clearFilters}
+                disabled={activeFiltersCount === 0}
+              >
+                🗑️ Limpiar Filtros
+              </Button>
             </div>
           </Col>
         </Row>
 
-        {/* Grid de Eventos */}
-        <Row className="g-4">
+        {/* Grid de Eventos con Animación */}
+        <div className="events-grid">
           {filteredEvents.length === 0 ? (
             <Col>
               <Card className="text-center py-5">
@@ -443,18 +432,22 @@ const EventsPage = () => {
               </Card>
             </Col>
           ) : (
-            filteredEvents.map(event => (
-              <Col key={event.id} xs={12} md={6} lg={4}>
-                <EnhancedEventCard
-                  event={event}
-                  onRegister={handleRegister}
-                  loadingEvents={loadingEvents}
-                  isAuthenticated={isAuthenticated}
-                />
-              </Col>
-            ))
+            <Row className="g-4">
+              {filteredEvents.map((event, index) => (
+                <Col key={event.id} xs={12} md={6} lg={4}>
+                  <div className="event-card-animated" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <EnhancedEventCard
+                      event={event}
+                      onRegister={handleRegister}
+                      loadingEvents={loadingEvents}
+                      isAuthenticated={isAuthenticated}
+                    />
+                  </div>
+                </Col>
+              ))}
+            </Row>
           )}
-        </Row>
+        </div>
       </Container>
     </div>
   );
