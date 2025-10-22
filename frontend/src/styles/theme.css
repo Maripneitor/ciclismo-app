@@ -1,12 +1,10 @@
-/* frontend/src/styles/theme.css */
-/* Variables CSS para temas - MEJORADO */
 :root {
-  --primary-color: #0d6efd;
-  --primary-rgb: 13, 110, 253;
-  --secondary-color: #6c757d;
+  --primary-color: #2563eb;
+  --primary-rgb: 37, 99, 235;
+  --secondary-color: #059669;
   --success-color: #198754;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
+  --warning-color: #d97706;
+  --danger-color: #dc2626;
   --light-color: #f8f9fa;
   --dark-color: #212529;
   --body-bg: #ffffff;
@@ -18,18 +16,30 @@
   --text-muted: #6c757d;
   --text-dark: #212529;
   --text-light: #f8f9fa;
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-warning: linear-gradient(45deg, #ff6b35, #f7931e);
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --accent-color: #ea580c;
+  --neutral-50: #fafafa;
+  --neutral-100: #f4f4f5;
+  --neutral-200: #e4e4e7;
+  --neutral-300: #d4d4d8;
+  --neutral-400: #a1a1aa;
+  --neutral-500: #71717a;
+  --neutral-600: #52525b;
+  --neutral-700: #3f3f46;
+  --neutral-800: #27272a;
+  --neutral-900: #18181b;
+  --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
 
 [data-bs-theme="dark"] {
-  --primary-color: #0d6efd;
-  --primary-rgb: 13, 110, 253;
-  --secondary-color: #6c757d;
+  --primary-color: #3b82f6;
+  --primary-rgb: 59, 130, 246;
+  --secondary-color: #10b981;
   --success-color: #198754;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
   --light-color: #f8f9fa;
   --dark-color: #212529;
   --body-bg: #121212;
@@ -41,9 +51,11 @@
   --text-muted: #adb5bd;
   --text-dark: #ffffff;
   --text-light: #f8f9fa;
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-warning: linear-gradient(45deg, #ff6b35, #f7931e);
+  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   --shadow-color: rgba(0, 0, 0, 0.3);
+  --accent-color: #fb923c;
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 /* Aplicar variables a elementos Bootstrap - MEJORADO */

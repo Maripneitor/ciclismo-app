@@ -1,3 +1,4 @@
+// frontend/src/routes/AppRoutes.jsx - CON BrowserRouter
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PrivateRoute from '../components/PrivateRoute';
