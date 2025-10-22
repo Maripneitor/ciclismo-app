@@ -1,6 +1,4 @@
-
 /* frontend/src/styles/components/homepage.css */
-/* Hero Section con Video */
 .hero-section {
   position: relative;
   min-height: 100vh;
@@ -50,7 +48,6 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Animaciones para el Hero */
 .animate-fade-in {
   animation: fadeIn 1s ease-out;
 }
@@ -79,7 +76,6 @@
   }
 }
 
-/* Título Animado */
 .hero-title {
   min-height: 120px;
 }
@@ -116,7 +112,6 @@
   51%, 100% { opacity: 0; }
 }
 
-/* Estadísticas del Hero */
 .hero-stats {
   opacity: 0;
   animation: fadeInUp 0.8s ease-out 0.8s forwards;
@@ -138,7 +133,6 @@
   min-width: 120px;
 }
 
-/* Animación de Ciclismo */
 .cycling-animation {
   position: relative;
   text-align: center;
@@ -169,7 +163,6 @@
   100% { transform: translateX(100%); }
 }
 
-/* Scroll Indicator */
 .scroll-indicator {
   position: absolute;
   bottom: 30px;
@@ -192,7 +185,6 @@
   50% { transform: rotate(45deg) translateY(-10px); }
 }
 
-/* Feature Cards Interactivas */
 .feature-card {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
@@ -254,7 +246,6 @@
   left: 100%;
 }
 
-/* Colores de iconos */
 .icon-primary .feature-icon-char { color: #2563eb; }
 .icon-success .feature-icon-char { color: #059669; }
 .icon-warning .feature-icon-char { color: #d97706; }
@@ -265,7 +256,6 @@
 .feature-card-hovered .icon-warning .feature-icon-char { color: #b45309; }
 .feature-card-hovered .icon-info .feature-icon-char { color: #0e7490; }
 
-/* Event Cards Mejoradas */
 .event-featured-card {
   transition: all 0.3s ease;
   opacity: 0;
@@ -284,6 +274,17 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+.event-image-container .card-img-top {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-featured-card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
 .event-image-placeholder {
   position: absolute;
   top: 0;
@@ -293,7 +294,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   z-index: 1;
 }
 
@@ -302,12 +304,13 @@
   opacity: 0.3;
 }
 
-.event-image-loaded {
-  opacity: 1;
-}
-
 .event-image-loading {
   opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.event-image-loaded {
+  opacity: 1;
 }
 
 .event-badges {
@@ -359,7 +362,6 @@
   font-size: 1.25rem;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2.5rem !important;
@@ -381,7 +383,6 @@
   }
 }
 
-/* Efectos de Sombra Mejorados */
 .shadow-hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -390,9 +391,6 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Añadir al archivo frontend/src/styles/components/homepage.css */
-
-/* Stats Section */
 .stats-section {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
@@ -420,7 +418,6 @@
   margin-bottom: 0.5rem;
 }
 
-/* Testimonials Section */
 .testimonials-section {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 }
@@ -435,7 +432,6 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
-/* CTA Section */
 .cta-section {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   position: relative;
@@ -480,7 +476,6 @@
   font-weight: 500;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .stat-card {
     padding: 1.5rem 0.5rem;

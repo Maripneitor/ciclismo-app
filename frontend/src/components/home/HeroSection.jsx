@@ -21,25 +21,20 @@ const HeroSection = () => {
 
   return (
     <section className="hero-section position-relative overflow-hidden">
-      {/* Fondo del Hero con partículas animadas */}
       <div className="hero-bg-container">
         <div className="hero-gradient-bg"></div>
         <ParticlesBackground />
       </div>
 
-      {/* Contenido Hero */}
       <Container>
         <Row className="min-vh-100 align-items-center">
           <Col xs={12} lg={8} className="hero-content text-white text-center text-lg-start">
             <AnimatedBadge />
             
-            {/* Titular Principal con animación de escritura mejorada */}
             <EnhancedAnimatedTitle />
             
-            {/* Subtítulo con efecto de máquina de escribir */}
             <TypingSubtitle />
             
-            {/* Estadísticas con contadores animados */}
             <AnimatedStats />
             
             <div className="hero-actions d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-2 gap-sm-3 slide-up delay-2">
@@ -52,7 +47,7 @@ const HeroSection = () => {
                     size="lg"
                     delay="0s"
                   >
-                    🚀 COMENZAR GRATIS
+                    COMENZAR GRATIS
                   </AnimatedButton>
                   <AnimatedButton 
                     as={Link}
@@ -62,7 +57,7 @@ const HeroSection = () => {
                     size="lg"
                     delay="0.2s"
                   >
-                    📅 EXPLORAR EVENTOS
+                    EXPLORAR EVENTOS
                   </AnimatedButton>
                 </>
               ) : (
@@ -74,7 +69,7 @@ const HeroSection = () => {
                     size="lg"
                     delay="0s"
                   >
-                    📊 MI DASHBOARD
+                    MI DASHBOARD
                   </AnimatedButton>
                   <AnimatedButton 
                     as={Link}
@@ -84,39 +79,36 @@ const HeroSection = () => {
                     size="lg"
                     delay="0.2s"
                   >
-                    🎯 NUEVO EVENTO
+                    NUEVO EVENTO
                   </AnimatedButton>
                 </>
               )}
             </div>
           </Col>
           
-          {/* Visual Mobile/Tablet con ciclista animado */}
           <Col xs={12} lg={4} className="hero-visual mt-4 mt-lg-0">
             <EnhancedCyclingAnimation />
           </Col>
         </Row>
       </Container>
 
-      {/* Scroll Indicator animado */}
       <AnimatedScrollIndicator />
     </section>
   );
 };
 
-// Badge con animación de entrada
 const AnimatedBadge = () => {
   return (
     <Badge bg="warning" text="dark" className="hero-badge mb-3 badge-pop-in">
-      🚀 PLATAFORMA INNOVADORA
+      PLATAFORMA INNOVADORA
     </Badge>
   );
 };
 
-// Componente de título con animación de escritura mejorada
 const EnhancedAnimatedTitle = () => {
   const [displayedText, setDisplayedText] = useState('');
   const [currentLine, setCurrentLine] = useState(0);
+  const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [showCursor, setShowCursor] = useState(true);
 
   const lines = [
@@ -127,39 +119,37 @@ const EnhancedAnimatedTitle = () => {
   useEffect(() => {
     if (currentLine < lines.length) {
       const currentLineText = lines[currentLine];
-      let currentCharIndex = 0;
-
-      const typeLine = () => {
-        if (currentCharIndex <= currentLineText.length) {
+      
+      if (currentCharIndex <= currentLineText.length) {
+        const timer = setTimeout(() => {
           const newText = lines.slice(0, currentLine).join('\n') + 
                          (currentLine > 0 ? '\n' : '') + 
                          currentLineText.slice(0, currentCharIndex);
           setDisplayedText(newText);
-          currentCharIndex++;
-          setTimeout(typeLine, 100);
-        } else {
-          setTimeout(() => {
-            setCurrentLine(prev => prev + 1);
-          }, 500);
-        }
-      };
-
-      typeLine();
+          setCurrentCharIndex(prev => prev + 1);
+        }, 100);
+        
+        return () => clearTimeout(timer);
+      } else {
+        setTimeout(() => {
+          setCurrentLine(prev => prev + 1);
+          setCurrentCharIndex(0);
+        }, 500);
+      }
     } else {
-      // Animación del cursor después de completar todo el texto
       const cursorInterval = setInterval(() => {
         setShowCursor(prev => !prev);
       }, 500);
 
       return () => clearInterval(cursorInterval);
     }
-  }, [currentLine]);
+  }, [currentLine, currentCharIndex]);
 
   const renderText = () => {
     return displayedText.split('\n').map((line, index) => (
       <div key={index} className={`title-line ${index === 1 ? 'highlight-line' : ''}`}>
         {line}
-        {index === displayedText.split('\n').length - 1 && showCursor && (
+        {index === displayedText.split('\n').length - 1 && showCursor && currentLine >= lines.length && (
           <span className="typing-cursor">|</span>
         )}
       </div>
@@ -173,7 +163,6 @@ const EnhancedAnimatedTitle = () => {
   );
 };
 
-// Subtítulo con efecto de máquina de escribir
 const TypingSubtitle = () => {
   const [displayedSubtitle, setDisplayedSubtitle] = useState('');
   const [subtitleComplete, setSubtitleComplete] = useState(false);
@@ -193,7 +182,6 @@ const TypingSubtitle = () => {
       }
     };
 
-    // Iniciar después de que el título termine
     const timer = setTimeout(typeSubtitle, 2500);
     return () => clearTimeout(timer);
   }, []);
@@ -206,7 +194,6 @@ const TypingSubtitle = () => {
   );
 };
 
-// Componente de estadísticas con contadores
 const AnimatedStats = () => {
   return (
     <div className="hero-stats d-flex justify-content-center justify-content-lg-start gap-4 my-4 stats-fade-in">
@@ -232,7 +219,6 @@ const AnimatedStats = () => {
   );
 };
 
-// Botones con animación de entrada escalonada
 const AnimatedButton = ({ children, delay = '0s', ...props }) => {
   return (
     <Button 
@@ -245,7 +231,6 @@ const AnimatedButton = ({ children, delay = '0s', ...props }) => {
   );
 };
 
-// Animación del ciclista mejorada
 const EnhancedCyclingAnimation = () => {
   const [bounce, setBounce] = useState(0);
   const [pedalRotation, setPedalRotation] = useState(0);
@@ -329,7 +314,6 @@ const EnhancedCyclingAnimation = () => {
   );
 };
 
-// Indicador de scroll animado
 const AnimatedScrollIndicator = () => {
   const [bounce, setBounce] = useState(0);
 
@@ -358,7 +342,6 @@ const AnimatedScrollIndicator = () => {
   );
 };
 
-// Fondo con partículas animadas
 const ParticlesBackground = () => {
   return (
     <div className="particles-container">

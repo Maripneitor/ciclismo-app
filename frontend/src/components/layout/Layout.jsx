@@ -1,5 +1,6 @@
+// frontend/src/components/layout/Layout.jsx - CORREGIDO
 import React, { useState, useEffect } from 'react';
-import Header from './Header';
+import EnhancedNavbar from './EnhancedNavbar'; // Cambiado de Header a EnhancedNavbar
 import Footer from './Footer';
 
 const Layout = ({ children }) => {
@@ -17,7 +18,7 @@ const Layout = ({ children }) => {
 
     return (
         <div className="d-flex flex-column min-vh-100">
-            <Header className={scrolled ? 'navbar-blur' : ''} />
+            <EnhancedNavbar className={scrolled ? 'navbar-blur' : ''} />
             <main className="flex-grow-1">
                 {children}
             </main>

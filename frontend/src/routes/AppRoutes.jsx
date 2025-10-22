@@ -38,9 +38,8 @@ import SystemSettingsPage from '../pages/admin/SystemSettingsPage';
 const AppRoutes = () => {
     return (
         <BrowserRouter>
-            {/* ❌ QUITAR Layout de aquí - se maneja en cada ruta */}
             <Routes>
-                {/* Rutas Públicas CON Layout */}
+                {/* Rutas Públicas CON Layout Principal */}
                 <Route path="/" element={<Layout><HomePage /></Layout>} />
                 <Route path="/login" element={<Layout><LoginPage /></Layout>} />
                 <Route path="/registro" element={<Layout><RegisterPage /></Layout>} />
@@ -50,9 +49,9 @@ const AppRoutes = () => {
                 <Route path="/contacto" element={<Layout><ContactPage /></Layout>} />
                 <Route path="/plus" element={<Layout><SubscriptionPage /></Layout>} />
 
-                {/* Rutas Privadas de Usuario */}
+                {/* Rutas Privadas de Usuario - Layout Principal + UserAccountLayout */}
                 <Route element={<PrivateRoute />}>
-                    <Route path="/cuenta/*" element={<UserAccountLayout />}>
+                    <Route path="/cuenta/*" element={<Layout><UserAccountLayout /></Layout>}>
                         <Route path="dashboard" element={<EnhancedDashboardPage />} />
                         <Route path="perfil" element={<ProfilePage />} />
                         <Route path="historial" element={<HistoryPage />} />
@@ -62,14 +61,14 @@ const AppRoutes = () => {
                     </Route>
                 </Route>
 
-                {/* Rutas de Organizador CON Layout */}
+                {/* Rutas de Organizador CON Layout Principal */}
                 <Route element={<OrganizerRoute />}>
                     <Route path="/organizador/dashboard" element={<Layout><OrganizerDashboardPage /></Layout>} />
                     <Route path="/organizador/eventos/nuevo" element={<Layout><CreateEventPage /></Layout>} />
                     <Route path="/organizador/eventos/editar/:id" element={<Layout><CreateEventPage /></Layout>} />
                 </Route>
 
-                {/* Rutas de Administrador CON Layout */}
+                {/* Rutas de Administrador CON Layout Principal */}
                 <Route element={<AdminRoute />}>
                     <Route path="/admin/dashboard" element={<Layout><AdminDashboardPage /></Layout>} />
                     <Route path="/admin/eventos" element={<Layout><ManageEventsPage /></Layout>} />
@@ -78,7 +77,7 @@ const AppRoutes = () => {
                     <Route path="/admin/configuracion" element={<Layout><SystemSettingsPage /></Layout>} />
                 </Route>
 
-                {/* Ruta 404 CON Layout */}
+                {/* Ruta 404 CON Layout Principal */}
                 <Route path="*" element={
                     <Layout>
                         <div className="container text-center py-5">

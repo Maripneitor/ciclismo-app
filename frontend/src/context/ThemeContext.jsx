@@ -15,12 +15,10 @@ export const ThemeProvider = ({ children }) => {
     const [darkMode, setDarkMode] = useState(true);
     const [mounted, setMounted] = useState(false);
 
-    // Aplicar tema consistentemente
     const applyTheme = (isDark) => {
         const htmlElement = document.documentElement;
         const bodyElement = document.body;
         
-        // Limpiar clases anteriores
         bodyElement.classList.remove('dark-theme', 'light-theme');
         htmlElement.removeAttribute('data-bs-theme');
         
@@ -35,7 +33,6 @@ export const ThemeProvider = ({ children }) => {
         }
     };
 
-    // Cargar tema al inicio
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -48,7 +45,6 @@ export const ThemeProvider = ({ children }) => {
         setMounted(true);
     }, []);
 
-    // Aplicar tema cuando cambia
     useEffect(() => {
         if (mounted) {
             applyTheme(darkMode);
@@ -70,4 +66,24 @@ export const ThemeProvider = ({ children }) => {
             {children}
         </ThemeContext.Provider>
     );
+};
+
+export const useThemeEffect = () => {
+    const { darkMode } = useTheme();
+
+    useEffect(() => {
+        const htmlElement = document.documentElement;
+        const bodyElement = document.body;
+        
+        bodyElement.classList.remove('dark-theme', 'light-theme');
+        htmlElement.removeAttribute('data-bs-theme');
+        
+        if (darkMode) {
+            htmlElement.setAttribute('data-bs-theme', 'dark');
+            bodyElement.classList.add('dark-theme');
+        } else {
+            htmlElement.setAttribute('data-bs-theme', 'light');
+            bodyElement.classList.add('light-theme');
+        }
+    }, [darkMode]);
 };

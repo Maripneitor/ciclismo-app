@@ -19,7 +19,6 @@ const EventsPage = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  // Filtros avanzados
   const [filters, setFilters] = useState({
     tipos: [],
     distancia: [0, 200],
@@ -33,7 +32,6 @@ const EventsPage = () => {
   });
 
   const [sortBy, setSortBy] = useState('fecha');
-  const [viewMode, setViewMode] = useState('grid');
   const [loadingEvents, setLoadingEvents] = useState([]);
   const [registrationMessage, setRegistrationMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,7 +47,6 @@ const EventsPage = () => {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      // Datos de ejemplo enriquecidos
       const demoEvents = [
         {
           id: 1,
@@ -161,7 +158,6 @@ const EventsPage = () => {
   const filterAndSortEvents = useCallback(() => {
     let filtered = [...events];
 
-    // Aplicar filtros avanzados
     if (filters.search) {
       const query = filters.search.toLowerCase();
       filtered = filtered.filter(event =>
@@ -171,26 +167,22 @@ const EventsPage = () => {
       );
     }
 
-    // Filtro por tipos
     if (filters.tipos.length > 0) {
       filtered = filtered.filter(event => 
         filters.tipos.includes(event.tipo)
       );
     }
 
-    // Filtro por distancia (slider)
     filtered = filtered.filter(event => 
       event.distancia_km >= filters.distancia[0] &&
       event.distancia_km <= filters.distancia[1]
     );
 
-    // Filtro por precio (slider)
     filtered = filtered.filter(event => 
       event.cuota_inscripcion >= filters.precio[0] &&
       event.cuota_inscripcion <= filters.precio[1]
     );
 
-    // Filtro por fecha
     if (filters.fecha) {
       const filterDate = new Date(filters.fecha).toDateString();
       filtered = filtered.filter(event => 
@@ -198,19 +190,16 @@ const EventsPage = () => {
       );
     }
 
-    // Filtro por estado
     if (filters.estado !== 'all') {
       filtered = filtered.filter(event => event.estado === filters.estado);
     }
 
-    // Filtro por dificultad
     if (filters.dificultad !== 'all') {
       filtered = filtered.filter(event => 
         event.dificultad?.toLowerCase() === filters.dificultad
       );
     }
 
-    // Ordenar
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'fecha':
@@ -276,11 +265,9 @@ const EventsPage = () => {
     setRegistrationMessage('');
 
     try {
-      // Simular inscripción
       await new Promise(resolve => setTimeout(resolve, 1500));
-      setRegistrationMessage(`¡Inscripción exitosa! Te has registrado en ${event.nombre}`);
+      setRegistrationMessage(`Inscripción exitosa! Te has registrado en ${event.nombre}`);
       
-      // Actualizar contador
       setEvents(prev => prev.map(e => 
         e.id === event.id 
           ? { ...e, participantes_inscritos: (e.participantes_inscritos || 0) + 1 }
@@ -288,7 +275,7 @@ const EventsPage = () => {
       ));
 
     } catch (error) {
-      setRegistrationMessage('❌ Error al realizar la inscripción');
+      setRegistrationMessage('Error al realizar la inscripción');
     } finally {
       setLoadingEvents(prev => prev.filter(id => id !== event.id));
     }
@@ -320,7 +307,6 @@ const EventsPage = () => {
   return (
     <div className="events-page">
       <Container className="py-5">
-        {/* Header */}
         <Row className="mb-4">
           <Col>
             <div className="d-flex justify-content-between align-items-center">
@@ -333,24 +319,13 @@ const EventsPage = () => {
                 </p>
               </div>
               <div className="d-flex gap-3">
-                <ButtonGroup>
-                  <Button
-                    variant={viewMode === 'grid' ? 'primary' : 'outline-primary'}
-                    onClick={() => setViewMode('grid')}
-                  >
-                    ⏹ Grid
-                  </Button>
-                  <Button
-                    variant={viewMode === 'list' ? 'primary' : 'outline-primary'}
-                    onClick={() => setViewMode('list')}
-                  >
-                    📋 Lista
-                  </Button>
-                </ButtonGroup>
+                <Badge bg="light" text="dark" className="fs-6 px-3 py-2">
+                  Vista Grid
+                </Badge>
 
                 <Dropdown>
                   <Dropdown.Toggle variant="outline-primary">
-                    📊 Ordenar: {
+                    Ordenar: {
                       sortBy === 'fecha' ? 'Fecha' :
                       sortBy === 'distancia' ? 'Distancia' :
                       sortBy === 'precio' ? 'Precio' :
@@ -381,7 +356,6 @@ const EventsPage = () => {
           </Alert>
         )}
 
-        {/* Buscador y Filtros Avanzados */}
         <AdvancedSearchFilters
           filters={filters}
           onFiltersChange={handleFiltersChange}
@@ -389,7 +363,6 @@ const EventsPage = () => {
           onSearch={handleSearch}
         />
 
-        {/* Información de Resultados */}
         <Row className="mb-4">
           <Col>
             <div className="d-flex justify-content-between align-items-center">
@@ -408,19 +381,18 @@ const EventsPage = () => {
                 onClick={clearFilters}
                 disabled={activeFiltersCount === 0}
               >
-                🗑️ Limpiar Filtros
+                Limpiar Filtros
               </Button>
             </div>
           </Col>
         </Row>
 
-        {/* Grid de Eventos con Animación */}
         <div className="events-grid">
           {filteredEvents.length === 0 ? (
             <Col>
               <Card className="text-center py-5">
                 <Card.Body>
-                  <div className="text-muted mb-3" style={{ fontSize: '4rem' }}>🚴</div>
+                  <div className="text-muted mb-3" style={{ fontSize: '4rem' }}></div>
                   <h4>No se encontraron eventos</h4>
                   <p className="text-muted mb-4">
                     No hay eventos disponibles que coincidan con tus criterios de búsqueda.

@@ -14,7 +14,6 @@ const FeaturedEvents = () => {
 
   const loadFeaturedEvents = async () => {
     try {
-      // En desarrollo, usar datos de ejemplo
       const demoEvents = [
         {
           id: 1,
@@ -30,7 +29,7 @@ const FeaturedEvents = () => {
           cupo_maximo: 100,
           dificultad: 'Alta',
           elevacion: 2500,
-          imagen: '/images/events/sierra-nevada.jpg'
+          imagen: 'https://placehold.co/600x400/667eea/ffffff?text=Sierra+Nevada'
         },
         {
           id: 2,
@@ -46,7 +45,7 @@ const FeaturedEvents = () => {
           cupo_maximo: 200,
           dificultad: 'Media',
           elevacion: 300,
-          imagen: '/images/events/madrid-nocturna.jpg'
+          imagen: 'https://placehold.co/600x400/764ba2/ffffff?text=Madrid+Nocturna'
         },
         {
           id: 3,
@@ -62,7 +61,7 @@ const FeaturedEvents = () => {
           cupo_maximo: 150,
           dificultad: 'Media',
           elevacion: 500,
-          imagen: '/images/events/costa-barcelona.jpg'
+          imagen: 'https://placehold.co/600x400/059669/ffffff?text=Costa+Barcelona'
         }
       ];
 
@@ -76,13 +75,13 @@ const FeaturedEvents = () => {
 
   const getEventTypeIcon = (type) => {
     const icons = {
-      'ruta': '🛣️',
-      'montaña': '⛰️',
-      'urbano': '🏙️',
-      'competitivo': '🏆',
-      'recreativo': '😊'
+      'ruta': 'Ruta',
+      'montaña': 'Montaña',
+      'urbano': 'Urbano',
+      'competitivo': 'Competitivo',
+      'recreativo': 'Recreativo'
     };
-    return icons[type] || '🚴';
+    return icons[type] || 'Ciclismo';
   };
 
   const getStatusVariant = (status) => {
@@ -169,7 +168,6 @@ const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDat
 
   return (
     <Card className="event-featured-card h-100 border-0 shadow-hover">
-      {/* Imagen del Evento */}
       <div className="event-image-container">
         <div className="event-image-placeholder">
           <span className="event-icon-large">{getEventTypeIcon(event.tipo)}</span>
@@ -182,7 +180,6 @@ const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDat
           className={imageLoaded ? 'event-image-loaded' : 'event-image-loading'}
         />
         
-        {/* Badges Superpuestos */}
         <div className="event-badges">
           <Badge bg={getStatusVariant(event.estado)} className="event-status">
             {event.estado}
@@ -192,7 +189,6 @@ const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDat
           </Badge>
         </div>
 
-        {/* Fecha Destacada */}
         <div className="event-date-highlight">
           <div className="event-day">
             {new Date(event.fecha).getDate()}
@@ -204,7 +200,6 @@ const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDat
       </div>
 
       <Card.Body className="d-flex flex-column p-4">
-        {/* Información Principal */}
         <div className="mb-3">
           <Card.Title className="h5 fw-bold mb-2">
             <Link to={`/evento/${event.id}`} className="text-decoration-none text-dark">
@@ -212,19 +207,17 @@ const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDat
             </Link>
           </Card.Title>
           <Card.Text className="text-muted small mb-2">
-            📍 {event.ubicacion}
+            {event.ubicacion}
           </Card.Text>
           <Card.Text className="text-muted small">
-            🗓️ {formatDate(event.fecha)}
+            {formatDate(event.fecha)}
           </Card.Text>
         </div>
 
-        {/* Descripción */}
         <Card.Text className="flex-grow-1 text-muted mb-3">
           {event.descripcion}
         </Card.Text>
 
-        {/* Estadísticas */}
         <div className="event-stats d-flex justify-content-between text-center mb-3">
           <div className="stat">
             <div className="stat-value text-primary fw-bold">{event.distancia_km}km</div>
@@ -240,7 +233,6 @@ const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDat
           </div>
         </div>
 
-        {/* Progress Bar para cupos */}
         <div className="mb-3">
           <div className="d-flex justify-content-between small text-muted mb-1">
             <span>Cupos disponibles</span>
@@ -256,7 +248,6 @@ const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDat
           </div>
         </div>
 
-        {/* Acciones */}
         <div className="d-grid gap-2">
           <Button 
             as={Link} 
