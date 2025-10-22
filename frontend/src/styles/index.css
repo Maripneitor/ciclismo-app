@@ -3,6 +3,11 @@
 @import './homepage.css';
 /* frontend/src/styles/index.css */
 @import './hero-stable.css';
+@import './animations.css';
+@import './hero-stable.css';
+@import './theme.css';
+
+/* Resto de tus estilos... */
 
 /* Tus otros estilos existentes */
 

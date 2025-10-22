@@ -1,6 +1,9 @@
 /* frontend/src/styles/index.css */
+@import './animations.css';
+@import './hero-stable.css';
 @import './theme.css';
-@import './hero-enhanced.css';
+
+/* Resto de tus estilos... */
 
 /* Reset y estilos base */
 * {
