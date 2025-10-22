@@ -1,0 +1,302 @@
+/* frontend/src/styles/theme.css */
+/* Variables CSS para temas - MEJORADO */
+:root {
+  --primary-color: #0d6efd;
+  --primary-rgb: 13, 110, 253;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --body-bg: #ffffff;
+  --body-color: #212529;
+  --card-bg: #ffffff;
+  --card-bg-rgb: 255, 255, 255;
+  --border-color: #dee2e6;
+  --header-bg: #ffffff;
+  --text-muted: #6c757d;
+  --text-dark: #212529;
+  --text-light: #f8f9fa;
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-warning: linear-gradient(45deg, #ff6b35, #f7931e);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] {
+  --primary-color: #0d6efd;
+  --primary-rgb: 13, 110, 253;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --body-bg: #121212;
+  --body-color: #ffffff;
+  --card-bg: #1e1e1e;
+  --card-bg-rgb: 30, 30, 30;
+  --border-color: #444;
+  --header-bg: #1e1e1e;
+  --text-muted: #adb5bd;
+  --text-dark: #ffffff;
+  --text-light: #f8f9fa;
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-warning: linear-gradient(45deg, #ff6b35, #f7931e);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Aplicar variables a elementos Bootstrap - MEJORADO */
+body {
+  background-color: var(--body-bg) !important;
+  color: var(--body-color) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Navbar mejorado */
+.navbar {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.navbar-brand-modern {
+  color: var(--body-color) !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.nav-link-modern {
+  color: var(--body-color) !important;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link-modern:hover {
+  color: var(--primary-color) !important;
+}
+
+/* Cards mejoradas */
+.card {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--body-color) !important;
+  transition: all 0.3s ease;
+}
+
+.card-header {
+  background-color: var(--card-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--body-color) !important;
+}
+
+/* Textos mejorados */
+.text-dark {
+  color: var(--text-dark) !important;
+}
+
+.text-light {
+  color: var(--text-light) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.text-body {
+  color: var(--body-color) !important;
+}
+
+/* Botones outline mejorados */
+.btn-outline-primary {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-outline-light {
+  color: var(--text-dark) !important;
+  border-color: var(--border-color) !important;
+  background: transparent;
+}
+
+.btn-outline-light:hover {
+  background-color: var(--border-color) !important;
+  color: var(--body-color) !important;
+}
+
+/* Backgrounds mejorados */
+.bg-light {
+  background-color: var(--card-bg) !important;
+  color: var(--body-color) !important;
+}
+
+.bg-dark {
+  background-color: var(--dark-color) !important;
+  color: var(--text-light) !important;
+}
+
+.bg-primary {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+}
+
+/* Mejoras específicas para secciones problemáticas */
+.testimonials-section {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+}
+
+.testimonials-section .card {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.testimonials-section .text-warning {
+  color: #ffd700 !important;
+}
+
+.projects-section .card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.projects-section .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Hero section mejorada */
+.hero-section {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+}
+
+.hero-section .text-warning {
+  color: #ffd700 !important;
+}
+
+/* Dashboard section */
+.dashboard-section {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+}
+
+.dashboard-section .card {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* CTA section */
+.cta-section {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+}
+
+/* Formularios mejorados */
+.form-control {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--body-color) !important;
+}
+
+.form-control:focus {
+  background-color: var(--card-bg) !important;
+  color: var(--body-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+
+.form-select {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--body-color) !important;
+}
+
+.form-label {
+  color: var(--body-color) !important;
+}
+
+/* Dropdown mejorado */
+.dropdown-menu {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--body-color) !important;
+}
+
+.dropdown-item {
+  color: var(--body-color) !important;
+}
+
+.dropdown-item:hover {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Progress bars */
+.progress {
+  background-color: var(--border-color) !important;
+}
+
+/* Badges */
+.badge {
+  color: white !important;
+}
+
+/* Modal mejorado */
+.modal-content {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--body-color) !important;
+}
+
+.modal-header {
+  border-bottom-color: var(--border-color) !important;
+}
+
+.modal-footer {
+  border-top-color: var(--border-color) !important;
+}
+
+.modal-header .btn-close {
+  filter: invert(var(--bs-modal-btn-close-bg, 0.5));
+}
+
+/* Asegurar contraste en todos los elementos */
+.section-title,
+.hero-title {
+  color: inherit !important;
+}
+
+.section-subtitle,
+.hero-subtitle {
+  color: inherit !important;
+  opacity: 0.9;
+}
+
+/* Enlaces */
+a {
+  color: var(--primary-color) !important;
+}
+
+a:hover {
+  color: var(--primary-color) !important;
+  opacity: 0.8;
+}
+
+/* Sombras consistentes */
+.card {
+  box-shadow: 0 0.125rem 0.25rem var(--shadow-color) !important;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem var(--shadow-color) !important;
+}

@@ -7,7 +7,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { eventsAPI, registrationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from "../context/ThemeContext";  // ✅ Importación añadida
+import { useTheme } from "../context/ThemeContext";  // ✅ Importación ya existe
 import './EventsPage.css';
 
 const EventsPage = () => {
@@ -39,7 +39,20 @@ const EventsPage = () => {
     const [loadingEvents, setLoadingEvents] = useState([]);
     const [registrationMessage, setRegistrationMessage] = useState('');
 
+    // Al inicio del componente EventsPage
+const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+}, []);
+
+const isMobile = windowWidth < 768;
+const isTablet = windowWidth >= 768 && windowWidth < 992;
+
     // ❌ ELIMINADO: useEffect para cargar tema (ahora se maneja en ThemeContext)
+    // ❌ ELIMINADO: Estado local darkMode y función toggleDarkMode
 
     useEffect(() => {
         loadEvents();

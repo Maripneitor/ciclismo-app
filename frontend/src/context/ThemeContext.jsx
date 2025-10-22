@@ -1,4 +1,4 @@
-// src/context/ThemeContext.jsx
+// frontend/src/context/ThemeContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
@@ -13,33 +13,50 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
     const [darkMode, setDarkMode] = useState(true);
+    const [mounted, setMounted] = useState(false);
 
+    // Aplicar tema consistentemente
     const applyTheme = (isDark) => {
+        const htmlElement = document.documentElement;
+        const bodyElement = document.body;
+        
+        // Limpiar clases anteriores
+        bodyElement.classList.remove('dark-theme', 'light-theme');
+        htmlElement.removeAttribute('data-bs-theme');
+        
         if (isDark) {
-            document.body.classList.add('dark-mode');
-            document.body.classList.remove('light-mode');
+            htmlElement.setAttribute('data-bs-theme', 'dark');
+            bodyElement.classList.add('dark-theme');
+            localStorage.setItem('theme', 'dark');
         } else {
-            document.body.classList.add('light-mode');
-            document.body.classList.remove('dark-mode');
+            htmlElement.setAttribute('data-bs-theme', 'light');
+            bodyElement.classList.add('light-theme');
+            localStorage.setItem('theme', 'light');
         }
     };
 
+    // Cargar tema al inicio
     useEffect(() => {
-        const savedTheme = localStorage.getItem('darkMode');
-        if (savedTheme !== null) {
-            const isDark = JSON.parse(savedTheme);
-            setDarkMode(isDark);
-            applyTheme(isDark);
-        } else {
-            applyTheme(true);
-        }
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        const initialTheme = savedTheme === 'light' ? false : 
+                           savedTheme === 'dark' ? true : prefersDark;
+        
+        setDarkMode(initialTheme);
+        applyTheme(initialTheme);
+        setMounted(true);
     }, []);
 
+    // Aplicar tema cuando cambia
+    useEffect(() => {
+        if (mounted) {
+            applyTheme(darkMode);
+        }
+    }, [darkMode, mounted]);
+
     const toggleDarkMode = () => {
-        const newDarkMode = !darkMode;
-        setDarkMode(newDarkMode);
-        localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
-        applyTheme(newDarkMode);
+        setDarkMode(prev => !prev);
     };
 
     const value = {
