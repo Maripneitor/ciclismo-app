@@ -1,15 +1,13 @@
-// frontend/src/pages/EventsPage.jsx - VERSIÓN FINAL MEJORADA
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container, Row, Col, Card, Button, Spinner, Alert, Form,
-  Badge, InputGroup, Dropdown, ButtonGroup
+  Badge, InputGroup, Dropdown, ButtonGroup, Modal
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { eventsAPI, registrationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import EnhancedEventCard from '../components/events/EnhancedEventCard';
 import AdvancedSearchFilters from '../components/events/AdvancedSearchFilters';
-import './EventsPage.css';
 
 const EventsPage = () => {
   const [events, setEvents] = useState([]);
@@ -35,6 +33,8 @@ const EventsPage = () => {
   const [loadingEvents, setLoadingEvents] = useState([]);
   const [registrationMessage, setRegistrationMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showQuickView, setShowQuickView] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
     loadEvents();
@@ -47,106 +47,28 @@ const EventsPage = () => {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const demoEvents = [
-        {
-          id: 1,
-          nombre: 'Gran Fondo Sierra Nevada',
-          descripcion: 'Desafío de montaña en los picos más altos de España. Ruta técnica con paisajes espectaculares.',
-          fecha: '2024-06-15T08:00:00',
-          ubicacion: 'Granada, España',
-          distancia_km: 120,
-          tipo: 'montaña',
-          estado: 'Próximo',
-          cuota_inscripcion: 50.00,
-          participantes_inscritos: 45,
-          cupo_maximo: 100,
-          dificultad: 'Alta',
-          elevacion: 2500,
-          imagen: '/images/events/sierra-nevada.jpg'
-        },
-        {
-          id: 2,
-          nombre: 'Carrera Nocturna Madrid',
-          descripcion: 'Recorrido urbano iluminado por el centro histórico de Madrid. Ambiente festivo y seguro.',
-          fecha: '2024-07-20T20:00:00',
-          ubicacion: 'Madrid, España',
-          distancia_km: 45,
-          tipo: 'urbano',
-          estado: 'Próximo',
-          cuota_inscripcion: 25.00,
-          participantes_inscritos: 120,
-          cupo_maximo: 200,
-          dificultad: 'Media',
-          elevacion: 300,
-          imagen: '/images/events/madrid-nocturna.jpg'
-        },
-        {
-          id: 3,
-          nombre: 'Maratón Costa Barcelona',
-          descripcion: 'Ruta costera con vistas al mediterráneo. Perfecta para disfrutar del paisaje y el buen clima.',
-          fecha: '2024-08-10T09:00:00',
-          ubicacion: 'Barcelona, España',
-          distancia_km: 80,
-          tipo: 'ruta',
-          estado: 'Próximo',
-          cuota_inscripcion: 35.00,
-          participantes_inscritos: 75,
-          cupo_maximo: 150,
-          dificultad: 'Media',
-          elevacion: 500,
-          imagen: '/images/events/costa-barcelona.jpg'
-        },
-        {
-          id: 4,
-          nombre: 'Extreme Mountain Challenge',
-          descripcion: 'Para los más aventureros. Ruta técnica con secciones de singletrack y descensos vertiginosos.',
-          fecha: '2024-09-05T07:00:00',
-          ubicacion: 'Pirineos, España',
-          distancia_km: 65,
-          tipo: 'montaña',
-          estado: 'Próximo',
-          cuota_inscripcion: 60.00,
-          participantes_inscritos: 95,
-          cupo_maximo: 100,
-          dificultad: 'Extrema',
-          elevacion: 1800,
-          imagen: '/images/events/pirineos-extreme.jpg'
-        },
-        {
-          id: 5,
-          nombre: 'Tour Costa del Sol',
-          descripcion: 'Ruta costera con vistas espectaculares al mar Mediterráneo. Perfecta para disfrutar del buen clima.',
-          fecha: '2024-10-12T09:00:00',
-          ubicacion: 'Málaga, España',
-          distancia_km: 95,
-          tipo: 'ruta',
-          estado: 'Próximo',
-          cuota_inscripcion: 40.00,
-          participantes_inscritos: 60,
-          cupo_maximo: 120,
-          dificultad: 'Media',
-          elevacion: 400,
-          imagen: '/images/events/costa-sol.jpg'
-        },
-        {
-          id: 6,
-          nombre: 'Urban Sprint Valencia',
-          descripcion: 'Carrera urbana rápida por el centro histórico y la Ciudad de las Artes y las Ciencias.',
-          fecha: '2024-11-08T18:00:00',
-          ubicacion: 'Valencia, España',
-          distancia_km: 30,
-          tipo: 'urbano',
-          estado: 'Próximo',
-          cuota_inscripcion: 20.00,
-          participantes_inscritos: 80,
-          cupo_maximo: 150,
-          dificultad: 'Baja',
-          elevacion: 50,
-          imagen: '/images/events/valencia-urban.jpg'
-        }
-      ];
-
-      setEvents(demoEvents);
+      setError('');
+      const eventsData = await eventsAPI.getAll();
+      
+      const adaptedEvents = eventsData.map(event => ({
+        id: event.evento_id || event.id,
+        evento_id: event.evento_id,
+        nombre: event.nombre,
+        descripcion: event.descripcion,
+        fecha: event.fecha,
+        ubicacion: event.ubicacion,
+        distancia_km: event.distancia_km,
+        tipo: event.tipo,
+        estado: event.estado,
+        cuota_inscripcion: event.cuota_inscripcion,
+        participantes_inscritos: event.participantes_inscritos || 0,
+        cupo_maximo: event.cupo_maximo,
+        dificultad: event.dificultad,
+        elevacion: event.elevacion,
+        imagen: event.imagen
+      }));
+      
+      setEvents(adaptedEvents);
     } catch (error) {
       console.error('Error loading events:', error);
       setError('Error cargando eventos del servidor');
@@ -245,6 +167,7 @@ const EventsPage = () => {
       dificultad: 'all'
     });
     setSortBy('fecha');
+    setSearchQuery('');
   };
 
   const handleRegister = async (event) => {
@@ -261,24 +184,36 @@ const EventsPage = () => {
       return;
     }
 
-    setLoadingEvents(prev => [...prev, event.id]);
+    setLoadingEvents(prev => [...prev, event.evento_id || event.id]);
     setRegistrationMessage('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setRegistrationMessage(`Inscripción exitosa! Te has registrado en ${event.nombre}`);
+      const registrationData = {
+        evento_id: event.evento_id || event.id,
+        categoria_id: 1,
+        talla_playera_id: 1
+      };
+
+      const result = await registrationsAPI.registerForEvent(registrationData);
+      setRegistrationMessage(`¡Inscripción exitosa! ${result.message || `Te has registrado en ${event.nombre}`}`);
       
       setEvents(prev => prev.map(e => 
-        e.id === event.id 
+        (e.evento_id || e.id) === (event.evento_id || event.id)
           ? { ...e, participantes_inscritos: (e.participantes_inscritos || 0) + 1 }
           : e
       ));
 
     } catch (error) {
-      setRegistrationMessage('Error al realizar la inscripción');
+      console.error('Error en inscripción:', error);
+      setRegistrationMessage(error.message || 'Error al realizar la inscripción');
     } finally {
-      setLoadingEvents(prev => prev.filter(id => id !== event.id));
+      setLoadingEvents(prev => prev.filter(id => id !== (event.evento_id || event.id)));
     }
+  };
+
+  const handleQuickView = (event) => {
+    setSelectedEvent(event);
+    setShowQuickView(true);
   };
 
   const activeFiltersCount = Object.values(filters).filter(filter => {
@@ -293,135 +228,183 @@ const EventsPage = () => {
 
   if (loading && events.length === 0) {
     return (
-      <div className="events-page">
-        <Container className="d-flex justify-content-center align-items-center min-vh-100">
-          <div className="text-center">
-            <Spinner animation="border" variant="primary" size="lg" />
-            <p className="mt-3">Cargando eventos...</p>
-          </div>
-        </Container>
-      </div>
+      <Container className="d-flex justify-content-center align-items-center min-vh-100">
+        <div className="text-center">
+          <Spinner animation="border" variant="primary" size="lg" />
+          <p className="mt-3">Cargando eventos...</p>
+        </div>
+      </Container>
     );
   }
 
   return (
-    <div className="events-page">
-      <Container className="py-5">
+    <Container className="py-5">
+      <Row className="mb-4">
+        <Col>
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h1 className="display-5 fw-bold mb-2">
+                Catálogo de <span className="text-primary">Eventos</span>
+              </h1>
+              <p className="text-muted">
+                Descubre los mejores eventos de ciclismo
+              </p>
+            </div>
+            <div className="d-flex gap-3">
+              <Badge bg="light" text="dark" className="fs-6 px-3 py-2">
+                Vista Grid
+              </Badge>
+
+              <Dropdown>
+                <Dropdown.Toggle variant="outline-primary">
+                  Ordenar: {
+                    sortBy === 'fecha' ? 'Fecha' :
+                    sortBy === 'distancia' ? 'Distancia' :
+                    sortBy === 'precio' ? 'Precio' :
+                    sortBy === 'dificultad' ? 'Dificultad' :
+                    'Popularidad'
+                  }
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => setSortBy('fecha')}>
+                    Fecha
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setSortBy('distancia')}>
+                    Distancia
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setSortBy('precio')}>
+                    Precio
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setSortBy('dificultad')}>
+                    Dificultad
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setSortBy('popularidad')}>
+                    Popularidad
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          </div>
+        </Col>
+      </Row>
+
+      {error && (
         <Row className="mb-4">
           <Col>
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <h1 className="display-5 fw-bold mb-2">
-                  Catálogo de <span className="text-primary">Eventos</span>
-                </h1>
-                <p className="text-muted">
-                  Descubre los mejores eventos de ciclismo
+            <Alert variant="danger" dismissible onClose={() => setError('')}>
+              {error}
+            </Alert>
+          </Col>
+        </Row>
+      )}
+
+      {registrationMessage && (
+        <Row className="mb-4">
+          <Col>
+            <Alert 
+              variant={registrationMessage.includes('éxito') ? 'success' : 'warning'}
+              dismissible 
+              onClose={() => setRegistrationMessage('')}
+            >
+              {registrationMessage}
+            </Alert>
+          </Col>
+        </Row>
+      )}
+
+      <Row>
+        <Col lg={3}>
+          <AdvancedSearchFilters
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            onSearch={handleSearch}
+            onClearFilters={clearFilters}
+            activeFiltersCount={activeFiltersCount}
+          />
+        </Col>
+
+        <Col lg={9}>
+          <div className="events-grid-container">
+            {loading && events.length > 0 ? (
+              <div className="text-center py-5">
+                <Spinner animation="border" variant="primary" />
+                <p className="mt-2">Actualizando eventos...</p>
+              </div>
+            ) : filteredEvents.length === 0 ? (
+              <div className="text-center py-5">
+                <h4 className="text-muted">No se encontraron eventos</h4>
+                <p className="text-muted mb-3">
+                  Intenta ajustar los filtros o la búsqueda
                 </p>
+                <Button variant="outline-primary" onClick={clearFilters}>
+                  Limpiar filtros
+                </Button>
               </div>
-              <div className="d-flex gap-3">
-                <Badge bg="light" text="dark" className="fs-6 px-3 py-2">
-                  Vista Grid
-                </Badge>
-
-                <Dropdown>
-                  <Dropdown.Toggle variant="outline-primary">
-                    Ordenar: {
-                      sortBy === 'fecha' ? 'Fecha' :
-                      sortBy === 'distancia' ? 'Distancia' :
-                      sortBy === 'precio' ? 'Precio' :
-                      sortBy === 'dificultad' ? 'Dificultad' : 'Popularidad'
-                    }
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setSortBy('fecha')}>Fecha</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('distancia')}>Distancia</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('precio')}>Precio</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('dificultad')}>Dificultad</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy('popularidad')}>Popularidad</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </div>
-            </div>
-          </Col>
-        </Row>
-
-        {registrationMessage && (
-          <Alert 
-            variant={registrationMessage.includes('éxito') ? 'success' : 'warning'} 
-            className="mb-4"
-            dismissible
-            onClose={() => setRegistrationMessage('')}
-          >
-            {registrationMessage}
-          </Alert>
-        )}
-
-        <AdvancedSearchFilters
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          events={events}
-          onSearch={handleSearch}
-        />
-
-        <Row className="mb-4">
-          <Col>
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <Badge bg="primary" className="fs-6 px-3 py-2">
-                  {filteredEvents.length} eventos encontrados
-                </Badge>
-                {activeFiltersCount > 0 && (
-                  <Badge bg="info" className="ms-2 fs-6 px-3 py-2">
-                    {activeFiltersCount} filtros activos
-                  </Badge>
-                )}
-              </div>
-              <Button
-                variant="outline-secondary"
-                onClick={clearFilters}
-                disabled={activeFiltersCount === 0}
-              >
-                Limpiar Filtros
-              </Button>
-            </div>
-          </Col>
-        </Row>
-
-        <div className="events-grid">
-          {filteredEvents.length === 0 ? (
-            <Col>
-              <Card className="text-center py-5">
-                <Card.Body>
-                  <div className="text-muted mb-3" style={{ fontSize: '4rem' }}></div>
-                  <h4>No se encontraron eventos</h4>
-                  <p className="text-muted mb-4">
-                    No hay eventos disponibles que coincidan con tus criterios de búsqueda.
-                  </p>
-                  <Button variant="primary" onClick={clearFilters}>
-                    Limpiar Filtros
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ) : (
-            <Row className="g-4">
-              {filteredEvents.map((event, index) => (
-                <Col key={event.id} xs={12} md={6} lg={4}>
-                  <div className="event-card-animated" style={{ animationDelay: `${index * 0.1}s` }}>
+            ) : (
+              <Row className="g-4">
+                {filteredEvents.map((event) => (
+                  <Col key={event.evento_id || event.id} xs={12} lg={6} xl={4}>
                     <EnhancedEventCard
                       event={event}
                       onRegister={handleRegister}
-                      loadingEvents={loadingEvents}
+                      onQuickView={handleQuickView}
+                      isLoading={loadingEvents.includes(event.evento_id || event.id)}
                       isAuthenticated={isAuthenticated}
                     />
-                  </div>
-                </Col>
-              ))}
+                  </Col>
+                ))}
+              </Row>
+            )}
+          </div>
+        </Col>
+      </Row>
+
+      <Modal show={showQuickView} onHide={() => setShowQuickView(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedEvent?.nombre}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedEvent && (
+            <Row>
+              <Col md={6}>
+                <img 
+                  src={selectedEvent.imagen} 
+                  alt={selectedEvent.nombre}
+                  className="img-fluid rounded mb-3"
+                  style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                />
+              </Col>
+              <Col md={6}>
+                <p><strong>Ubicación:</strong> {selectedEvent.ubicacion}</p>
+                <p><strong>Fecha:</strong> {new Date(selectedEvent.fecha).toLocaleDateString('es-ES')}</p>
+                <p><strong>Distancia:</strong> {selectedEvent.distancia_km} km</p>
+                <p><strong>Elevación:</strong> {selectedEvent.elevacion} m</p>
+                <p><strong>Dificultad:</strong> {selectedEvent.dificultad}</p>
+                <p><strong>Estado:</strong> {selectedEvent.estado}</p>
+                <p><strong>Cupos:</strong> {selectedEvent.participantes_inscritos}/{selectedEvent.cupo_maximo}</p>
+              </Col>
+              <Col xs={12}>
+                <p className="mt-3">{selectedEvent.descripcion}</p>
+              </Col>
             </Row>
           )}
-        </div>
-      </Container>
-    </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowQuickView(false)}>
+            Cerrar
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={() => {
+              setShowQuickView(false);
+              navigate(`/evento/${selectedEvent?.evento_id || selectedEvent?.id}`);
+            }}
+          >
+            Ver Detalles Completos
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </Container>
   );
 };
 

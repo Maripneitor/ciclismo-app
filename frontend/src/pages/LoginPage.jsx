@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// frontend/src/pages/LoginPage.jsx - CORREGIDO
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -9,25 +10,42 @@ const LoginPage = () => {
         password: "",
     });
     const [loading, setLoading] = useState(false);
+    const [localError, setLocalError] = useState('');
 
-    const { login, error, setError } = useAuth();
+    const { login, isAuthenticated, error: authError, setError } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
     const from = location.state?.from?.pathname || '/cuenta/dashboard';
+
+    // Redirigir si ya está autenticado
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate(from, { replace: true });
+        }
+    }, [isAuthenticated, navigate, from]);
+
+    useEffect(() => {
+        if (authError) {
+            setLocalError(authError);
+        }
+    }, [authError]);
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
-        // Limpiar error cuando el usuario empiece a escribir
-        if (error) setError('');
+        if (localError || authError) {
+            setLocalError('');
+            setError('');
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setLocalError('');
 
         try {
             const credentials = {
@@ -35,15 +53,33 @@ const LoginPage = () => {
                 contrasena: formData.password
             };
 
-            await login(credentials);
-            navigate(from, { replace: true });
+            const result = await login(credentials);
+            
+            if (result.success) {
+                // La redirección se manejará en el useEffect cuando isAuthenticated cambie
+                console.log('Login exitoso, redirigiendo...');
+            }
         } catch (error) {
-            // El error ya está manejado en el AuthContext
             console.error('Error en el formulario de login:', error);
+            setLocalError(error.message || 'Error al iniciar sesión');
         } finally {
             setLoading(false);
         }
     };
+
+    // Si ya está autenticado, mostrar loading
+    if (isAuthenticated) {
+        return (
+            <Container className="py-5">
+                <Row className="justify-content-center">
+                    <Col md={6} className="text-center">
+                        <Spinner animation="border" variant="primary" />
+                        <p className="mt-3">Redirigiendo...</p>
+                    </Col>
+                </Row>
+            </Container>
+        );
+    }
 
     return (
         <Container className="py-5">
@@ -56,10 +92,10 @@ const LoginPage = () => {
                                 <p className="text-muted">Accede a tu cuenta</p>
                             </div>
 
-                            {error && (
+                            {(localError || authError) && (
                                 <Alert variant="danger" className="mb-3">
-                                    <strong>Error:</strong> {error}
-                                    {error.includes('conectar al servidor') && (
+                                    <strong>Error:</strong> {localError || authError}
+                                    {localError.includes('conectar al servidor') && (
                                         <div className="mt-2">
                                             <small>
                                                 Asegúrate de que el servidor backend esté ejecutándose en el puerto 5000.

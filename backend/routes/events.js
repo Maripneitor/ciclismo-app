@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Event } = require('../models');
+const { Event, Category, TallaPlayera } = require('../models');
 const { auth, authorize } = require('../middleware/auth');
 
 router.get('/', async (req, res) => {
@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
         const events = await Event.findAll({
             order: [['fecha', 'ASC']]
         });
-        res.json(events); // CORRECCIÓN: events no event
+        res.json(events);
     } catch (error) {
         res.status(500).json({
             message: 'Error obteniendo eventos',
@@ -96,9 +96,6 @@ router.delete('/:id', auth, authorize('organization', 'admin'), async (req, res)
     }
 });
 
-
-// backend/routes/events.js - AGREGAR ESTAS RUTAS
-// Obtener categorías de un evento
 router.get('/:id/categories', async (req, res) => {
     try {
         const categories = await Category.findAll({
@@ -113,8 +110,6 @@ router.get('/:id/categories', async (req, res) => {
     }
 });
 
-// backend/routes/registrations.js - AGREGAR ESTA RUTA
-// Obtener tallas de playera
 router.get('/tallas', async (req, res) => {
     try {
         const tallas = await TallaPlayera.findAll({

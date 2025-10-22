@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { register } = useAuth();
+  const { setAuthState } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -49,9 +50,25 @@ const RegisterPage = () => {
         rol: 'usuario'
       };
       
-      console.log('Datos de registro enviados:', userData);
-      await register(userData);
-      navigate('/dashboard');
+      const result = await authAPI.register(userData);
+      
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        setAuthState({
+          isAuthenticated: true,
+          user: result.user,
+          token: result.token
+        });
+
+        navigate('/cuenta/dashboard', {
+          replace: true,
+          state: { 
+            message: `¡Cuenta creada exitosamente! Bienvenido, ${result.user.nombre || result.user.email}`
+          }
+        });
+      }
     } catch (error) {
       setError(error.message || 'Error en el registro');
       console.error('Error completo en registro:', error);
@@ -83,6 +100,7 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     required
                     placeholder="Tu nombre completo"
+                    disabled={loading}
                   />
                 </Form.Group>
 
@@ -95,6 +113,7 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     required
                     placeholder="tu@email.com"
+                    disabled={loading}
                   />
                 </Form.Group>
 
@@ -106,6 +125,7 @@ const RegisterPage = () => {
                     value={formData.telefono}
                     onChange={handleChange}
                     placeholder="+34 123 456 789"
+                    disabled={loading}
                   />
                 </Form.Group>
 
@@ -119,6 +139,7 @@ const RegisterPage = () => {
                     required
                     minLength={6}
                     placeholder="Mínimo 6 caracteres"
+                    disabled={loading}
                   />
                 </Form.Group>
 
@@ -131,6 +152,7 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     required
                     placeholder="Repite tu contraseña"
+                    disabled={loading}
                   />
                 </Form.Group>
 
@@ -140,7 +162,21 @@ const RegisterPage = () => {
                   className="w-100 mb-3"
                   disabled={loading}
                 >
-                  {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+                  {loading ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                      Creando cuenta...
+                    </>
+                  ) : (
+                    'Crear Cuenta'
+                  )}
                 </Button>
               </Form>
 

@@ -1,12 +1,13 @@
 // frontend/src/components/home/FeaturedEvents.jsx
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { eventsAPI } from '../../services/api';
 
 const FeaturedEvents = () => {
   const [featuredEvents, setFeaturedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadFeaturedEvents();
@@ -14,6 +15,9 @@ const FeaturedEvents = () => {
 
   const loadFeaturedEvents = async () => {
     try {
+      setLoading(true);
+      setError('');
+      
       const demoEvents = [
         {
           id: 1,
@@ -29,7 +33,7 @@ const FeaturedEvents = () => {
           cupo_maximo: 100,
           dificultad: 'Alta',
           elevacion: 2500,
-          imagen: 'https://placehold.co/600x400/667eea/ffffff?text=Sierra+Nevada'
+          imagen: '/images/events/sierra-nevada.jpg'
         },
         {
           id: 2,
@@ -45,7 +49,7 @@ const FeaturedEvents = () => {
           cupo_maximo: 200,
           dificultad: 'Media',
           elevacion: 300,
-          imagen: 'https://placehold.co/600x400/764ba2/ffffff?text=Madrid+Nocturna'
+          imagen: '/images/events/madrid-nocturna.jpg'
         },
         {
           id: 3,
@@ -61,13 +65,15 @@ const FeaturedEvents = () => {
           cupo_maximo: 150,
           dificultad: 'Media',
           elevacion: 500,
-          imagen: 'https://placehold.co/600x400/059669/ffffff?text=Costa+Barcelona'
+          imagen: '/images/events/costa-barcelona.jpg'
         }
       ];
 
       setFeaturedEvents(demoEvents);
+      
     } catch (error) {
       console.error('Error loading featured events:', error);
+      setError('Error cargando eventos destacados');
     } finally {
       setLoading(false);
     }
@@ -107,9 +113,24 @@ const FeaturedEvents = () => {
         <Container>
           <Row>
             <Col className="text-center">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Cargando eventos...</span>
-              </div>
+              <Spinner animation="border" variant="primary" />
+              <p className="mt-2">Cargando eventos destacados...</p>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="featured-events py-5">
+        <Container>
+          <Row>
+            <Col>
+              <Alert variant="warning">
+                {error}
+              </Alert>
             </Col>
           </Row>
         </Container>
@@ -131,19 +152,27 @@ const FeaturedEvents = () => {
           </Col>
         </Row>
 
-        <Row className="g-4">
-          {featuredEvents.map((event, index) => (
-            <Col key={event.id} xs={12} lg={4}>
-              <EventCard 
-                event={event} 
-                index={index}
-                getEventTypeIcon={getEventTypeIcon}
-                getStatusVariant={getStatusVariant}
-                formatDate={formatDate}
-              />
+        {featuredEvents.length === 0 ? (
+          <Row>
+            <Col className="text-center">
+              <p className="text-muted">No hay eventos destacados disponibles</p>
             </Col>
-          ))}
-        </Row>
+          </Row>
+        ) : (
+          <Row className="g-4">
+            {featuredEvents.map((event, index) => (
+              <Col key={event.id} xs={12} lg={4}>
+                <EventCard 
+                  event={event} 
+                  index={index}
+                  getEventTypeIcon={getEventTypeIcon}
+                  getStatusVariant={getStatusVariant}
+                  formatDate={formatDate}
+                />
+              </Col>
+            ))}
+          </Row>
+        )}
 
         <Row className="mt-5">
           <Col className="text-center">

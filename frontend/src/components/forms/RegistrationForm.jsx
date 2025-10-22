@@ -1,6 +1,6 @@
-// frontend/src/components/forms/RegistrationForm.jsx - ACTUALIZADO
+// frontend/src/components/forms/RegistrationForm.jsx - CORREGIDO
 import React, { useState, useEffect } from 'react';
-import { Form, Row, Col, Button, Alert, Card } from 'react-bootstrap';
+import { Form, Row, Col, Button, Alert, Card, Spinner } from 'react-bootstrap';
 import { eventsAPI, registrationsAPI, teamsAPI } from '../../services/api';
 
 const RegistrationForm = ({ event, onSuccess, onCancel }) => {
@@ -20,7 +20,11 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
     const [tallas, setTallas] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingCategories, setLoadingCategories] = useState(false);
+    const [loadingTallas, setLoadingTallas] = useState(false);
+    const [loadingTeams, setLoadingTeams] = useState(false);
     const [error, setError] = useState('');
+    const [errorLoading, setErrorLoading] = useState('');
     const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
@@ -31,60 +35,48 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
         try {
             console.log('📝 Cargando datos del formulario para evento:', event?.evento_id);
             
-            // Cargar categorías con manejo de errores
+            // Cargar categorías
+            setLoadingCategories(true);
             try {
-                const cats = await eventsAPI.getCategories(event.evento_id);
+                const cats = await registrationsAPI.getCategorias(event.evento_id);
                 setCategories(Array.isArray(cats) ? cats : []);
                 console.log('✅ Categorías cargadas:', cats.length);
             } catch (catError) {
-                console.warn('⚠️ Usando categorías de ejemplo');
-                setCategories([
-                    { categoria_id: 1, nombre: 'Élite', cuota_categoria: event.cuota_inscripcion || 50.00 },
-                    { categoria_id: 2, nombre: 'Master A', cuota_categoria: (event.cuota_inscripcion || 50.00) - 5.00 },
-                    { categoria_id: 3, nombre: 'Master B', cuota_categoria: (event.cuota_inscripcion || 50.00) - 10.00 },
-                    { categoria_id: 4, nombre: 'Femenino', cuota_categoria: (event.cuota_inscripcion || 50.00) - 15.00 },
-                    { categoria_id: 5, nombre: 'Juvenil', cuota_categoria: (event.cuota_inscripcion || 50.00) - 25.00 }
-                ]);
+                console.error('❌ Error cargando categorías:', catError);
+                setErrorLoading('Error cargando categorías del evento');
+            } finally {
+                setLoadingCategories(false);
             }
 
-            // Cargar tallas con manejo de errores
+            // Cargar tallas
+            setLoadingTallas(true);
             try {
                 const tallasData = await registrationsAPI.getTallas();
                 setTallas(Array.isArray(tallasData) ? tallasData : []);
                 console.log('✅ Tallas cargadas:', tallasData.length);
             } catch (tallasError) {
-                console.warn('⚠️ Usando tallas de ejemplo');
-                setTallas([
-                    { talla_playera_id: 1, nombre: 'XS', descripcion: 'Extra Small' },
-                    { talla_playera_id: 2, nombre: 'S', descripcion: 'Small' },
-                    { talla_playera_id: 3, nombre: 'M', descripcion: 'Medium' },
-                    { talla_playera_id: 4, nombre: 'L', descripcion: 'Large' },
-                    { talla_playera_id: 5, nombre: 'XL', descripcion: 'Extra Large' }
-                ]);
+                console.error('❌ Error cargando tallas:', tallasError);
+                setErrorLoading('Error cargando tallas disponibles');
+            } finally {
+                setLoadingTallas(false);
             }
 
-            // Cargar equipos con manejo de errores
+            // Cargar equipos
+            setLoadingTeams(true);
             try {
                 const userTeams = await teamsAPI.getMyTeams();
                 setTeams(Array.isArray(userTeams) ? userTeams : []);
                 console.log('✅ Equipos cargados:', userTeams.length);
             } catch (teamsError) {
-                console.warn('⚠️ No se pudieron cargar los equipos');
-                setTeams([]);
+                console.error('❌ Error cargando equipos:', teamsError);
+                // No mostrar error para equipos ya que es opcional
+            } finally {
+                setLoadingTeams(false);
             }
 
         } catch (error) {
             console.error('❌ Error cargando datos del formulario:', error);
-            setError('Error cargando datos del formulario. Usando datos de ejemplo.');
-            
-            // Datos de ejemplo como fallback
-            setCategories([
-                { categoria_id: 1, nombre: 'General', cuota_categoria: event.cuota_inscripcion || 0 }
-            ]);
-            setTallas([
-                { talla_playera_id: 1, nombre: 'M', descripcion: 'Medium' }
-            ]);
-            setTeams([]);
+            setErrorLoading('Error cargando datos del formulario');
         }
     };
 
@@ -141,17 +133,12 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
 
             console.log('📤 Enviando inscripción:', registrationData);
             
-            await eventsAPI.registerToEvent(registrationData);
-            onSuccess('¡Inscripción exitosa!');
+            const result = await registrationsAPI.registerForEvent(registrationData);
+            onSuccess(result.message || '¡Inscripción exitosa!');
             
         } catch (error) {
             console.error('❌ Error en inscripción:', error);
-            setError(error.message || 'Error en la inscripción. Usando modo simulación.');
-            
-            // En desarrollo, simular éxito después de un error
-            setTimeout(() => {
-                onSuccess('¡Inscripción exitosa! (modo desarrollo)');
-            }, 1000);
+            setError(error.message || 'Error en la inscripción');
         } finally {
             setLoading(false);
         }
@@ -178,8 +165,14 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
             </Card.Header>
             <Card.Body>
                 {error && (
-                    <Alert variant="warning" dismissible onClose={() => setError('')}>
+                    <Alert variant="danger" dismissible onClose={() => setError('')}>
                         {error}
+                    </Alert>
+                )}
+
+                {errorLoading && (
+                    <Alert variant="warning" dismissible onClose={() => setErrorLoading('')}>
+                        {errorLoading}
                     </Alert>
                 )}
 
@@ -188,20 +181,26 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
                         <Col md={6}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Categoría *</Form.Label>
-                                <Form.Select
-                                    name="categoria_id"
-                                    value={formData.categoria_id}
-                                    onChange={handleChange}
-                                    required
-                                    isInvalid={!!fieldErrors.categoria_id}
-                                >
-                                    <option value="">Seleccionar categoría</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.categoria_id} value={cat.categoria_id}>
-                                            {cat.nombre} - €{cat.cuota_categoria || event.cuota_inscripcion}
-                                        </option>
-                                    ))}
-                                </Form.Select>
+                                {loadingCategories ? (
+                                    <div className="text-center py-2">
+                                        <Spinner size="sm" /> Cargando categorías...
+                                    </div>
+                                ) : (
+                                    <Form.Select
+                                        name="categoria_id"
+                                        value={formData.categoria_id}
+                                        onChange={handleChange}
+                                        required
+                                        isInvalid={!!fieldErrors.categoria_id}
+                                    >
+                                        <option value="">Seleccionar categoría</option>
+                                        {categories.map(cat => (
+                                            <option key={cat.categoria_id} value={cat.categoria_id}>
+                                                {cat.nombre} - €{cat.cuota_categoria || event.cuota_inscripcion}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                )}
                                 <Form.Control.Feedback type="invalid">
                                     {fieldErrors.categoria_id}
                                 </Form.Control.Feedback>
@@ -211,20 +210,26 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
                         <Col md={6}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Talla de Playera *</Form.Label>
-                                <Form.Select
-                                    name="talla_playera_id"
-                                    value={formData.talla_playera_id}
-                                    onChange={handleChange}
-                                    required
-                                    isInvalid={!!fieldErrors.talla_playera_id}
-                                >
-                                    <option value="">Seleccionar talla</option>
-                                    {tallas.map(talla => (
-                                        <option key={talla.talla_playera_id} value={talla.talla_playera_id}>
-                                            {talla.nombre} {talla.descripcion ? `(${talla.descripcion})` : ''}
-                                        </option>
-                                    ))}
-                                </Form.Select>
+                                {loadingTallas ? (
+                                    <div className="text-center py-2">
+                                        <Spinner size="sm" /> Cargando tallas...
+                                    </div>
+                                ) : (
+                                    <Form.Select
+                                        name="talla_playera_id"
+                                        value={formData.talla_playera_id}
+                                        onChange={handleChange}
+                                        required
+                                        isInvalid={!!fieldErrors.talla_playera_id}
+                                    >
+                                        <option value="">Seleccionar talla</option>
+                                        {tallas.map(talla => (
+                                            <option key={talla.talla_playera_id} value={talla.talla_playera_id}>
+                                                {talla.nombre} {talla.descripcion ? `(${talla.descripcion})` : ''}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                )}
                                 <Form.Control.Feedback type="invalid">
                                     {fieldErrors.talla_playera_id}
                                 </Form.Control.Feedback>
@@ -232,23 +237,29 @@ const RegistrationForm = ({ event, onSuccess, onCancel }) => {
                         </Col>
                     </Row>
 
-                    {/* Resto del formulario se mantiene igual */}
                     <Form.Group className="mb-3">
                         <Form.Label>Equipo (Opcional)</Form.Label>
-                        <Form.Select
-                            name="equipo_id"
-                            value={formData.equipo_id}
-                            onChange={handleChange}
-                        >
-                            <option value="">Individual (Sin equipo)</option>
-                            {teams.map(team => (
-                                <option key={team.equipo_id} value={team.equipo_id}>
-                                    {team.nombre}
-                                </option>
-                            ))}
-                        </Form.Select>
+                        {loadingTeams ? (
+                            <div className="text-center py-2">
+                                <Spinner size="sm" /> Cargando equipos...
+                            </div>
+                        ) : (
+                            <Form.Select
+                                name="equipo_id"
+                                value={formData.equipo_id}
+                                onChange={handleChange}
+                            >
+                                <option value="">Individual (Sin equipo)</option>
+                                {teams.map(team => (
+                                    <option key={team.equipo_id} value={team.equipo_id}>
+                                        {team.nombre}
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        )}
                     </Form.Group>
 
+                    {/* Resto del formulario se mantiene igual */}
                     <Row>
                         <Col md={6}>
                             <Form.Group className="mb-3">
