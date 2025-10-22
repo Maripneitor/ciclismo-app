@@ -1,0 +1,367 @@
+/* frontend/src/styles/components/events.css */
+/* Enhanced Event Cards */
+.enhanced-event-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.enhanced-event-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Event Card Header */
+.event-card-header {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.event-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.event-image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.event-icon-large {
+  font-size: 4rem;
+  opacity: 0.3;
+}
+
+.event-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+.event-image-loading {
+  opacity: 0;
+}
+
+.event-image-loaded {
+  opacity: 1;
+}
+
+.event-image-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.fallback-text {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* Badges Overlay */
+.event-badges-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 3;
+}
+
+.event-type-badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.special-badge {
+  font-size: 0.7rem;
+  padding: 3px 6px;
+  border-radius: 6px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+}
+
+.difficulty-stars {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+/* Location Mini Map */
+.location-mini-map {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 3;
+}
+
+.map-placeholder {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-icon {
+  font-size: 0.75rem;
+}
+
+.location-text {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Event Meta */
+.event-meta {
+  font-size: 0.875rem;
+}
+
+.event-title {
+  line-height: 1.3;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Quick Stats */
+.event-quick-stats {
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 0;
+}
+
+.stat {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+/* Event Description */
+.event-description {
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Progress Bar */
+.cupo-progress {
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* Event Actions */
+.event-actions {
+  margin-top: auto;
+}
+
+/* Event Detail Page Styles */
+.event-gallery {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.video-container {
+  position: relative;
+  height: 400px;
+  background: #000;
+}
+
+.event-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gallery-image {
+  border-radius: 8px;
+}
+
+.gallery-thumbnails {
+  padding: 0 8px;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.thumbnail.active {
+  border-color: #2563eb;
+  transform: scale(1.05);
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.thumbnail-video {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.carousel-caption {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 4px 8px;
+  bottom: 20px;
+  left: 20px;
+  right: auto;
+}
+
+/* Event Stats Small */
+.event-stats-small {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Tabs Personalizados */
+.nav-tabs .nav-link {
+  border: none;
+  color: #6b7280;
+  font-weight: 500;
+  padding: 12px 16px;
+}
+
+.nav-tabs .nav-link.active {
+  color: #2563eb;
+  border-bottom: 2px solid #2563eb;
+  background: transparent;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .event-card-header {
+    height: 160px;
+  }
+  
+  .event-badges-overlay {
+    top: 8px;
+    left: 8px;
+  }
+  
+  .difficulty-badge {
+    top: 8px;
+    right: 8px;
+  }
+  
+  .location-mini-map {
+    bottom: 8px;
+    right: 8px;
+  }
+  
+  .event-quick-stats {
+    padding: 8px 0;
+  }
+  
+  .stat-value {
+    font-size: 1rem;
+  }
+  
+  .video-container {
+    height: 250px;
+  }
+  
+  .gallery-thumbnails {
+    padding: 0 4px;
+  }
+  
+  .thumbnail {
+    width: 60px;
+    height: 45px;
+  }
+}
+
+/* Animaciones para badges especiales */
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0,0,0);
+  }
+  40%, 43% {
+    transform: translate3d(0,-8px,0);
+  }
+  70% {
+    transform: translate3d(0,-4px,0);
+  }
+  90% {
+    transform: translate3d(0,-2px,0);
+  }
+}
+
+.badge-popular {
+  animation: bounce 1s ease infinite;
+}
+
+/* Efectos de hover mejorados */
+.enhanced-event-card:hover .event-image {
+  transform: scale(1.05);
+  transition: transform 0.5s ease;
+}
+
+.enhanced-event-card:hover .event-type-badge {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}

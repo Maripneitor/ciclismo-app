@@ -96,4 +96,37 @@ router.delete('/:id', auth, authorize('organization', 'admin'), async (req, res)
     }
 });
 
+
+// backend/routes/events.js - AGREGAR ESTAS RUTAS
+// Obtener categorías de un evento
+router.get('/:id/categories', async (req, res) => {
+    try {
+        const categories = await Category.findAll({
+            where: { evento_id: req.params.id }
+        });
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error obteniendo categorías',
+            error: error.message
+        });
+    }
+});
+
+// backend/routes/registrations.js - AGREGAR ESTA RUTA
+// Obtener tallas de playera
+router.get('/tallas', async (req, res) => {
+    try {
+        const tallas = await TallaPlayera.findAll({
+            order: [['nombre', 'ASC']]
+        });
+        res.json(tallas);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error obteniendo tallas',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
