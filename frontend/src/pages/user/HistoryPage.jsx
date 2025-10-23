@@ -4,8 +4,8 @@ import {
   Container, Row, Col, Card, Table, Spinner, Alert,
   Badge, Button, Modal, Form
 } from 'react-bootstrap';
-import { registrationsAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { registrationsAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const HistoryPage = () => {
   const [registrations, setRegistrations] = useState([]);

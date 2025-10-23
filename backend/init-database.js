@@ -1,84 +1,102 @@
-const { User, Event, Team, Registration, sequelize } = require('./models');
-const bcrypt = require('bcryptjs');
+// backend/scripts/init-database.js - CONSOLIDADO
+require('dotenv').config();
+const { sequelize } = require('../models');
+const User = require('../models/User');
+const Event = require('../models/Event');
+const Registration = require('../models/Registration');
+const Query = require('../models/Query');
 
-async function initDatabase() {
-    try {
-        console.log('Inicializando base de datos...');
-        
-        await sequelize.sync({ force: false });
-        console.log('Tablas sincronizadas');
-
-        const hashedPassword = await bcrypt.hash('password123', 10);
-        console.log('Contraseña generada para todos los usuarios: password123');
-
-        console.log('\nCreando usuarios de prueba...');
-
-        const users = await User.bulkCreate([
-            {
-                nombre_completo: 'Administrador Principal',
-                email: 'admin@ciclismo.com',
-                contrasena: hashedPassword,
-                rol: 'admin',
-                puede_crear_equipo: true,
-                telefono: '+34 600 111 222'
-            },
-            {
-                nombre_completo: 'Organizador Eventos',
-                email: 'organizador@ciclismo.com',
-                contrasena: hashedPassword,
-                rol: 'organizador',
-                puede_crear_equipo: true,
-                telefono: '+34 600 333 444'
-            },
-            {
-                nombre_completo: 'Usuario Demo',
-                email: 'usuario@ciclismo.com',
-                contrasena: hashedPassword,
-                rol: 'usuario',
-                puede_crear_equipo: false,
-                telefono: '+34 600 555 666'
-            }
-        ], { ignoreDuplicates: true });
-
-        console.log('Usuarios creados/verificados');
-
-        console.log('\nVERIFICACIÓN FINAL:');
-
-        const totalUsers = await User.count();
-        const totalEvents = await Event.count();
-        const totalTeams = await Team.count();
-        const totalRegistrations = await Registration.count();
-
-        console.log(`   Usuarios: ${totalUsers}`);
-        console.log(`   Eventos: ${totalEvents}`);
-        console.log(`   Equipos: ${totalTeams}`);
-        console.log(`   Inscripciones: ${totalRegistrations}`);
-
-        const allUsers = await User.findAll({
-            attributes: ['usuario_id', 'nombre_completo', 'email', 'rol']
-        });
-
-        console.log('\nLISTA DE USUARIOS:');
-        allUsers.forEach(user => {
-            console.log(`   ${user.usuario_id}. ${user.nombre_completo} - ${user.email} (${user.rol})`);
-        });
-
-        console.log('\nBASE DE DATOS INICIALIZADA CORRECTAMENTE!');
-        console.log('\nCREDENCIALES PARA PROBAR:');
-        console.log('   Admin: admin@ciclismo.com / password123');
-        console.log('   Organizador: organizador@ciclismo.com / password123');
-        console.log('   Usuario: usuario@ciclismo.com / password123');
-        console.log('\nURL: http://localhost:5000/api/auth/login');
-
-    } catch (error) {
-        console.error('Error inicializando base de datos:', error);
-    } finally {
-        await sequelize.close();
+const seedData = {
+  users: [
+    {
+      nombre: 'Admin',
+      apellido: 'Sistema',
+      email: 'admin@maripneitor.com',
+      password: 'admin123',
+      rol: 'admin',
+      telefono: '+34600000001',
+      fecha_nacimiento: '1980-01-01'
+    },
+    {
+      nombre: 'Juan',
+      apellido: 'Ciclista',
+      email: 'juan@example.com',
+      password: 'user123',
+      rol: 'user',
+      telefono: '+34600000002',
+      fecha_nacimiento: '1990-05-15'
     }
-}
+  ],
+  events: [
+    {
+      nombre: 'Gran Fondo Sierra Nevada',
+      descripcion: 'Desafío épico por las montañas de Sierra Nevada',
+      fecha: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días desde hoy
+      ubicacion: 'Granada, España',
+      tipo: 'Carrera',
+      dificultad: 'Alta',
+      distancia_km: 120,
+      elevacion: 2500,
+      cupo_maximo: 200,
+      cuota_inscripcion: 45,
+      organizador: 'Maripneitor Cycling',
+      route_data: {
+        coordinates: [
+          [37.1773, -3.5985],
+          [37.1873, -3.6085],
+          [37.1973, -3.6185],
+          [37.2073, -3.6285]
+        ],
+        sectors: [
+          { name: 'Salida Granada', distance: 0, elevation: 738 },
+          { name: 'Subida Pico Veleta', distance: 40, elevation: 3396 },
+          { name: 'Descenso a Monachil', distance: 75, elevation: 820 },
+          { name: 'Llegada', distance: 120, elevation: 738 }
+        ]
+      }
+    }
+  ]
+};
 
+const initDatabase = async () => {
+  try {
+    console.log('🔄 Iniciando configuración de base de datos...');
+    
+    // Sincronizar modelos
+    await sequelize.sync({ force: false, alter: true });
+    console.log('✅ Modelos sincronizados');
+    
+    // Crear usuarios de prueba
+    for (const userData of seedData.users) {
+      const [user] = await User.findOrCreate({
+        where: { email: userData.email },
+        defaults: userData
+      });
+      console.log(`✅ Usuario: ${user.email}`);
+    }
+    
+    // Crear eventos de prueba
+    for (const eventData of seedData.events) {
+      const [event] = await Event.findOrCreate({
+        where: { nombre: eventData.nombre },
+        defaults: eventData
+      });
+      console.log(`✅ Evento: ${event.nombre}`);
+    }
+    
+    console.log('🎉 Base de datos inicializada correctamente');
+    
+  } catch (error) {
+    console.error('❌ Error inicializando base de datos:', error);
+    process.exit(1);
+  } finally {
+    await sequelize.close();
+  }
+};
+
+// Ejecutar si se llama directamente
 if (require.main === module) {
-    initDatabase();
+  initDatabase();
 }
 
 module.exports = initDatabase;

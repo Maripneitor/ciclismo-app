@@ -1,4 +1,4 @@
-// frontend/src/pages/EventDetailPage.jsx - CONECTADO A API
+// frontend/src/pages/EventDetailPage.jsx - CON MAPA Y SECTORES
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Row, Col, Card, Button, Badge, Alert, 
@@ -8,6 +8,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { eventsAPI, registrationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import RegistrationForm from '../components/forms/RegistrationForm';
+import EventMap from '../components/events/EventMap';
+import RouteSectors from '../components/events/RouteSectors';
 
 const EventDetailPage = () => {
   const { id } = useParams();
@@ -20,6 +22,7 @@ const EventDetailPage = () => {
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
+  const [activeTab, setActiveTab] = useState('details');
 
   useEffect(() => {
     loadEvent();
@@ -33,24 +36,28 @@ const EventDetailPage = () => {
       setLoading(true);
       setError('');
       
-      // Intentar cargar desde API
-      try {
-        const eventData = await eventsAPI.getById(id);
-        setEvent(eventData);
-      } catch (apiError) {
-        console.warn('Error API evento, usando datos de respaldo:', apiError);
-        // Solo usar datos demo si la API falla completamente
-        const allEvents = await eventsAPI.getAll();
-        const foundEvent = allEvents.find(e => 
-          (e.evento_id || e.id) === parseInt(id)
-        );
-        
-        if (foundEvent) {
-          setEvent(foundEvent);
-        } else {
-          throw new Error('Evento no encontrado');
+      const eventData = await eventsAPI.getById(id);
+      
+      // Enriquecer datos con información de ruta si no existe
+      const enrichedEvent = {
+        ...eventData,
+        route_data: eventData.route_data || {
+          coordinates: [
+            [40.4168, -3.7038], // Madrid
+            [40.4178, -3.7138],
+            [40.4188, -3.7238],
+            [40.4198, -3.7338]
+          ],
+          sectors: [
+            { name: 'Inicio', distance: 0, elevation: 650 },
+            { name: 'Subida Collado', distance: 25, elevation: 950 },
+            { name: 'Descenso Técnico', distance: 45, elevation: 720 },
+            { name: 'Llegada', distance: eventData.distancia_km || 70, elevation: 650 }
+          ]
         }
-      }
+      };
+      
+      setEvent(enrichedEvent);
       
     } catch (error) {
       console.error('Error cargando evento:', error);
@@ -93,7 +100,7 @@ const EventDetailPage = () => {
     setRegistrationSuccess(message);
     setShowRegistrationModal(false);
     setIsRegistered(true);
-    loadEvent(); // Recargar datos del evento para actualizar contadores
+    loadEvent();
   };
 
   const getStatusVariant = (status) => {
@@ -240,8 +247,12 @@ const EventDetailPage = () => {
 
               <p className="lead">{event.descripcion}</p>
 
-              <Tabs defaultActiveKey="details" className="mb-3">
-                <Tab eventKey="details" title="Detalles">
+              <Tabs 
+                activeKey={activeTab} 
+                onSelect={(tab) => setActiveTab(tab)} 
+                className="mb-3"
+              >
+                <Tab eventKey="details" title="📋 Detalles">
                   <Row className="g-3 mt-2">
                     <Col sm={6}>
                       <strong>Fecha del evento:</strong>
@@ -271,7 +282,22 @@ const EventDetailPage = () => {
                   </Row>
                 </Tab>
 
-                <Tab eventKey="requirements" title="Requisitos">
+                <Tab eventKey="route" title="🗺️ Ruta">
+                  <div className="mt-3">
+                    <h6>Mapa del Recorrido</h6>
+                    <div style={{ height: '400px', borderRadius: '8px', overflow: 'hidden' }}>
+                      <EventMap 
+                        route={event.route_data?.coordinates} 
+                        eventLocation={event.ubicacion}
+                      />
+                    </div>
+                    
+                    <h6 className="mt-4">Sectores del Recorrido</h6>
+                    <RouteSectors sectors={event.route_data?.sectors} />
+                  </div>
+                </Tab>
+
+                <Tab eventKey="requirements" title="⚡ Requisitos">
                   <ListGroup variant="flush" className="mt-2">
                     <ListGroup.Item>
                       <strong>Equipo obligatorio:</strong> Casco, luces delanteras y traseras
@@ -286,25 +312,6 @@ const EventDetailPage = () => {
                       <strong>Bicicleta:</strong> En buen estado mecánico
                     </ListGroup.Item>
                   </ListGroup>
-                </Tab>
-
-                <Tab eventKey="route" title="Recorrido">
-                  <div className="mt-3">
-                    <h6>Descripción del recorrido:</h6>
-                    <p>
-                      {event.descripcion_recorrido || 
-                        'Recorrido diseñado para disfrutar del paisaje y desafiar tus habilidades ciclistas. ' +
-                        'Incluye tramos variados con ascensos técnicos y descensos emocionantes.'}
-                    </p>
-                    
-                    <h6>Puntos de interés:</h6>
-                    <ul>
-                      <li>Salida: {event.punto_encuentro || 'Plaza Principal'}</li>
-                      <li>Meta: {event.punto_llegada || 'Mismo punto de salida'}</li>
-                      <li>Avituallamientos: 2 puntos durante el recorrido</li>
-                      <li>Asistencia médica: Disponible en ruta</li>
-                    </ul>
-                  </div>
                 </Tab>
               </Tabs>
             </Card.Body>

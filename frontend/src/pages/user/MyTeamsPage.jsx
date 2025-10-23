@@ -4,8 +4,8 @@ import {
   Container, Row, Col, Card, Button, Spinner, Alert,
   Badge, Modal, Form, ListGroup
 } from 'react-bootstrap';
-import { teamsAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { teamsAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const MyTeamsPage = () => {
   const [teams, setTeams] = useState([]);

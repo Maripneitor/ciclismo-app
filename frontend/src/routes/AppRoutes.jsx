@@ -1,4 +1,3 @@
-// frontend/src/routes/AppRoutes.jsx - CORREGIDO
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PrivateRoute from '../components/PrivateRoute';
@@ -6,8 +5,7 @@ import AdminRoute from '../components/AdminRoute';
 import OrganizerRoute from '../components/OrganizerRoute';
 import UserAccountLayout from '../components/layout/UserAccountLayout';
 import Layout from '../components/layout/Layout';
-
-// Páginas públicas
+import CalendarPage from '../pages/CalendarPage';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
@@ -16,19 +14,13 @@ import EventDetailPage from '../pages/EventDetailPage';
 import ResultsPage from '../pages/ResultsPage';
 import ContactPage from '../pages/ContactPage';
 import SubscriptionPage from '../pages/SubscriptionPage';
-
-// Páginas de usuario
 import EnhancedDashboardPage from '../pages/user/EnhancedDashboardPage';
 import ProfilePage from '../pages/user/ProfilePage';
 import HistoryPage from '../pages/user/HistoryPage';
 import MyRegistrationsPage from '../pages/user/MyRegistrationsPage';
 import MyTeamsPage from '../pages/user/MyTeamsPage';
-
-// Páginas de organizador
 import OrganizerDashboardPage from '../pages/organizer/OrganizerDashboardPage';
 import CreateEventPage from '../pages/organizer/CreateEventPage';
-
-// Páginas de administrador
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import ManageEventsPage from '../pages/admin/ManageEventsPage';
 import ManageUsersPage from '../pages/admin/ManageUsersPage';
@@ -39,7 +31,6 @@ const AppRoutes = () => {
     return (
         <BrowserRouter>
             <Routes>
-                {/* Rutas Públicas CON Layout Principal */}
                 <Route path="/" element={<Layout><HomePage /></Layout>} />
                 <Route path="/login" element={<Layout><LoginPage /></Layout>} />
                 <Route path="/registro" element={<Layout><RegisterPage /></Layout>} />
@@ -48,8 +39,8 @@ const AppRoutes = () => {
                 <Route path="/resultados" element={<Layout><ResultsPage /></Layout>} />
                 <Route path="/contacto" element={<Layout><ContactPage /></Layout>} />
                 <Route path="/plus" element={<Layout><SubscriptionPage /></Layout>} />
+                <Route path="/calendario" element={<Layout><CalendarPage /></Layout>} />
 
-                {/* Rutas Privadas de Usuario - Layout Principal + UserAccountLayout */}
                 <Route element={<PrivateRoute />}>
                     <Route path="/cuenta/*" element={<Layout><UserAccountLayout /></Layout>}>
                         <Route path="dashboard" element={<EnhancedDashboardPage />} />
@@ -61,14 +52,12 @@ const AppRoutes = () => {
                     </Route>
                 </Route>
 
-                {/* Rutas de Organizador CON Layout Principal */}
                 <Route element={<OrganizerRoute />}>
                     <Route path="/organizador/dashboard" element={<Layout><OrganizerDashboardPage /></Layout>} />
                     <Route path="/organizador/eventos/nuevo" element={<Layout><CreateEventPage /></Layout>} />
                     <Route path="/organizador/eventos/editar/:id" element={<Layout><CreateEventPage /></Layout>} />
                 </Route>
 
-                {/* Rutas de Administrador CON Layout Principal */}
                 <Route element={<AdminRoute />}>
                     <Route path="/admin/dashboard" element={<Layout><AdminDashboardPage /></Layout>} />
                     <Route path="/admin/eventos" element={<Layout><ManageEventsPage /></Layout>} />
@@ -77,7 +66,6 @@ const AppRoutes = () => {
                     <Route path="/admin/configuracion" element={<Layout><SystemSettingsPage /></Layout>} />
                 </Route>
 
-                {/* Ruta 404 CON Layout Principal */}
                 <Route path="*" element={
                     <Layout>
                         <div className="container text-center py-5">

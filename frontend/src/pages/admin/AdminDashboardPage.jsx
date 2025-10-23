@@ -5,7 +5,7 @@ import {
   Badge, ProgressBar, Button
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { queriesAPI, eventsAPI, usersAPI } from '../services/api';
+import { queriesAPI, eventsAPI, usersAPI } from '../../services/api';
 
 const AdminDashboardPage = () => {
   const [stats, setStats] = useState(null);

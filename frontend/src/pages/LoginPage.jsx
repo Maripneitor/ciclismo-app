@@ -1,203 +1,170 @@
-// frontend/src/pages/LoginPage.jsx - ESTILOS CONSISTENTES
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
+// frontend/src/pages/LoginPage.jsx - CON MEJORAS DE UI
+import React, { useState } from 'react';
+import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   
-  const { login, isAuthenticated } = useAuth();
-  const { darkMode } = useTheme();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
+  
   const from = location.state?.from?.pathname || '/cuenta/dashboard';
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, navigate, from]);
+  const message = location.state?.message;
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email) {
-      newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email no válido';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-    }
-    
-    return newErrors;
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const newErrors = validateForm();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setErrors({});
-    
+    setLoading(true);
+    setError('');
+
     try {
       await login(formData.email, formData.password);
       navigate(from, { replace: true });
     } catch (error) {
-      setErrors({ submit: error.message || 'Error al iniciar sesión' });
+      setError(error.message || 'Error al iniciar sesión');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
+  const handleGoogleLogin = () => {
+    // TODO: Implementar autenticación con Google
+    setError('Inicio con Google próximamente disponible');
+  };
+
   return (
-    <div className="auth-page-wrapper min-vh-100 d-flex align-items-center">
-      <Container className="auth-container">
-        <Row className="justify-content-center">
-          <Col xs={12} sm={10} md={8} lg={6} xl={5}>
-            <Card className="auth-card shadow-lg border-0">
-              <Card.Body className="p-5">
-                <div className="text-center mb-4">
-                  <div className="auth-logo mb-3">
-                    <div className="logo-icon">🚴‍♂️</div>
-                  </div>
-                  <h2 className="auth-title fw-bold">Bienvenido de nuevo</h2>
-                  <p className="auth-subtitle text-muted">
-                    Inicia sesión en tu cuenta
-                  </p>
-                </div>
+    <Container className="py-5">
+      <Row className="justify-content-center">
+        <Col xs={12} md={8} lg={6} xl={5}>
+          <div className="text-center mb-5">
+            <h1 className="display-6 fw-bold text-primary">
+              Maripneitor<span className="text-dark">Cycling</span>
+            </h1>
+            <p className="text-muted">Inicia sesión en tu cuenta</p>
+          </div>
 
-                {errors.submit && (
-                  <Alert variant="danger" className="mb-4">
-                    {errors.submit}
-                  </Alert>
-                )}
+          {message && (
+            <Alert variant="info" className="text-center">
+              {message}
+            </Alert>
+          )}
 
-                <Form onSubmit={handleSubmit} noValidate>
-                  <Form.Group className="mb-3">
-                    <Form.Label className="fw-semibold">Email</Form.Label>
+          <Card className="border-0 shadow-lg login-card">
+            <Card.Body className="p-4 p-md-5">
+              <div className="text-center mb-4">
+                <h2 className="fw-bold">Bienvenido de nuevo</h2>
+                <p className="text-muted">Ingresa a tu cuenta para continuar</p>
+              </div>
+
+              {error && (
+                <Alert variant="danger" className="text-center">
+                  {error}
+                </Alert>
+              )}
+
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="tu@email.com"
+                    required
+                    className="py-2"
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-4">
+                  <Form.Label>Contraseña</Form.Label>
+                  <InputGroup>
                     <Form.Control
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      isInvalid={!!errors.email}
-                      placeholder="tu@email.com"
-                      className="form-control-lg border-2"
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.email}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Form.Group className="mb-4">
-                    <Form.Label className="fw-semibold">Contraseña</Form.Label>
-                    <Form.Control
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      isInvalid={!!errors.password}
-                      placeholder="••••••••"
-                      className="form-control-lg border-2"
+                      placeholder="Tu contraseña"
                       required
+                      className="py-2 border-end-0"
                     />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.password}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <div className="d-grid mb-4">
                     <Button
-                      type="submit"
-                      variant="primary"
-                      size="lg"
-                      className="btn-gradient fw-semibold"
-                      disabled={isSubmitting}
+                      variant="outline-secondary"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="border-start-0"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="me-2"
-                          />
-                          Iniciando sesión...
-                        </>
-                      ) : (
-                        'Iniciar Sesión'
-                      )}
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
                     </Button>
+                  </InputGroup>
+                  <div className="text-end mt-2">
+                    <Link to="/olvide-contrasena" className="text-decoration-none small">
+                      ¿Olvidaste tu contraseña?
+                    </Link>
                   </div>
-                </Form>
+                </Form.Group>
+
+                <div className="d-grid mb-3">
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    disabled={loading}
+                    className="py-2 fw-semibold"
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" />
+                        Iniciando sesión...
+                      </>
+                    ) : (
+                      'Iniciar Sesión'
+                    )}
+                  </Button>
+                </div>
+
+                <div className="text-center mb-3">
+                  <span className="text-muted">o</span>
+                </div>
+
+                <div className="d-grid mb-4">
+                  <Button
+                    variant="outline-danger"
+                    size="lg"
+                    onClick={handleGoogleLogin}
+                    className="py-2 fw-semibold"
+                  >
+                    <span className="me-2">🔴</span>
+                    Iniciar con Google
+                  </Button>
+                </div>
 
                 <div className="text-center">
-                  <p className="text-muted mb-3">
-                    ¿No tienes una cuenta?{' '}
-                    <Link 
-                      to="/registro" 
-                      className="text-decoration-none fw-semibold"
-                    >
-                      Regístrate aquí
-                    </Link>
-                  </p>
-                  
-                  <div className="auth-divider my-4">
-                    <span className="divider-text">o</span>
-                  </div>
-                  
-                  <div className="d-grid gap-2">
-                    <Button 
-                      variant="outline-secondary" 
-                      size="lg"
-                      className="d-flex align-items-center justify-content-center"
-                    >
-                      <span className="me-2">🔑</span>
-                      <span>Acceso Demo</span>
-                    </Button>
-                  </div>
+                  <span className="text-muted">¿No tienes cuenta? </span>
+                  <Link to="/registro" className="text-decoration-none fw-semibold">
+                    Regístrate aquí
+                  </Link>
                 </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </div>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

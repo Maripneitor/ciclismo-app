@@ -1,8 +1,9 @@
-// frontend/src/components/home/HeroSection.jsx - CORREGIDO
-import React, { useState, useEffect } from 'react';
+// frontend/src/components/home/HeroSection.jsx - CON CONTADORES ANIMADOS
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col, Button, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { homeAPI } from '../../services/api';
 
 const HeroSection = () => {
   const { isAuthenticated } = useAuth();
@@ -10,12 +11,35 @@ const HeroSection = () => {
   const [displayedSubtitle, setDisplayedSubtitle] = useState('');
   const [titleComplete, setTitleComplete] = useState(false);
   const [subtitleComplete, setSubtitleComplete] = useState(false);
+  const [stats, setStats] = useState({ events: 0, cyclists: 0, distance: 0 });
+  const [animatedStats, setAnimatedStats] = useState({ events: 0, cyclists: 0, distance: 0 });
+  const sectionRef = useRef(null);
 
   const fullTitle = "VIVE EL CICLISMO COMO NUNCA ANTES";
   const fullSubtitle = "Tecnología avanzada, comunidad activa y experiencias únicas sobre dos ruedas";
 
+  // Cargar estadísticas reales
   useEffect(() => {
-    // Animación del título
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const statsData = await homeAPI.getHomeStats();
+      setStats({
+        events: statsData.total_eventos || 89,
+        cyclists: statsData.total_usuarios || 1250,
+        distance: 45 // En una implementación real, esto vendría de la API
+      });
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error);
+      // Valores por defecto
+      setStats({ events: 89, cyclists: 1250, distance: 45 });
+    }
+  };
+
+  // Animación de escritura
+  useEffect(() => {
     let currentIndex = 0;
     const typeTitle = () => {
       if (currentIndex <= fullTitle.length) {
@@ -24,7 +48,6 @@ const HeroSection = () => {
         setTimeout(typeTitle, 100);
       } else {
         setTitleComplete(true);
-        // Iniciar subtítulo después de una pausa
         setTimeout(() => {
           let subtitleIndex = 0;
           const typeSubtitle = () => {
@@ -44,8 +67,67 @@ const HeroSection = () => {
     typeTitle();
   }, []);
 
+  // Animación de contadores con IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          animateCounters();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, [stats]);
+
+  const animateCounters = () => {
+    const duration = 2000; // 2 segundos
+    const steps = 60;
+    const stepDuration = duration / steps;
+
+    Object.keys(stats).forEach(statKey => {
+      const targetValue = stats[statKey];
+      let currentStep = 0;
+
+      const counterInterval = setInterval(() => {
+        currentStep++;
+        const progress = currentStep / steps;
+        const currentValue = Math.floor(targetValue * progress);
+
+        setAnimatedStats(prev => ({
+          ...prev,
+          [statKey]: currentValue
+        }));
+
+        if (currentStep >= steps) {
+          clearInterval(counterInterval);
+          setAnimatedStats(prev => ({
+            ...prev,
+            [statKey]: targetValue
+          }));
+        }
+      }, stepDuration);
+    });
+  };
+
+  const formatNumber = (num) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(0) + 'K';
+    }
+    return num.toString();
+  };
+
   return (
-    <section className="hero-section position-relative overflow-hidden">
+    <section ref={sectionRef} className="hero-section position-relative overflow-hidden">
       <div className="hero-bg-container">
         <div className="hero-gradient-bg"></div>
       </div>
@@ -70,19 +152,19 @@ const HeroSection = () => {
             <div className="hero-stats d-flex justify-content-center justify-content-lg-start gap-4 my-4">
               <div className="stat-item text-center">
                 <div className="stat-number h4 mb-1 text-warning">
-                  89+
+                  {formatNumber(animatedStats.events)}+
                 </div>
                 <div className="stat-label small text-light">Eventos</div>
               </div>
               <div className="stat-item text-center">
                 <div className="stat-number h4 mb-1 text-warning">
-                  1250+
+                  {formatNumber(animatedStats.cyclists)}+
                 </div>
                 <div className="stat-label small text-light">Ciclistas</div>
               </div>
               <div className="stat-item text-center">
                 <div className="stat-number h4 mb-1 text-warning">
-                  45K
+                  {animatedStats.distance}K
                 </div>
                 <div className="stat-label small text-light">Km Recorridos</div>
               </div>
@@ -121,12 +203,12 @@ const HeroSection = () => {
                   </Button>
                   <Button 
                     as={Link}
-                    to="/eventos"
+                    to="/calendario"
                     className="btn-hero-secondary"
                     variant="outline-light"
                     size="lg"
                   >
-                    NUEVO EVENTO
+                    VER CALENDARIO
                   </Button>
                 </>
               )}

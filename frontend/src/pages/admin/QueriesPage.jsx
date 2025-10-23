@@ -4,7 +4,7 @@ import {
   Container, Row, Col, Card, Table, Spinner, Alert,
   Form, Button, Badge, ProgressBar, Tabs, Tab
 } from 'react-bootstrap';
-import { queriesAPI, eventsAPI, usersAPI } from '../services/api';
+import { queriesAPI, eventsAPI, usersAPI } from '../../services/api';
 
 const QueriesPage = () => {
   const [stats, setStats] = useState(null);
