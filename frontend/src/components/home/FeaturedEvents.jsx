@@ -1,8 +1,7 @@
-// frontend/src/components/home/FeaturedEvents.jsx
+// frontend/src/components/home/FeaturedEvents.jsx - CORREGIDO
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { eventsAPI } from '../../services/api';
 
 const FeaturedEvents = () => {
   const [featuredEvents, setFeaturedEvents] = useState([]);
@@ -81,13 +80,13 @@ const FeaturedEvents = () => {
 
   const getEventTypeIcon = (type) => {
     const icons = {
-      'ruta': 'Ruta',
-      'montaña': 'Montaña',
-      'urbano': 'Urbano',
-      'competitivo': 'Competitivo',
-      'recreativo': 'Recreativo'
+      'ruta': '🛣️',
+      'montaña': '⛰️',
+      'urbano': '🏙️',
+      'competitivo': '🏆',
+      'recreativo': '😊'
     };
-    return icons[type] || 'Ciclismo';
+    return icons[type] || '🚴';
   };
 
   const getStatusVariant = (status) => {
@@ -160,11 +159,10 @@ const FeaturedEvents = () => {
           </Row>
         ) : (
           <Row className="g-4">
-            {featuredEvents.map((event, index) => (
-              <Col key={event.id} xs={12} lg={4}>
+            {featuredEvents.map((event) => (
+              <Col key={event.id} xs={12} md={6} lg={4}>
                 <EventCard 
                   event={event} 
-                  index={index}
                   getEventTypeIcon={getEventTypeIcon}
                   getStatusVariant={getStatusVariant}
                   formatDate={formatDate}
@@ -192,22 +190,27 @@ const FeaturedEvents = () => {
   );
 };
 
-const EventCard = ({ event, index, getEventTypeIcon, getStatusVariant, formatDate }) => {
-  const [imageLoaded, setImageLoaded] = React.useState(false);
+const EventCard = ({ event, getEventTypeIcon, getStatusVariant, formatDate }) => {
+  const [imageError, setImageError] = useState(false);
 
   return (
     <Card className="event-featured-card h-100 border-0 shadow-hover">
       <div className="event-image-container">
-        <div className="event-image-placeholder">
-          <span className="event-icon-large">{getEventTypeIcon(event.tipo)}</span>
-        </div>
-        <Card.Img 
-          variant="top" 
-          src={event.imagen} 
-          alt={event.nombre}
-          onLoad={() => setImageLoaded(true)}
-          className={imageLoaded ? 'event-image-loaded' : 'event-image-loading'}
-        />
+        {imageError ? (
+          <div className="event-image-fallback">
+            <span className="event-icon-large">{getEventTypeIcon(event.tipo)}</span>
+            <div className="fallback-text">Imagen no disponible</div>
+          </div>
+        ) : (
+          <Card.Img 
+            variant="top" 
+            src={event.imagen} 
+            alt={event.nombre}
+            onError={() => setImageError(true)}
+            className="event-image"
+            style={{ height: '200px', objectFit: 'cover' }}
+          />
+        )}
         
         <div className="event-badges">
           <Badge bg={getStatusVariant(event.estado)} className="event-status">

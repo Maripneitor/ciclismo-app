@@ -29,10 +29,10 @@ const Header = () => {
 
     // Navegación principal
     const mainNavItems = [
-        { path: '/', label: 'Inicio', icon: '🏠' },
-        { path: '/eventos', label: 'Eventos', icon: '🚴‍♂️' },
-        { path: '/resultados', label: 'Resultados', icon: '🏆' },
-        { path: '/comunidad', label: 'Comunidad', icon: '👥' },
+        { path: '/', label: 'Inicio', icon: '' },
+        { path: '/eventos', label: 'Eventos', icon: '' },
+        { path: '/resultados', label: 'Resultados', icon: '' },
+        { path: '/comunidad', label: 'Comunidad', icon: '' },
     ];
 
     // Navegación de usuario

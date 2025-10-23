@@ -79,7 +79,7 @@ const EnhancedEventCard = ({
           ) : (
             <div className="event-image-fallback">
               <span className="event-icon-large">{eventType.icon}</span>
-              <div className="fallback-text">Imagen no disponible</div>
+              <div className="fallback-text"></div>
             </div>
           )}
         </div>

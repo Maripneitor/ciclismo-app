@@ -1,89 +1,48 @@
-// frontend/src/context/ThemeContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// frontend/src/context/ThemeContext.jsx - MEJORADO
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext();
 
 export const useTheme = () => {
-    const context = useContext(ThemeContext);
-    if (!context) {
-        throw new Error('useTheme debe ser usado dentro de un ThemeProvider');
-    }
-    return context;
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme debe ser usado dentro de un ThemeProvider');
+  }
+  return context;
 };
 
 export const ThemeProvider = ({ children }) => {
-    const [darkMode, setDarkMode] = useState(true);
-    const [mounted, setMounted] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
 
-    const applyTheme = (isDark) => {
-        const htmlElement = document.documentElement;
-        const bodyElement = document.body;
-        
-        bodyElement.classList.remove('dark-theme', 'light-theme');
-        htmlElement.removeAttribute('data-bs-theme');
-        
-        if (isDark) {
-            htmlElement.setAttribute('data-bs-theme', 'dark');
-            bodyElement.classList.add('dark-theme');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            htmlElement.setAttribute('data-bs-theme', 'light');
-            bodyElement.classList.add('light-theme');
-            localStorage.setItem('theme', 'light');
-        }
-    };
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    
+    // Aplicar tema al documento
+    if (darkMode) {
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
+      document.body.classList.add('dark-mode');
+    } else {
+      document.documentElement.removeAttribute('data-bs-theme');
+      document.body.classList.remove('dark-mode');
+    }
+  }, [darkMode]);
 
-    useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        const initialTheme = savedTheme === 'light' ? false : 
-                           savedTheme === 'dark' ? true : prefersDark;
-        
-        setDarkMode(initialTheme);
-        applyTheme(initialTheme);
-        setMounted(true);
-    }, []);
+  const toggleDarkMode = () => {
+    setDarkMode(prev => !prev);
+  };
 
-    useEffect(() => {
-        if (mounted) {
-            applyTheme(darkMode);
-        }
-    }, [darkMode, mounted]);
+  const value = {
+    darkMode,
+    toggleDarkMode,
+    setDarkMode
+  };
 
-    const toggleDarkMode = () => {
-        setDarkMode(prev => !prev);
-    };
-
-    const value = {
-        darkMode,
-        toggleDarkMode,
-        setDarkMode
-    };
-
-    return (
-        <ThemeContext.Provider value={value}>
-            {children}
-        </ThemeContext.Provider>
-    );
-};
-
-export const useThemeEffect = () => {
-    const { darkMode } = useTheme();
-
-    useEffect(() => {
-        const htmlElement = document.documentElement;
-        const bodyElement = document.body;
-        
-        bodyElement.classList.remove('dark-theme', 'light-theme');
-        htmlElement.removeAttribute('data-bs-theme');
-        
-        if (darkMode) {
-            htmlElement.setAttribute('data-bs-theme', 'dark');
-            bodyElement.classList.add('dark-theme');
-        } else {
-            htmlElement.setAttribute('data-bs-theme', 'light');
-            bodyElement.classList.add('light-theme');
-        }
-    }, [darkMode]);
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };

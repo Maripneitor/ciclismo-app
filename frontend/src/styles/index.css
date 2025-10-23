@@ -1,10 +1,12 @@
-/* frontend/src/styles/index.css */
+/* frontend/src/styles/index.css - LIMPIO Y CORREGIDO */
 @import './theme.css';
 @import './animations.css';
 @import './hero-stable.css';
 @import './components/homepage.css';
 @import './components/navigation.css';
+@import './components/events.css';
 
+/* Reset y estilos base */
 * {
   margin: 0;
   padding: 0;
@@ -24,12 +26,18 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   overflow-x: hidden;
+  background-color: var(--body-bg);
+  color: var(--body-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
   min-height: 100vh;
+  background-color: var(--body-bg);
+  color: var(--body-color);
 }
 
+/* Contenedores responsivos */
 .container {
   width: 100%;
   padding-right: 15px;
@@ -44,10 +52,46 @@ body {
 @media (min-width: 1200px) { .container { max-width: 1140px; } }
 @media (min-width: 1400px) { .container { max-width: 1320px; } }
 
+/* Tipografía responsiva */
 .text-responsive {
   font-size: clamp(1rem, 2.5vw, 1.25rem);
 }
 
 .heading-responsive {
   font-size: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Transiciones suaves para tema */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Utilidades para imágenes responsivas */
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (pointer: coarse) {
+  .btn,
+  .nav-link {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

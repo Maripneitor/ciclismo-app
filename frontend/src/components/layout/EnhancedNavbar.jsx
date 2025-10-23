@@ -1,4 +1,4 @@
-// frontend/src/components/layout/EnhancedNavbar.jsx - Nueva versión
+// frontend/src/components/layout/EnhancedNavbar.jsx - CORREGIDO
 import React, { useState, useEffect } from 'react';
 import { 
   Navbar, Nav, Container, Button, Dropdown, Badge, 
@@ -8,92 +8,59 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
-const EnhancedNavbar = () => {
+const EnhancedNavbar = ({ scrolled }) => {
   const { user, logout, isAuthenticated, isAdmin, isOrganizer } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [showOffcanvas, setShowOffcanvas] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
-  // Navegación principal con iconos mejorados
+  // Navegación principal estable
   const mainNavigation = [
     { 
       path: '/', 
       label: 'Inicio', 
       icon: '🏠',
-      activeIcon: '🏡',
-      description: 'Página principal'
+      activeIcon: '🏡'
     },
     { 
       path: '/eventos', 
       label: 'Eventos', 
       icon: '🚴‍♂️',
       activeIcon: '🚴‍♀️',
-      description: 'Explorar eventos',
       badge: 'Nuevo'
     },
     { 
       path: '/rutas', 
       label: 'Rutas', 
       icon: '🗺️',
-      activeIcon: '🗾',
-      description: 'Descubrir rutas'
+      activeIcon: '🗾'
     },
     { 
       path: '/comunidad', 
       label: 'Comunidad', 
       icon: '👥',
-      activeIcon: '🧑‍🤝‍🧑',
-      description: 'Conectar con ciclistas'
-    },
-    { 
-      path: '/resultados', 
-      label: 'Resultados', 
-      icon: '🏆',
-      activeIcon: '📊',
-      description: 'Ver resultados'
+      activeIcon: '🧑‍🤝‍🧑'
     }
   ];
 
-  // Navegación de usuario autenticado
   const userNavigation = [
     { 
       path: '/cuenta/dashboard', 
       label: 'Dashboard', 
-      icon: '📊',
-      description: 'Mi panel principal'
+      icon: '📊'
     },
     { 
       path: '/cuenta/inscripciones', 
       label: 'Mis Inscripciones', 
-      icon: '🎫',
-      description: 'Eventos inscritos'
+      icon: '🎫'
     },
     { 
       path: '/cuenta/equipos', 
       label: 'Mis Equipos', 
-      icon: '👥',
-      description: 'Gestionar equipos'
-    },
-    { 
-      path: '/cuenta/logros', 
-      label: 'Logros', 
-      icon: '⭐',
-      description: 'Mis logros y estadísticas'
+      icon: '👥'
     }
   ];
-
-  // Efecto para detectar scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 20;
-      setScrolled(isScrolled);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -114,7 +81,6 @@ const EnhancedNavbar = () => {
         className={`modern-navbar ${scrolled ? 'navbar-scrolled' : ''} ${darkMode ? 'navbar-dark' : 'navbar-light'}`}
       >
         <Container>
-          {/* Logo y Brand */}
           <Navbar.Brand as={Link} to="/" className="navbar-brand-enhanced">
             <div className="brand-container">
               <span className="brand-icon">🚴‍♂️</span>
@@ -125,9 +91,15 @@ const EnhancedNavbar = () => {
             </div>
           </Navbar.Brand>
 
-          {/* Desktop Navigation */}
+          <Navbar.Toggle 
+            aria-controls="main-navigation"
+            onClick={() => setShowOffcanvas(true)}
+            className="navbar-toggler-enhanced"
+          >
+            <span className="toggler-icon">☰</span>
+          </Navbar.Toggle>
+
           <Navbar.Collapse id="main-navigation">
-            {/* Navegación Principal */}
             <Nav className="mx-auto main-nav">
               {mainNavigation.map((item) => (
                 <Nav.Item key={item.path}>
@@ -148,20 +120,7 @@ const EnhancedNavbar = () => {
               ))}
             </Nav>
 
-            {/* Acciones del Usuario */}
             <Nav className="align-items-center user-actions">
-              {/* Buscador */}
-              <InputGroup className="search-container">
-                <Form.Control
-                  placeholder="Buscar eventos, rutas..."
-                  className="search-input"
-                />
-                <Button variant="outline-secondary">
-                  🔍
-                </Button>
-              </InputGroup>
-
-              {/* Toggle de Tema */}
               <Button
                 variant="outline-secondary"
                 className="theme-toggle"
@@ -183,7 +142,6 @@ const EnhancedNavbar = () => {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu className="user-menu">
-                    {/* Header del usuario */}
                     <div className="user-menu-header">
                       <div className="user-avatar-large">
                         {user?.nombre_completo?.charAt(0) || '👤'}
@@ -199,7 +157,6 @@ const EnhancedNavbar = () => {
 
                     <Dropdown.Divider />
 
-                    {/* Navegación de usuario */}
                     {userNavigation.map((item) => (
                       <Dropdown.Item
                         key={item.path}
@@ -210,34 +167,20 @@ const EnhancedNavbar = () => {
                         <span className="menu-icon">{item.icon}</span>
                         <div className="menu-content">
                           <div className="menu-label">{item.label}</div>
-                          <div className="menu-description">{item.description}</div>
                         </div>
                       </Dropdown.Item>
                     ))}
 
-                    {/* Navegación especial por rol */}
                     {(isOrganizer || isAdmin) && (
                       <>
                         <Dropdown.Divider />
-                        <Dropdown.Header>Gestión</Dropdown.Header>
                         <Dropdown.Item as={Link} to="/organizador/dashboard" className="user-menu-item">
                           <span className="menu-icon">🎯</span>
                           <div className="menu-content">
                             <div className="menu-label">Panel Organizador</div>
-                            <div className="menu-description">Gestionar eventos</div>
                           </div>
                         </Dropdown.Item>
                       </>
-                    )}
-
-                    {isAdmin && (
-                      <Dropdown.Item as={Link} to="/admin/dashboard" className="user-menu-item">
-                        <span className="menu-icon">⚙️</span>
-                        <div className="menu-content">
-                          <div className="menu-label">Administración</div>
-                          <div className="menu-description">Configuración del sistema</div>
-                        </div>
-                      </Dropdown.Item>
                     )}
 
                     <Dropdown.Divider />
@@ -270,19 +213,9 @@ const EnhancedNavbar = () => {
               )}
             </Nav>
           </Navbar.Collapse>
-
-          {/* Mobile Toggle */}
-          <Button
-            variant="outline-primary"
-            className="navbar-toggler-enhanced"
-            onClick={() => setShowOffcanvas(true)}
-          >
-            <span className="toggler-icon">☰</span>
-          </Button>
         </Container>
       </Navbar>
 
-      {/* Offcanvas Mobile */}
       <Offcanvas 
         show={showOffcanvas} 
         onHide={() => setShowOffcanvas(false)} 
@@ -302,7 +235,6 @@ const EnhancedNavbar = () => {
         </Offcanvas.Header>
         
         <Offcanvas.Body>
-          {/* Navegación móvil */}
           <Nav className="flex-column mobile-nav">
             {mainNavigation.map((item) => (
               <Nav.Link
@@ -321,7 +253,6 @@ const EnhancedNavbar = () => {
             ))}
           </Nav>
 
-          {/* Usuario en móvil */}
           {isAuthenticated && (
             <div className="mobile-user-section">
               <div className="mobile-user-info">
@@ -349,7 +280,6 @@ const EnhancedNavbar = () => {
             </div>
           )}
 
-          {/* Acciones móviles */}
           <div className="mobile-actions">
             <div className="d-grid gap-2">
               {!isAuthenticated ? (
@@ -384,7 +314,6 @@ const EnhancedNavbar = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Espacio para navbar fixed */}
       <div className="navbar-spacer"></div>
     </>
   );

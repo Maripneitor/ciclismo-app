@@ -1,18 +1,17 @@
-// frontend/src/App.jsx - CORREGIDO
+// frontend/src/App.jsx - CORREGIDO Y ESTABILIZADO
 import React from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from "./context/ThemeContext";
 import AppRoutes from './routes/AppRoutes';
 import ErrorBoundary from './components/ErrorBoundary';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/App.css';
 import './styles/index.css';
 
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <AuthProvider> {/* ✅ AuthProvider debe envolver todo */}
+        <AuthProvider>
           <AppRoutes />
         </AuthProvider>
       </ThemeProvider>

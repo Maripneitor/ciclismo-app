@@ -9,21 +9,21 @@ const TestimonialsSection = () => {
       name: "María González",
       role: "Ciclista Profesional",
       content: "Esta plataforma ha revolucionado mi forma de entrenar y competir. La gestión de eventos es impecable y la comunidad es increíblemente activa.",
-      avatar: "👩‍🚴"
+      avatar: ""
     },
     {
       id: 2,
       name: "Carlos Rodríguez",
       role: "Organizador de Eventos",
       content: "Como organizador, la plataforma me ha permitido gestionar eventos de forma mucho más eficiente. Los participantes están más involucrados que nunca.",
-      avatar: "👨‍💼"
+      avatar: ""
     },
     {
       id: 3,
       name: "Ana Martínez",
       role: "Ciclista Recreativa",
       content: "He encontrado una comunidad maravillosa y eventos perfectos para mi nivel. La aplicación es intuitiva y las rutas son espectaculares.",
-      avatar: "👩‍🦰"
+      avatar: ""
     }
   ];
 

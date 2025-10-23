@@ -1,3 +1,4 @@
+/* frontend/src/styles/theme.css - MEJORADO */
 :root {
   --primary-color: #2563eb;
   --primary-rgb: 37, 99, 235;
@@ -58,37 +59,13 @@
   --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-/* Aplicar variables a elementos Bootstrap - MEJORADO */
+/* Aplicar transiciones de tema */
 body {
   background-color: var(--body-bg) !important;
   color: var(--body-color) !important;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Navbar mejorado */
-.navbar {
-  background-color: var(--header-bg) !important;
-  border-bottom: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.navbar-brand-modern {
-  color: var(--body-color) !important;
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-
-.nav-link-modern {
-  color: var(--body-color) !important;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.nav-link-modern:hover {
-  color: var(--primary-color) !important;
-}
-
-/* Cards mejoradas */
 .card {
   background-color: var(--card-bg) !important;
   border: 1px solid var(--border-color) !important;
@@ -96,34 +73,17 @@ body {
   transition: all 0.3s ease;
 }
 
-.card-header {
-  background-color: var(--card-bg) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  color: var(--body-color) !important;
+.navbar {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
 }
 
-/* Textos mejorados */
-.text-dark {
-  color: var(--text-dark) !important;
-}
-
-.text-light {
-  color: var(--text-light) !important;
-}
-
-.text-muted {
-  color: var(--text-muted) !important;
-}
-
-.text-body {
-  color: var(--body-color) !important;
-}
-
-/* Botones outline mejorados */
 .btn-outline-primary {
   color: var(--primary-color) !important;
   border-color: var(--primary-color) !important;
   background: transparent;
+  transition: all 0.3s ease;
 }
 
 .btn-outline-primary:hover {
@@ -132,183 +92,18 @@ body {
   border-color: var(--primary-color) !important;
 }
 
-.btn-outline-light {
-  color: var(--text-dark) !important;
-  border-color: var(--border-color) !important;
-  background: transparent;
-}
-
-.btn-outline-light:hover {
-  background-color: var(--border-color) !important;
-  color: var(--body-color) !important;
-}
-
-/* Backgrounds mejorados */
-.bg-light {
-  background-color: var(--card-bg) !important;
-  color: var(--body-color) !important;
-}
-
-.bg-dark {
-  background-color: var(--dark-color) !important;
-  color: var(--text-light) !important;
-}
-
-.bg-primary {
-  background: var(--gradient-primary) !important;
-  color: white !important;
-}
-
-/* Mejoras específicas para secciones problemáticas */
-.testimonials-section {
-  background: var(--gradient-primary) !important;
-  color: white !important;
-}
-
-.testimonials-section .card {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
-}
-
-.testimonials-section .text-warning {
-  color: #ffd700 !important;
-}
-
-.projects-section .card {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--border-color) !important;
-}
-
-.projects-section .text-muted {
-  color: var(--text-muted) !important;
-}
-
-/* Hero section mejorada */
-.hero-section {
-  background: var(--gradient-primary) !important;
-  color: white !important;
-}
-
-.hero-section .text-warning {
-  color: #ffd700 !important;
-}
-
-/* Dashboard section */
-.dashboard-section {
-  background: var(--gradient-primary) !important;
-  color: white !important;
-}
-
-.dashboard-section .card {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-/* CTA section */
-.cta-section {
-  background: var(--gradient-primary) !important;
-  color: white !important;
-}
-
-/* Formularios mejorados */
 .form-control {
   background-color: var(--card-bg) !important;
   border-color: var(--border-color) !important;
   color: var(--body-color) !important;
+  transition: all 0.3s ease;
 }
 
-.form-control:focus {
-  background-color: var(--card-bg) !important;
-  color: var(--body-color) !important;
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+/* Animación del toggle de tema */
+.theme-toggle {
+  transition: all 0.3s ease !important;
 }
 
-.form-select {
-  background-color: var(--card-bg) !important;
-  border-color: var(--border-color) !important;
-  color: var(--body-color) !important;
-}
-
-.form-label {
-  color: var(--body-color) !important;
-}
-
-/* Dropdown mejorado */
-.dropdown-menu {
-  background-color: var(--card-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--body-color) !important;
-}
-
-.dropdown-item {
-  color: var(--body-color) !important;
-}
-
-.dropdown-item:hover {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-}
-
-/* Progress bars */
-.progress {
-  background-color: var(--border-color) !important;
-}
-
-/* Badges */
-.badge {
-  color: white !important;
-}
-
-/* Modal mejorado */
-.modal-content {
-  background-color: var(--card-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--body-color) !important;
-}
-
-.modal-header {
-  border-bottom-color: var(--border-color) !important;
-}
-
-.modal-footer {
-  border-top-color: var(--border-color) !important;
-}
-
-.modal-header .btn-close {
-  filter: invert(var(--bs-modal-btn-close-bg, 0.5));
-}
-
-/* Asegurar contraste en todos los elementos */
-.section-title,
-.hero-title {
-  color: inherit !important;
-}
-
-.section-subtitle,
-.hero-subtitle {
-  color: inherit !important;
-  opacity: 0.9;
-}
-
-/* Enlaces */
-a {
-  color: var(--primary-color) !important;
-}
-
-a:hover {
-  color: var(--primary-color) !important;
-  opacity: 0.8;
-}
-
-/* Sombras consistentes */
-.card {
-  box-shadow: 0 0.125rem 0.25rem var(--shadow-color) !important;
-}
-
-.card:hover {
-  box-shadow: 0 0.5rem 1rem var(--shadow-color) !important;
+.theme-toggle:hover {
+  transform: rotate(15deg) scale(1.1);
 }

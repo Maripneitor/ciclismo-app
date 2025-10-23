@@ -6,28 +6,28 @@ const FeaturesSection = () => {
   const features = [
     {
       id: 1,
-      icon: '📅',
+      icon: '',
       title: 'Gestión de Eventos',
       description: 'Crea, organiza y gestiona eventos de ciclismo de forma sencilla y profesional.',
       color: 'primary'
     },
     {
       id: 2,
-      icon: '👥',
+      icon: '',
       title: 'Comunidad Activa',
       description: 'Conecta con miles de ciclistas, comparte rutas y participa en desafíos.',
       color: 'success'
     },
     {
       id: 3,
-      icon: '📊',
+      icon: '',
       title: 'Seguimiento de Resultados',
       description: 'Analiza tu rendimiento, compara tiempos y mejora tus marcas personales.',
       color: 'warning'
     },
     {
       id: 4,
-      icon: '🏆',
+      icon: '',
       title: 'Sistema de Logros',
       description: 'Desbloquea logros, gana insignias y muestra tu progreso en la comunidad.',
       color: 'info'

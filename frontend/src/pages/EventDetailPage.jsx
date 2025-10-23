@@ -43,7 +43,7 @@ const EventDetailPage = () => {
         dificultad: 'Alta',
         elevacion: 2500,
         organizador: { nombre: 'Maripneitor', email: 'info@maripneitor.com' },
-        imagen: '/images/events/sierra-nevada-1.jpg',
+        imagen: '../../src/assets/imagenes/Ruta montaña.jpg',
         hora_inicio: '08:00',
         descripcion_ruta: 'Ruta técnica con ascensos desafiantes y descensos emocionantes a través de la Sierra Nevada.',
         url_mapa: 'https://maps.example.com/sierra-nevada'

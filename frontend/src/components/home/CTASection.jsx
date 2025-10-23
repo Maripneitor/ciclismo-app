@@ -33,7 +33,7 @@ const CTASection = () => {
               <Row className="g-4 text-center">
                 <Col xs={6} md={3}>
                   <div className="feature-mini">
-                    <div className="feature-icon-small mb-2">🚴‍♂️</div>
+                    <div className="feature-icon-small mb-2"></div>
                     <div className="feature-text small">Eventos Exclusivos</div>
                   </div>
                 </Col>
