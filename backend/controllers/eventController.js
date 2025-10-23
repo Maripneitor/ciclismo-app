@@ -148,7 +148,6 @@ const eventController = {
         try {
             const { evento_id, categoria_id, talla_playera_id, equipo_id, ...registrationData } = req.body;
             
-           
             const existingRegistration = await Registration.findOne({
                 where: {
                     usuario_id: req.user.usuario_id,
@@ -162,7 +161,6 @@ const eventController = {
                 });
             }
 
-            
             const lastDorsal = await Registration.findOne({
                 where: { evento_id },
                 order: [['numero_dorsal', 'DESC']],
@@ -210,7 +208,6 @@ const eventController = {
                 order: [['fecha', 'DESC']]
             });
 
-           
             const eventsWithCount = events.map(event => ({
                 ...event.toJSON(),
                 inscritos: event.inscripciones ? event.inscripciones.length : 0

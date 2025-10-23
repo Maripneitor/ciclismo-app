@@ -29,6 +29,11 @@ const User = sequelize.define('User', {
         allowNull: false,
         defaultValue: 'usuario'
     },
+    profileImageUrl: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+        defaultValue: null
+    },
     fecha_creacion: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
@@ -57,7 +62,5 @@ const User = sequelize.define('User', {
         }
     }
 });
-
-// **ELIMINAR el método validPassword problemático - usar bcrypt.compare directamente**
 
 module.exports = User;

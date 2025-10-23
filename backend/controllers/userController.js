@@ -1,4 +1,6 @@
 const { User, Registration, Event, Team, Resultado, CyclistData } = require('../models');
+const path = require('path');
+const fs = require('fs');
 
 const userController = {
     getProfile: async (req, res) => {
@@ -47,6 +49,46 @@ const userController = {
         }
     },
 
+    updateProfilePicture: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'No se ha subido ninguna imagen' });
+            }
+
+            const user = await User.findByPk(req.user.usuario_id);
+            if (!user) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+
+            if (user.profileImageUrl && user.profileImageUrl.includes('/uploads/')) {
+                const oldFilename = path.basename(user.profileImageUrl);
+                const oldPath = path.join(__dirname, '../uploads/profile-pictures', oldFilename);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                }
+            }
+
+            const profileImageUrl = `/uploads/profile-pictures/${req.file.filename}`;
+
+            await user.update({ profileImageUrl });
+
+            const updatedUser = await User.findByPk(req.user.usuario_id, {
+                attributes: { exclude: ['contrasena'] }
+            });
+
+            res.json({
+                message: 'Imagen de perfil actualizada exitosamente',
+                user: updatedUser
+            });
+        } catch (error) {
+            console.error('Error actualizando imagen de perfil:', error);
+            res.status(500).json({
+                message: 'Error al actualizar imagen de perfil',
+                error: error.message
+            });
+        }
+    },
+
     getAllUsers: async (req, res) => {
         try {
             const users = await User.findAll({
@@ -58,6 +100,82 @@ const userController = {
             console.error('Error obteniendo usuarios:', error);
             res.status(500).json({
                 message: 'Error obteniendo usuarios',
+                error: error.message
+            });
+        }
+    },
+
+    updateUser: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { nombre_completo, email, telefono, rol, puede_crear_equipo } = req.body;
+
+            const user = await User.findByPk(id);
+            if (!user) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+
+            if (id === req.user.usuario_id.toString() && rol !== 'admin') {
+                return res.status(400).json({ 
+                    message: 'No puedes cambiar tu propio rol de administrador' 
+                });
+            }
+
+            await user.update({
+                nombre_completo,
+                email,
+                telefono,
+                rol,
+                puede_crear_equipo
+            });
+
+            const updatedUser = await User.findByPk(id, {
+                attributes: { exclude: ['contrasena'] }
+            });
+
+            res.json({
+                message: 'Usuario actualizado exitosamente',
+                user: updatedUser
+            });
+        } catch (error) {
+            console.error('Error actualizando usuario:', error);
+            res.status(500).json({
+                message: 'Error actualizando usuario',
+                error: error.message
+            });
+        }
+    },
+
+    deleteUser: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            if (id === req.user.usuario_id.toString()) {
+                return res.status(400).json({ 
+                    message: 'No puedes eliminar tu propia cuenta' 
+                });
+            }
+
+            const user = await User.findByPk(id);
+            if (!user) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+
+            if (user.profileImageUrl && user.profileImageUrl.includes('/uploads/')) {
+                const filename = path.basename(user.profileImageUrl);
+                const filePath = path.join(__dirname, '../uploads/profile-pictures', filename);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }
+
+            await user.destroy();
+
+            res.json({ message: 'Usuario eliminado exitosamente' });
+        } catch (error) {
+            console.error('Error eliminando usuario:', error);
+            res.status(500).json({
+                message: 'Error eliminando usuario',
                 error: error.message
             });
         }

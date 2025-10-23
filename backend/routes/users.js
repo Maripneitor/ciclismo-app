@@ -2,78 +2,32 @@ const express = require('express');
 const router = express.Router();
 const { User, Event, Registration } = require('../models');
 const { auth, authorize } = require('../middleware/auth');
+const userController = require('../controllers/userController');
+const upload = require('../middleware/upload');
 
 // Obtener perfil del usuario autenticado
-router.get('/profile', auth, async (req, res) => {
-    try {
-        const user = await User.findByPk(req.user.usuario_id, {
-            attributes: { exclude: ['contrasena'] }
-        });
-        res.json(user);
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error obteniendo perfil',
-            error: error.message
-        });
-    }
-});
+router.get('/profile', auth, userController.getProfile);
+
+// Actualizar perfil del usuario autenticado
+router.put('/profile', auth, userController.updateProfile);
+
+// Subir imagen de perfil
+router.post('/profile/picture', auth, upload.single('profileImage'), userController.updateProfilePicture);
 
 // Obtener todos los usuarios (solo admin)
-router.get('/', auth, authorize('admin'), async (req, res) => {
-    try {
-        const users = await User.findAll({
-            attributes: { exclude: ['contrasena'] }
-        });
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error obteniendo usuarios',
-            error: error.message
-        });
-    }
-});
+router.get('/', auth, authorize('admin'), userController.getAllUsers);
+
+// Actualizar usuario (solo admin)
+router.put('/:id', auth, authorize('admin'), userController.updateUser);
+
+// Eliminar usuario (solo admin)
+router.delete('/:id', auth, authorize('admin'), userController.deleteUser);
 
 // Obtener eventos del usuario
-router.get('/my-events', auth, async (req, res) => {
-    try {
-        const userWithEvents = await User.findByPk(req.user.usuario_id, {
-            include: [{
-                model: Event,
-                through: { attributes: [] }
-            }]
-        });
-        
-        if (!userWithEvents) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        res.json(userWithEvents.Events || []);
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error obteniendo eventos del usuario',
-            error: error.message
-        });
-    }
-});
+router.get('/my-events', auth, userController.getUserEvents);
 
 // Obtener inscripciones del usuario
-router.get('/my-registrations', auth, async (req, res) => {
-    try {
-        const registrations = await Registration.findAll({
-            where: { usuario_id: req.user.usuario_id },
-            include: [Event]
-        });
-        
-        res.json(registrations);
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error obteniendo inscripciones',
-            error: error.message
-        });
-    }
-});
-
-// ... rutas existentes ...
+router.get('/my-registrations', auth, userController.getUserRegistrations);
 
 // Rutas de datos del ciclista
 router.put('/cyclist-data', auth, userController.updateCyclistData);
