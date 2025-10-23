@@ -1,4 +1,4 @@
-// frontend/src/components/layout/EnhancedNavbar.jsx - CORREGIDO
+// frontend/src/components/layout/EnhancedNavbar.jsx - ACTUALIZADO
 import React, { useState, useEffect } from 'react';
 import { 
   Navbar, Nav, Container, Button, Dropdown, Badge, 
@@ -6,16 +6,24 @@ import {
 } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 
 const EnhancedNavbar = ({ scrolled }) => {
   const { user, logout, isAuthenticated, isAdmin, isOrganizer } = useAuth();
-  const { darkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [showOffcanvas, setShowOffcanvas] = useState(false);
 
-  // Navegación principal estable
+  const API_BASE_URL = import.meta.env.MODE === 'development' 
+    ? 'http://localhost:5000' 
+    : '';
+
+  const getProfileImageUrl = () => {
+    if (user?.profileImageUrl) {
+      return `${API_BASE_URL}${user.profileImageUrl}`;
+    }
+    return null;
+  };
+
   const mainNavigation = [
     { 
       path: '/', 
@@ -73,12 +81,36 @@ const EnhancedNavbar = ({ scrolled }) => {
     return location.pathname.startsWith(path);
   };
 
+  const ProfileAvatar = ({ size = 'sm', className = '' }) => {
+    const profileImageUrl = getProfileImageUrl();
+    
+    if (profileImageUrl) {
+      return (
+        <img 
+          src={profileImageUrl} 
+          alt="Perfil"
+          className={`user-avatar user-avatar-${size} ${className}`}
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.nextSibling.style.display = 'flex';
+          }}
+        />
+      );
+    }
+    
+    return (
+      <div className={`user-avatar user-avatar-${size} ${className}`}>
+        {user?.nombre_completo?.charAt(0) || '👤'}
+      </div>
+    );
+  };
+
   return (
     <>
       <Navbar 
         expand="lg" 
         fixed="top" 
-        className={`modern-navbar ${scrolled ? 'navbar-scrolled' : ''} ${darkMode ? 'navbar-dark' : 'navbar-light'}`}
+        className={`modern-navbar ${scrolled ? 'navbar-scrolled' : ''}`}
       >
         <Container>
           <Navbar.Brand as={Link} to="/" className="navbar-brand-enhanced">
@@ -121,21 +153,10 @@ const EnhancedNavbar = ({ scrolled }) => {
             </Nav>
 
             <Nav className="align-items-center user-actions">
-              <Button
-                variant="outline-secondary"
-                className="theme-toggle"
-                onClick={toggleDarkMode}
-                title={darkMode ? 'Modo claro' : 'Modo oscuro'}
-              >
-                {darkMode ? '☀️' : '🌙'}
-              </Button>
-
               {isAuthenticated ? (
                 <Dropdown align="end" className="user-dropdown">
                   <Dropdown.Toggle variant="outline-primary" className="user-toggle">
-                    <span className="user-avatar">
-                      {user?.nombre_completo?.charAt(0) || '👤'}
-                    </span>
+                    <ProfileAvatar />
                     <span className="user-name">
                       {user?.nombre_completo?.split(' ')[0] || 'Usuario'}
                     </span>
@@ -143,9 +164,7 @@ const EnhancedNavbar = ({ scrolled }) => {
 
                   <Dropdown.Menu className="user-menu">
                     <div className="user-menu-header">
-                      <div className="user-avatar-large">
-                        {user?.nombre_completo?.charAt(0) || '👤'}
-                      </div>
+                      <ProfileAvatar size="lg" />
                       <div className="user-info">
                         <div className="user-name">{user?.nombre_completo}</div>
                         <div className="user-email">{user?.email}</div>
@@ -216,6 +235,7 @@ const EnhancedNavbar = ({ scrolled }) => {
         </Container>
       </Navbar>
 
+      {/* Offcanvas para móvil */}
       <Offcanvas 
         show={showOffcanvas} 
         onHide={() => setShowOffcanvas(false)} 
@@ -256,7 +276,7 @@ const EnhancedNavbar = ({ scrolled }) => {
           {isAuthenticated && (
             <div className="mobile-user-section">
               <div className="mobile-user-info">
-                <span className="user-avatar">{user?.nombre_completo?.charAt(0) || '👤'}</span>
+                <ProfileAvatar />
                 <div className="user-details">
                   <div className="user-name">{user?.nombre_completo}</div>
                   <div className="user-email">{user?.email}</div>
@@ -315,6 +335,36 @@ const EnhancedNavbar = ({ scrolled }) => {
       </Offcanvas>
 
       <div className="navbar-spacer"></div>
+
+      <style jsx>{`
+        .user-avatar {
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          color: white;
+          overflow: hidden;
+        }
+        
+        .user-avatar-sm {
+          width: 32px;
+          height: 32px;
+          font-size: 14px;
+        }
+        
+        .user-avatar-lg {
+          width: 60px;
+          height: 60px;
+          font-size: 24px;
+        }
+        
+        .user-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      `}</style>
     </>
   );
 };

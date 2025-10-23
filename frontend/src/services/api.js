@@ -1,4 +1,3 @@
-// frontend/src/services/api.js - MEJORADO
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.MODE === 'development' 
@@ -13,7 +12,6 @@ const api = axios.create({
   },
 });
 
-// Interceptor para requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -27,7 +25,6 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para responses
 api.interceptors.response.use(
   (response) => {
     return response.data;
@@ -46,7 +43,6 @@ api.interceptors.response.use(
   }
 );
 
-// Servicios de Eventos
 export const eventsAPI = {
   getAll: () => api.get('/events'),
   getById: (id) => api.get(`/events/${id}`),
@@ -54,10 +50,10 @@ export const eventsAPI = {
   registerToEvent: (registrationData) => api.post('/registrations', registrationData),
   create: (eventData) => api.post('/events', eventData),
   update: (id, eventData) => api.put(`/events/${id}`, eventData),
-  delete: (id) => api.delete(`/events/${id}`)
+  delete: (id) => api.delete(`/events/${id}`),
+  getOrganizerEvents: () => api.get('/events/organizer/my-events')
 };
 
-// Servicios de Inscripciones
 export const registrationsAPI = {
   getAll: () => api.get('/registrations'),
   getMyRegistrations: () => api.get('/registrations/my-registrations'),
@@ -68,7 +64,6 @@ export const registrationsAPI = {
   delete: (id) => api.delete(`/registrations/${id}`)
 };
 
-// Servicios de Equipos
 export const teamsAPI = {
     getAll: () => api.get('/teams'),
     getMyTeams: () => api.get('/teams/my-teams'),
@@ -85,7 +80,6 @@ export const cyclistDataAPI = {
     get: () => api.get('/users/cyclist-data')
 };
 
-// Servicios de Autenticación
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   register: (userData) => api.post('/auth/register', userData),
@@ -93,16 +87,21 @@ export const authAPI = {
   updateProfile: (profileData) => api.put('/users/profile', profileData)
 };
 
-// Servicios de Usuarios
 export const usersAPI = {
   getAll: () => api.get('/users'),
   getProfile: () => api.get('/users/profile'),
   updateProfile: (profileData) => api.put('/users/profile', profileData),
+  updateUser: (id, userData) => api.put(`/users/${id}`, userData),
+  deleteUser: (id) => api.delete(`/users/${id}`),
+  uploadProfilePicture: (formData) => api.post('/users/profile/picture', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }),
   getMyEvents: () => api.get('/users/my-events'),
   getMyRegistrations: () => api.get('/users/my-registrations')
 };
 
-// Servicios de Consultas/Queries
 export const queriesAPI = {
   getStats: () => api.get('/queries/stats'),
   getUsersStats: () => api.get('/queries/users-stats'),
@@ -111,7 +110,6 @@ export const queriesAPI = {
   getEventDetails: (eventId) => api.get(`/queries/event-details/${eventId}`)
 };
 
-// Servicios para Home/Stats
 export const homeAPI = {
   getHomeStats: () => api.get('/queries/stats'),
   getFeaturedEvents: () => api.get('/events?featured=true&limit=3')

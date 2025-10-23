@@ -1,12 +1,20 @@
+// frontend/src/pages/admin/ManageEventsPage.jsx - CRUD COMPLETO
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Button, Badge, Form, Modal } from 'react-bootstrap';
+import {
+  Container, Row, Col, Card, Table, Button, Spinner, Alert,
+  Modal, Form, Badge
+} from 'react-bootstrap';
 import { eventsAPI } from '../../services/api';
 
 const ManageEventsPage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadEvents();
@@ -14,113 +22,152 @@ const ManageEventsPage = () => {
 
   const loadEvents = async () => {
     try {
-      const response = await eventsAPI.getAll();
-      setEvents(response.data);
+      setLoading(true);
+      const eventsData = await eventsAPI.getAll();
+      setEvents(eventsData);
     } catch (error) {
-      console.error('Error loading events:', error);
+      setError('Error al cargar eventos: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (event) => {
-    setSelectedEvent(event);
+    setEditingEvent(event);
     setShowModal(true);
   };
 
   const handleDelete = async (eventId) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este evento?')) {
-      try {
-        await eventsAPI.delete(eventId);
-        loadEvents();
-      } catch (error) {
-        console.error('Error deleting event:', error);
-        alert('Error al eliminar el evento');
-      }
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?')) {
+      return;
+    }
+
+    try {
+      setDeleting(eventId);
+      await eventsAPI.delete(eventId);
+      setSuccess('Evento eliminado exitosamente');
+      await loadEvents();
+    } catch (error) {
+      setError('Error al eliminar evento: ' + error.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const getStatusVariant = (status) => {
-    switch (status) {
-      case 'activo': return 'success';
-      case 'proximamente': return 'warning';
-      case 'completado': return 'secondary';
-      case 'cancelado': return 'danger';
-      default: return 'secondary';
+  const handleSubmitModal = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const formData = new FormData(e.target);
+      const eventData = {
+        nombre: formData.get('nombre'),
+        descripcion: formData.get('descripcion'),
+        fecha: formData.get('fecha'),
+        ubicacion: formData.get('ubicacion'),
+        distancia: parseFloat(formData.get('distancia')),
+        desnivel: parseInt(formData.get('desnivel')),
+        estado: formData.get('estado')
+      };
+
+      await eventsAPI.update(editingEvent.evento_id, eventData);
+      setSuccess('Evento actualizado exitosamente');
+      setShowModal(false);
+      await loadEvents();
+    } catch (error) {
+      setError('Error al actualizar evento: ' + error.message);
+    } finally {
+      setSaving(false);
     }
   };
+
+  const getStatusBadge = (status) => {
+    const variants = {
+      activo: 'success',
+      cancelado: 'danger',
+      completado: 'primary',
+      pendiente: 'warning'
+    };
+    return <Badge bg={variants[status] || 'secondary'}>{status}</Badge>;
+  };
+
+  if (loading) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </Spinner>
+      </Container>
+    );
+  }
 
   return (
-    <Container fluid>
-      <Row className="mb-4">
-        <Col>
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h2>Gestión de Eventos</h2>
-              <p className="text-muted">Administra todos los eventos de la plataforma</p>
-            </div>
-            <Button variant="primary" size="lg">
-              + Crear Nuevo Evento
-            </Button>
+    <Container className="py-4">
+      <Row className="justify-content-center">
+        <Col lg={12}>
+          <div className="page-header mb-4">
+            <h1 className="h2 mb-1">Gestión de Eventos</h1>
+            <p className="text-muted">Administra todos los eventos del sistema</p>
           </div>
-        </Col>
-      </Row>
 
-      <Card>
-        <Card.Header>
-          <h5 className="mb-0">Lista de Eventos</h5>
-        </Card.Header>
-        <Card.Body>
-          {loading ? (
-            <div className="text-center py-4">
-              <p>Cargando eventos...</p>
-            </div>
-          ) : (
-            <Table responsive striped>
-              <thead>
-                <tr>
-                  <th>Evento</th>
-                  <th>Fecha</th>
-                  <th>Ubicación</th>
-                  <th>Tipo</th>
-                  <th>Inscritos</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((event) => (
-                  <tr key={event.id}>
-                    <td>
-                      <strong>{event.nombre}</strong>
-                      {event.descripcion && (
+          {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
+
+          <Card>
+            <Card.Header>
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">Todos los Eventos</h5>
+                <Badge bg="primary">{events.length} eventos</Badge>
+              </div>
+            </Card.Header>
+            <Card.Body className="p-0">
+              <Table responsive hover className="mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th>Evento</th>
+                    <th>Fecha y Ubicación</th>
+                    <th>Distancia/Desnivel</th>
+                    <th>Estado</th>
+                    <th>Organizador</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.map((event) => (
+                    <tr key={event.evento_id}>
+                      <td>
                         <div>
+                          <div className="fw-semibold">{event.nombre}</div>
                           <small className="text-muted">
-                            {event.descripcion.substring(0, 50)}...
+                            {event.descripcion?.substring(0, 100)}...
                           </small>
                         </div>
-                      )}
-                    </td>
-                    <td>{new Date(event.fecha).toLocaleDateString()}</td>
-                    <td>{event.ubicacion}</td>
-                    <td>
-                      <Badge bg="outline-primary" text="dark">
-                        {event.tipo}
-                      </Badge>
-                    </td>
-                    <td>
-                      <Badge bg="info">0</Badge>
-                    </td>
-                    <td>
-                      <Badge bg={getStatusVariant(event.estado)}>
-                        {event.estado}
-                      </Badge>
-                    </td>
-                    <td>
-                      <div className="d-flex gap-2">
+                      </td>
+                      <td>
+                        <div>
+                          <div>{new Date(event.fecha).toLocaleDateString()}</div>
+                          <small className="text-muted">{event.ubicacion}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <div>{event.distancia} km</div>
+                          <small className="text-muted">{event.desnivel} m</small>
+                        </div>
+                      </td>
+                      <td>
+                        {getStatusBadge(event.estado)}
+                      </td>
+                      <td>
+                        {event.Organizador?.nombre_completo || 'N/A'}
+                      </td>
+                      <td>
                         <Button
                           variant="outline-primary"
                           size="sm"
+                          className="me-2"
                           onClick={() => handleEdit(event)}
                         >
                           Editar
@@ -128,123 +175,143 @@ const ManageEventsPage = () => {
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          onClick={() => handleDelete(event.id)}
+                          onClick={() => handleDelete(event.evento_id)}
+                          disabled={deleting === event.evento_id}
                         >
-                          Eliminar
+                          {deleting === event.evento_id ? (
+                            <Spinner animation="border" size="sm" />
+                          ) : (
+                            'Eliminar'
+                          )}
                         </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
 
-          {events.length === 0 && !loading && (
-            <div className="text-center py-5">
-              <p className="text-muted">No hay eventos creados aún.</p>
-              <Button variant="primary">
-                Crear Primer Evento
-              </Button>
-            </div>
-          )}
-        </Card.Body>
-      </Card>
-
+      {/* Modal de edición */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Editar Evento</Modal.Title>
+          <Modal.Title>
+            Editar Evento: {editingEvent?.nombre}
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          {selectedEvent && (
-            <Form>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Nombre del Evento</Form.Label>
-                    <Form.Control
-                      type="text"
-                      defaultValue={selectedEvent.nombre}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Fecha</Form.Label>
-                    <Form.Control
-                      type="datetime-local"
-                      defaultValue={selectedEvent.fecha.split('.')[0]}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+        <Form onSubmit={handleSubmitModal}>
+          <Modal.Body>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Nombre del Evento</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nombre"
+                    defaultValue={editingEvent?.nombre}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Fecha</Form.Label>
+                  <Form.Control
+                    type="datetime-local"
+                    name="fecha"
+                    defaultValue={editingEvent?.fecha?.slice(0, 16)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Descripción</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  defaultValue={selectedEvent.descripcion}
-                />
-              </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Ubicación</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="ubicacion"
+                    defaultValue={editingEvent?.ubicacion}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Distancia (km)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.1"
+                    name="distancia"
+                    defaultValue={editingEvent?.distancia}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Desnivel (m)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="desnivel"
+                    defaultValue={editingEvent?.desnivel}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Ubicación</Form.Label>
-                    <Form.Control
-                      type="text"
-                      defaultValue={selectedEvent.ubicacion}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Distancia (km)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      defaultValue={selectedEvent.distancia}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Estado</Form.Label>
+                  <Form.Select name="estado" defaultValue={editingEvent?.estado}>
+                    <option value="activo">Activo</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="completado">Completado</option>
+                    <option value="cancelado">Cancelado</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Tipo</Form.Label>
-                    <Form.Select defaultValue={selectedEvent.tipo}>
-                      <option value="ruta">Ruta</option>
-                      <option value="montaña">Montaña</option>
-                      <option value="urbano">Urbano</option>
-                      <option value="competitivo">Competitivo</option>
-                      <option value="recreativo">Recreativo</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Estado</Form.Label>
-                    <Form.Select defaultValue={selectedEvent.estado}>
-                      <option value="proximamente">Próximamente</option>
-                      <option value="activo">Activo</option>
-                      <option value="completado">Completado</option>
-                      <option value="cancelado">Cancelado</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={() => setShowModal(false)}>
-            Guardar Cambios
-          </Button>
-        </Modal.Footer>
+            <Form.Group className="mb-3">
+              <Form.Label>Descripción</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="descripcion"
+                defaultValue={editingEvent?.descripcion}
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button 
+              variant="secondary" 
+              onClick={() => setShowModal(false)}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              type="submit" 
+              variant="primary"
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Guardando...
+                </>
+              ) : (
+                'Guardar Cambios'
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
     </Container>
   );

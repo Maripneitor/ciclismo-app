@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, usersAPI } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -35,6 +35,30 @@ export const AuthProvider = ({ children }) => {
             logout();
         } finally {
             setLoading(false);
+        }
+    };
+
+    const refreshUserProfile = async () => {
+        try {
+            const userData = await authAPI.getProfile();
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+        } catch (error) {
+            console.error('Error refrescando perfil:', error);
+        }
+    };
+
+    const uploadProfilePicture = async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            const response = await usersAPI.uploadProfilePicture(formData);
+            setUser(response.user);
+            localStorage.setItem('user', JSON.stringify(response.user));
+            return response;
+        } catch (error) {
+            throw error;
         }
     };
 
@@ -127,6 +151,8 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         updateProfile,
+        uploadProfilePicture,
+        refreshUserProfile,
         loading,
         error,
         setError,
