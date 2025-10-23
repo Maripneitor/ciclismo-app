@@ -73,4 +73,10 @@ router.get('/my-registrations', auth, async (req, res) => {
     }
 });
 
+// ... rutas existentes ...
+
+// Rutas de datos del ciclista
+router.put('/cyclist-data', auth, userController.updateCyclistData);
+router.get('/cyclist-data', auth, userController.getCyclistData);
+
 module.exports = router;

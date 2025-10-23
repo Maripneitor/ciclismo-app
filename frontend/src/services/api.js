@@ -70,12 +70,19 @@ export const registrationsAPI = {
 
 // Servicios de Equipos
 export const teamsAPI = {
-  getAll: () => api.get('/teams'),
-  getMyTeams: () => api.get('/teams/my-teams'),
-  create: (teamData) => api.post('/teams', teamData),
-  join: (inviteData) => api.post('/teams/join', inviteData),
-  getById: (id) => api.get(`/teams/${id}`),
-  leave: (teamId) => api.delete(`/teams/${teamId}/leave`)
+    getAll: () => api.get('/teams'),
+    getMyTeams: () => api.get('/teams/my-teams'),
+    create: (teamData) => api.post('/teams', teamData),
+    join: (inviteData) => api.post('/teams/join', inviteData),
+    getById: (id) => api.get(`/teams/${id}`),
+    getInviteInfo: (id) => api.get(`/teams/${id}/invite`),
+    leave: (teamId) => api.delete(`/teams/${teamId}/leave`),
+    delete: (teamId) => api.delete(`/teams/${teamId}`)
+};
+
+export const cyclistDataAPI = {
+    update: (data) => api.put('/users/cyclist-data', data),
+    get: () => api.get('/users/cyclist-data')
 };
 
 // Servicios de Autenticación

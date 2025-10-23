@@ -1,4 +1,4 @@
-const { User, Registration, Event, Team, Resultado } = require('../models');
+const { User, Registration, Event, Team, Resultado, CyclistData } = require('../models');
 
 const userController = {
     getProfile: async (req, res) => {
@@ -26,7 +26,6 @@ const userController = {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
 
-            // No permitir cambiar rol mediante esta ruta
             const { rol, ...updateData } = req.body;
             
             await user.update(updateData);
@@ -116,8 +115,8 @@ const userController = {
                 inscripcion_id: reg.inscripcion_id,
                 evento_nombre: reg.evento?.nombre || 'Evento no disponible',
                 fecha_inscripcion: reg.fecha_inscripcion,
-                estado: 'Confirmada', // Por simplicidad, todas confirmadas
-                categoria_nombre: 'General', // Podría venir de categories
+                estado: 'Confirmada',
+                categoria_nombre: 'General',
                 numero_dorsal: reg.numero_dorsal,
                 equipo_nombre: reg.equipo?.nombre || null
             }));
@@ -151,6 +150,50 @@ const userController = {
             console.error('Error obteniendo resultados:', error);
             res.status(500).json({
                 message: 'Error al obtener resultados',
+                error: error.message
+            });
+        }
+    },
+
+    updateCyclistData: async (req, res) => {
+        try {
+            const userId = req.user.usuario_id;
+            const cyclistData = req.body;
+
+            const [updatedData, created] = await CyclistData.upsert({
+                ...cyclistData,
+                usuario_id: userId
+            });
+
+            res.json({
+                message: created ? 'Datos del ciclista creados exitosamente' : 'Datos del ciclista actualizados exitosamente',
+                data: updatedData
+            });
+
+        } catch (error) {
+            console.error('Error actualizando datos del ciclista:', error);
+            res.status(500).json({
+                message: 'Error actualizando datos del ciclista',
+                error: error.message
+            });
+        }
+    },
+
+    getCyclistData: async (req, res) => {
+        try {
+            const cyclistData = await CyclistData.findOne({
+                where: { usuario_id: req.user.usuario_id }
+            });
+
+            if (!cyclistData) {
+                return res.status(404).json({ message: 'Datos del ciclista no encontrados' });
+            }
+
+            res.json(cyclistData);
+        } catch (error) {
+            console.error('Error obteniendo datos del ciclista:', error);
+            res.status(500).json({
+                message: 'Error obteniendo datos del ciclista',
                 error: error.message
             });
         }

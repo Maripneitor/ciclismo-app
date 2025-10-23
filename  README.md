@@ -14,7 +14,7 @@ git status
 git add .
 
 # 4. Hacer commit con mensaje descriptivo
-git commit -m "docs: agregar README completo con estructura de proyecto y comandos de inicio"
+git commit -m "Cambios con fase-subfase 3.1 sigue la fase 3.2"
 
 # 5. Subir los cambios al repositorio remoto
 git push origin revision-1

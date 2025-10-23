@@ -142,22 +142,31 @@ const authController = {
     },
 
     getProfile: async (req, res) => {
-        try {
-            const user = await User.findByPk(req.user.usuario_id, {  
-                attributes: { exclude: ['contrasena'] } 
-            });  
-            if (!user) {  
-                return res.status(404).json({ message: 'Usuario no encontrado' });  
-            }  
-            res.json(user);  
-        } catch (error) {  
-            console.error('Error obteniendo perfil:', error);  
-            res.status(500).json({  
-                message: 'Error al obtener perfil',  
-                error: error.message  
-            });
+    try {
+        const user = await User.findByPk(req.user.usuario_id, {  
+            attributes: { exclude: ['contrasena'] },
+            include: [
+                {
+                    model: require('../models/CyclistData'),
+                    as: 'datosCiclista',
+                    attributes: { exclude: ['usuario_id'] }
+                }
+            ]
+        });  
+        
+        if (!user) {  
+            return res.status(404).json({ message: 'Usuario no encontrado' });  
         }  
-    }
+        
+        res.json(user);  
+    } catch (error) {  
+        console.error('Error obteniendo perfil:', error);  
+        res.status(500).json({  
+            message: 'Error al obtener perfil',  
+            error: error.message  
+        });
+    }  
+}
 };
 
 module.exports = authController;

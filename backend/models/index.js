@@ -71,3 +71,29 @@ module.exports = {
     Resultado,
     TeamMember
 };
+
+const CyclistData = require('./CyclistData');
+
+// Relación User - CyclistData (Uno a Uno)
+User.hasOne(CyclistData, { 
+    foreignKey: 'usuario_id', 
+    as: 'datosCiclista' 
+});
+CyclistData.belongsTo(User, { 
+    foreignKey: 'usuario_id', 
+    as: 'usuario' 
+});
+
+module.exports = {
+    sequelize,
+    User,
+    Event,
+    Team,
+    Registration,
+    Category,
+    Route,
+    TallaPlayera,
+    Resultado,
+    TeamMember,
+    CyclistData
+};
