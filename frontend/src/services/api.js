@@ -1,4 +1,4 @@
-// frontend/src/services/api.js - CORREGIDO
+// frontend/src/services/api.js - MEJORADO
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.MODE === 'development' 
@@ -57,15 +57,15 @@ export const eventsAPI = {
   delete: (id) => api.delete(`/events/${id}`)
 };
 
-// Servicios de Inscripciones - CORREGIDO
+// Servicios de Inscripciones
 export const registrationsAPI = {
-  // FUNCIÓN FALTANTE AGREGADA
   getAll: () => api.get('/registrations'),
   getMyRegistrations: () => api.get('/registrations/my-registrations'),
   registerForEvent: (data) => api.post('/registrations', data),
   getTallas: () => api.get('/registrations/tallas'),
   getCategorias: (eventoId) => api.get(`/registrations/categorias/${eventoId}`),
-  cancelRegistration: (id) => api.delete(`/registrations/${id}`)
+  cancelRegistration: (id) => api.delete(`/registrations/${id}`),
+  delete: (id) => api.delete(`/registrations/${id}`)
 };
 
 // Servicios de Equipos
@@ -74,7 +74,8 @@ export const teamsAPI = {
   getMyTeams: () => api.get('/teams/my-teams'),
   create: (teamData) => api.post('/teams', teamData),
   join: (inviteData) => api.post('/teams/join', inviteData),
-  getById: (id) => api.get(`/teams/${id}`)
+  getById: (id) => api.get(`/teams/${id}`),
+  leave: (teamId) => api.delete(`/teams/${teamId}/leave`)
 };
 
 // Servicios de Autenticación
@@ -101,6 +102,12 @@ export const queriesAPI = {
   getEventsStats: () => api.get('/queries/events-stats'),
   getTopOrganizers: () => api.get('/queries/top-organizadores'),
   getEventDetails: (eventId) => api.get(`/queries/event-details/${eventId}`)
+};
+
+// Servicios para Home/Stats
+export const homeAPI = {
+  getHomeStats: () => api.get('/queries/stats'),
+  getFeaturedEvents: () => api.get('/events?featured=true&limit=3')
 };
 
 export default api;

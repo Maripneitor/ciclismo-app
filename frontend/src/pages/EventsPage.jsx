@@ -1,3 +1,4 @@
+// frontend/src/pages/EventsPage.jsx - MEJORADO CON API Y FILTROS
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container, Row, Col, Card, Button, Spinner, Alert, Form,
@@ -18,15 +19,17 @@ const EventsPage = () => {
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
-    tipos: [],
-    distancia: [0, 200],
-    precio: [0, 100],
-    fecha: null,
+    tipo: '',
+    dificultad: '',
+    distanciaMin: '',
+    distanciaMax: '',
+    fechaInicio: '',
+    fechaFin: '',
     ubicacion: '',
-    bounds: null,
-    search: '',
-    estado: 'all',
-    dificultad: 'all'
+    precioMin: '',
+    precioMax: '',
+    estado: '',
+    search: ''
   });
 
   const [sortBy, setSortBy] = useState('fecha');
@@ -80,6 +83,7 @@ const EventsPage = () => {
   const filterAndSortEvents = useCallback(() => {
     let filtered = [...events];
 
+    // Filtro de búsqueda por texto
     if (filters.search) {
       const query = filters.search.toLowerCase();
       filtered = filtered.filter(event =>
@@ -89,39 +93,63 @@ const EventsPage = () => {
       );
     }
 
-    if (filters.tipos.length > 0) {
-      filtered = filtered.filter(event => 
-        filters.tipos.includes(event.tipo)
-      );
+    // Filtros individuales
+    if (filters.tipo) {
+      filtered = filtered.filter(event => event.tipo === filters.tipo);
     }
 
-    filtered = filtered.filter(event => 
-      event.distancia_km >= filters.distancia[0] &&
-      event.distancia_km <= filters.distancia[1]
-    );
-
-    filtered = filtered.filter(event => 
-      event.cuota_inscripcion >= filters.precio[0] &&
-      event.cuota_inscripcion <= filters.precio[1]
-    );
-
-    if (filters.fecha) {
-      const filterDate = new Date(filters.fecha).toDateString();
-      filtered = filtered.filter(event => 
-        new Date(event.fecha).toDateString() === filterDate
-      );
+    if (filters.dificultad) {
+      filtered = filtered.filter(event => event.dificultad === filters.dificultad);
     }
 
-    if (filters.estado !== 'all') {
+    if (filters.estado) {
       filtered = filtered.filter(event => event.estado === filters.estado);
     }
 
-    if (filters.dificultad !== 'all') {
+    if (filters.ubicacion) {
       filtered = filtered.filter(event => 
-        event.dificultad?.toLowerCase() === filters.dificultad
+        event.ubicacion?.toLowerCase().includes(filters.ubicacion.toLowerCase())
       );
     }
 
+    // Filtros numéricos
+    if (filters.distanciaMin) {
+      filtered = filtered.filter(event => 
+        event.distancia_km >= parseFloat(filters.distanciaMin)
+      );
+    }
+
+    if (filters.distanciaMax) {
+      filtered = filtered.filter(event => 
+        event.distancia_km <= parseFloat(filters.distanciaMax)
+      );
+    }
+
+    if (filters.precioMin) {
+      filtered = filtered.filter(event => 
+        event.cuota_inscripcion >= parseFloat(filters.precioMin)
+      );
+    }
+
+    if (filters.precioMax) {
+      filtered = filtered.filter(event => 
+        event.cuota_inscripcion <= parseFloat(filters.precioMax)
+      );
+    }
+
+    // Filtros de fecha
+    if (filters.fechaInicio) {
+      const startDate = new Date(filters.fechaInicio);
+      filtered = filtered.filter(event => new Date(event.fecha) >= startDate);
+    }
+
+    if (filters.fechaFin) {
+      const endDate = new Date(filters.fechaFin);
+      endDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(event => new Date(event.fecha) <= endDate);
+    }
+
+    // Ordenamiento
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'fecha':
@@ -132,7 +160,8 @@ const EventsPage = () => {
           return (a.cuota_inscripcion || 0) - (b.cuota_inscripcion || 0);
         case 'dificultad':
           const dificultades = { 'baja': 1, 'media': 2, 'alta': 3, 'extrema': 4 };
-          return (dificultades[b.dificultad?.toLowerCase()] || 0) - (dificultades[a.dificultad?.toLowerCase()] || 0);
+          return (dificultades[b.dificultad?.toLowerCase()] || 0) - 
+                 (dificultades[a.dificultad?.toLowerCase()] || 0);
         case 'popularidad':
           return (b.participantes_inscritos || 0) - (a.participantes_inscritos || 0);
         default:
@@ -156,15 +185,17 @@ const EventsPage = () => {
 
   const clearFilters = () => {
     setFilters({
-      tipos: [],
-      distancia: [0, 200],
-      precio: [0, 100],
-      fecha: null,
+      tipo: '',
+      dificultad: '',
+      distanciaMin: '',
+      distanciaMax: '',
+      fechaInicio: '',
+      fechaFin: '',
       ubicacion: '',
-      bounds: null,
-      search: '',
-      estado: 'all',
-      dificultad: 'all'
+      precioMin: '',
+      precioMax: '',
+      estado: '',
+      search: ''
     });
     setSortBy('fecha');
     setSearchQuery('');
@@ -216,15 +247,9 @@ const EventsPage = () => {
     setShowQuickView(true);
   };
 
-  const activeFiltersCount = Object.values(filters).filter(filter => {
-    if (Array.isArray(filter)) {
-      if (filter === filters.distancia) return filter[0] !== 0 || filter[1] !== 200;
-      if (filter === filters.precio) return filter[0] !== 0 || filter[1] !== 100;
-      return filter.length > 0;
-    }
-    if (filter instanceof Date) return true;
-    return filter !== null && filter !== '' && filter !== undefined && filter !== 'all';
-  }).length;
+  const activeFiltersCount = Object.values(filters).filter(value => 
+    value !== '' && value !== null && value !== undefined
+  ).length;
 
   if (loading && events.length === 0) {
     return (
@@ -251,9 +276,11 @@ const EventsPage = () => {
               </p>
             </div>
             <div className="d-flex gap-3">
-              <Badge bg="light" text="dark" className="fs-6 px-3 py-2">
-                Vista Grid
-              </Badge>
+              {activeFiltersCount > 0 && (
+                <Badge bg="primary" className="fs-6 px-3 py-2">
+                  {activeFiltersCount} filtro{activeFiltersCount !== 1 ? 's' : ''} activo{activeFiltersCount !== 1 ? 's' : ''}
+                </Badge>
+              )}
 
               <Dropdown>
                 <Dropdown.Toggle variant="outline-primary">
@@ -315,12 +342,46 @@ const EventsPage = () => {
       <Row>
         <Col lg={3}>
           <AdvancedSearchFilters
-            filters={filters}
             onFiltersChange={handleFiltersChange}
-            onSearch={handleSearch}
-            onClearFilters={clearFilters}
-            activeFiltersCount={activeFiltersCount}
+            loading={loading}
           />
+          
+          {/* Búsqueda rápida por texto */}
+          <Card className="mb-4">
+            <Card.Body>
+              <Form.Group>
+                <Form.Label className="fw-semibold">🔍 Búsqueda rápida</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    type="text"
+                    placeholder="Buscar eventos..."
+                    value={filters.search}
+                    onChange={(e) => handleFiltersChange({
+                      ...filters,
+                      search: e.target.value
+                    })}
+                  />
+                  {filters.search && (
+                    <Button 
+                      variant="outline-secondary" 
+                      onClick={() => handleFiltersChange({...filters, search: ''})}
+                    >
+                      ✕
+                    </Button>
+                  )}
+                </InputGroup>
+              </Form.Group>
+            </Card.Body>
+          </Card>
+
+          {/* Botón Limpiar Todo */}
+          {activeFiltersCount > 0 && (
+            <div className="d-grid">
+              <Button variant="outline-danger" onClick={clearFilters}>
+                🗑️ Limpiar Todos los Filtros ({activeFiltersCount})
+              </Button>
+            </div>
+          )}
         </Col>
 
         <Col lg={9}>
@@ -334,26 +395,44 @@ const EventsPage = () => {
               <div className="text-center py-5">
                 <h4 className="text-muted">No se encontraron eventos</h4>
                 <p className="text-muted mb-3">
-                  Intenta ajustar los filtros o la búsqueda
+                  {activeFiltersCount > 0 
+                    ? 'Intenta ajustar los filtros o la búsqueda'
+                    : 'No hay eventos disponibles en este momento'
+                  }
                 </p>
-                <Button variant="outline-primary" onClick={clearFilters}>
-                  Limpiar filtros
-                </Button>
+                {activeFiltersCount > 0 && (
+                  <Button variant="outline-primary" onClick={clearFilters}>
+                    Limpiar filtros
+                  </Button>
+                )}
               </div>
             ) : (
-              <Row className="g-4">
-                {filteredEvents.map((event) => (
-                  <Col key={event.evento_id || event.id} xs={12} lg={6} xl={4}>
-                    <EnhancedEventCard
-                      event={event}
-                      onRegister={handleRegister}
-                      onQuickView={handleQuickView}
-                      isLoading={loadingEvents.includes(event.evento_id || event.id)}
-                      isAuthenticated={isAuthenticated}
-                    />
-                  </Col>
-                ))}
-              </Row>
+              <>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <p className="text-muted mb-0">
+                    Mostrando {filteredEvents.length} de {events.length} eventos
+                  </p>
+                  <small className="text-muted">
+                    Ordenado por {sortBy === 'fecha' ? 'fecha' : 
+                    sortBy === 'distancia' ? 'distancia' :
+                    sortBy === 'precio' ? 'precio' :
+                    sortBy === 'dificultad' ? 'dificultad' : 'popularidad'}
+                  </small>
+                </div>
+                <Row className="g-4">
+                  {filteredEvents.map((event) => (
+                    <Col key={event.evento_id || event.id} xs={12} lg={6} xl={4}>
+                      <EnhancedEventCard
+                        event={event}
+                        onRegister={handleRegister}
+                        onQuickView={handleQuickView}
+                        isLoading={loadingEvents.includes(event.evento_id || event.id)}
+                        isAuthenticated={isAuthenticated}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              </>
             )}
           </div>
         </Col>

@@ -1,3 +1,4 @@
+// frontend/src/pages/EventDetailPage.jsx - CONECTADO A API
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Row, Col, Card, Button, Badge, Alert, 
@@ -22,37 +23,38 @@ const EventDetailPage = () => {
 
   useEffect(() => {
     loadEvent();
-    checkRegistrationStatus();
-  }, [id]);
+    if (isAuthenticated) {
+      checkRegistrationStatus();
+    }
+  }, [id, isAuthenticated]);
 
   const loadEvent = async () => {
     try {
       setLoading(true);
-      const demoEvent = {
-        evento_id: parseInt(id),
-        nombre: 'Gran Fondo Sierra Nevada',
-        descripcion: 'Un desafío épico a través de los picos más altos de España. Esta ruta de montaña te llevará por paisajes espectaculares, desde verdes valles hasta impresionantes miradores. Perfecta para ciclistas experimentados que buscan superar sus límites.',
-        fecha: '2024-06-15T08:00:00',
-        ubicacion: 'Granada, Andalucía, España',
-        distancia_km: 120,
-        tipo: 'montaña',
-        estado: 'Próximo',
-        cuota_inscripcion: 50.00,
-        participantes_inscritos: 45,
-        cupo_maximo: 100,
-        dificultad: 'Alta',
-        elevacion: 2500,
-        organizador: { nombre: 'Maripneitor', email: 'info@maripneitor.com' },
-        imagen: '../../src/assets/imagenes/Ruta montaña.jpg',
-        hora_inicio: '08:00',
-        descripcion_ruta: 'Ruta técnica con ascensos desafiantes y descensos emocionantes a través de la Sierra Nevada.',
-        url_mapa: 'https://maps.example.com/sierra-nevada'
-      };
+      setError('');
       
-      setEvent(demoEvent);
+      // Intentar cargar desde API
+      try {
+        const eventData = await eventsAPI.getById(id);
+        setEvent(eventData);
+      } catch (apiError) {
+        console.warn('Error API evento, usando datos de respaldo:', apiError);
+        // Solo usar datos demo si la API falla completamente
+        const allEvents = await eventsAPI.getAll();
+        const foundEvent = allEvents.find(e => 
+          (e.evento_id || e.id) === parseInt(id)
+        );
+        
+        if (foundEvent) {
+          setEvent(foundEvent);
+        } else {
+          throw new Error('Evento no encontrado');
+        }
+      }
+      
     } catch (error) {
-      setError('Error cargando evento');
-      console.error('Error:', error);
+      console.error('Error cargando evento:', error);
+      setError('Error cargando evento: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -60,14 +62,17 @@ const EventDetailPage = () => {
 
   const checkRegistrationStatus = async () => {
     if (!isAuthenticated) return;
+    
     try {
       const registrations = await registrationsAPI.getMyRegistrations();
       const registered = registrations.some(reg => 
-        reg.evento_id === parseInt(id) || reg.evento?.evento_id === parseInt(id)
+        reg.evento_id === parseInt(id) || 
+        reg.evento?.evento_id === parseInt(id) ||
+        reg.evento_id === id
       );
       setIsRegistered(registered);
     } catch (error) {
-      console.error('Error checking registration:', error);
+      console.error('Error verificando inscripción:', error);
     }
   };
 
@@ -77,7 +82,7 @@ const EventDetailPage = () => {
         state: { 
           from: `/evento/${id}`,
           message: 'Inicia sesión para inscribirte en este evento'
-        } 
+        }
       });
       return;
     }
@@ -88,7 +93,7 @@ const EventDetailPage = () => {
     setRegistrationSuccess(message);
     setShowRegistrationModal(false);
     setIsRegistered(true);
-    loadEvent();
+    loadEvent(); // Recargar datos del evento para actualizar contadores
   };
 
   const getStatusVariant = (status) => {
@@ -121,35 +126,24 @@ const EventDetailPage = () => {
     );
   }
 
-  if (error) {
+  if (error || !event) {
     return (
       <Container className="py-5">
         <Alert variant="danger">
-          {error}
-          <div className="mt-3">
-            <Button variant="primary" onClick={() => navigate('/eventos')}>
-              Volver a Eventos
-            </Button>
-          </div>
+          <h4>Error</h4>
+          <p>{error || 'Evento no encontrado'}</p>
+          <Button onClick={() => navigate('/eventos')}>
+            Volver a Eventos
+          </Button>
         </Alert>
       </Container>
     );
   }
 
-  if (!event) {
-    return (
-      <Container className="py-5">
-        <Alert variant="warning">
-          Evento no encontrado
-          <div className="mt-3">
-            <Button variant="primary" onClick={() => navigate('/eventos')}>
-              Volver a Eventos
-            </Button>
-          </div>
-        </Alert>
-      </Container>
-    );
-  }
+  const registrationProgress = Math.min(
+    ((event.participantes_inscritos || 0) / (event.cupo_maximo || 1)) * 100, 
+    100
+  );
 
   return (
     <Container className="py-5">
@@ -159,21 +153,37 @@ const EventDetailPage = () => {
         </Alert>
       )}
 
-      <Row>
+      <Row className="mb-4">
+        <Col>
+          <Button variant="outline-primary" onClick={() => navigate('/eventos')}>
+            ← Volver a Eventos
+          </Button>
+        </Col>
+      </Row>
+
+      <Row className="g-5">
         <Col lg={8}>
-          <Card className="mb-4">
-            <div className="event-hero-image">
-              <img 
-                src={event.imagen} 
-                alt={event.nombre}
-                className="card-img-top"
-              />
-              <div className="event-hero-badges">
-                <Badge bg={getStatusVariant(event.estado)}>
+          <Card className="border-0 shadow-sm mb-4">
+            <div className="position-relative">
+              {event.imagen ? (
+                <Card.Img 
+                  variant="top" 
+                  src={event.imagen} 
+                  alt={event.nombre}
+                  style={{ height: '400px', objectFit: 'cover' }}
+                />
+              ) : (
+                <div 
+                  className="bg-light d-flex align-items-center justify-content-center"
+                  style={{ height: '400px' }}
+                >
+                  <span className="text-muted display-1">🚴</span>
+                </div>
+              )}
+              
+              <div className="position-absolute top-0 end-0 m-3">
+                <Badge bg={getStatusVariant(event.estado)} className="fs-6 px-3 py-2">
                   {event.estado}
-                </Badge>
-                <Badge bg={getDifficultyVariant(event.dificultad)}>
-                  {event.dificultad}
                 </Badge>
               </div>
             </div>
@@ -181,116 +191,119 @@ const EventDetailPage = () => {
             <Card.Body className="p-4">
               <div className="d-flex justify-content-between align-items-start mb-3">
                 <div>
-                  <h1 className="h2 fw-bold mb-2">{event.nombre}</h1>
-                  <div className="d-flex flex-wrap gap-2 mb-3">
-                    <Badge bg="light" text="dark">
-                      {event.ubicacion}
-                    </Badge>
-                    <Badge bg="light" text="dark">
+                  <h1 className="display-6 fw-bold mb-2">{event.nombre}</h1>
+                  <p className="text-muted mb-0">
+                    <i className="bi bi-geo-alt"></i> {event.ubicacion}
+                  </p>
+                </div>
+                <Badge bg={getDifficultyVariant(event.dificultad)} className="fs-6 px-3 py-2">
+                  {event.dificultad}
+                </Badge>
+              </div>
+
+              <div className="event-meta mb-4">
+                <Row className="g-3">
+                  <Col sm={6} md={3}>
+                    <div className="text-center">
+                      <div className="h4 text-primary mb-1">
+                        {event.distancia_km || event.distancia}
+                      </div>
+                      <small className="text-muted">Distancia (km)</small>
+                    </div>
+                  </Col>
+                  <Col sm={6} md={3}>
+                    <div className="text-center">
+                      <div className="h4 text-success mb-1">
+                        {event.elevacion || 'N/A'}
+                      </div>
+                      <small className="text-muted">Elevación (m)</small>
+                    </div>
+                  </Col>
+                  <Col sm={6} md={3}>
+                    <div className="text-center">
+                      <div className="h4 text-warning mb-1">
+                        €{event.cuota_inscripcion || 0}
+                      </div>
+                      <small className="text-muted">Inscripción</small>
+                    </div>
+                  </Col>
+                  <Col sm={6} md={3}>
+                    <div className="text-center">
+                      <div className="h4 text-info mb-1">
+                        {event.tipo}
+                      </div>
+                      <small className="text-muted">Tipo</small>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+
+              <p className="lead">{event.descripcion}</p>
+
+              <Tabs defaultActiveKey="details" className="mb-3">
+                <Tab eventKey="details" title="Detalles">
+                  <Row className="g-3 mt-2">
+                    <Col sm={6}>
+                      <strong>Fecha del evento:</strong>
+                      <br />
                       {new Date(event.fecha).toLocaleDateString('es-ES', {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
                       })}
-                    </Badge>
-                    <Badge bg="light" text="dark">
-                      {event.hora_inicio}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              <Card.Text className="lead mb-4">
-                {event.descripcion}
-              </Card.Text>
-
-              <Tabs defaultActiveKey="details" className="mb-4">
-                <Tab eventKey="details" title="Detalles">
-                  <Row className="mt-3">
-                    <Col md={6}>
-                      <ListGroup variant="flush">
-                        <ListGroup.Item className="d-flex justify-content-between">
-                          <span>Distancia:</span>
-                          <strong>{event.distancia_km} km</strong>
-                        </ListGroup.Item>
-                        <ListGroup.Item className="d-flex justify-content-between">
-                          <span>Elevación:</span>
-                          <strong>{event.elevacion} m</strong>
-                        </ListGroup.Item>
-                        <ListGroup.Item className="d-flex justify-content-between">
-                          <span>Tipo:</span>
-                          <Badge bg="primary">{event.tipo}</Badge>
-                        </ListGroup.Item>
-                      </ListGroup>
                     </Col>
-                    <Col md={6}>
-                      <ListGroup variant="flush">
-                        <ListGroup.Item className="d-flex justify-content-between">
-                          <span>Cuota:</span>
-                          <strong>€{event.cuota_inscripcion}</strong>
-                        </ListGroup.Item>
-                        <ListGroup.Item className="d-flex justify-content-between">
-                          <span>Organizador:</span>
-                          <strong>{event.organizador?.nombre || 'Maripneitor'}</strong>
-                        </ListGroup.Item>
-                        <ListGroup.Item className="d-flex justify-content-between">
-                          <span>Cupo:</span>
-                          <strong>{event.participantes_inscritos}/{event.cupo_maximo}</strong>
-                        </ListGroup.Item>
-                      </ListGroup>
+                    <Col sm={6}>
+                      <strong>Hora de inicio:</strong>
+                      <br />
+                      {event.hora_inicio || 'Por definir'}
+                    </Col>
+                    <Col sm={6}>
+                      <strong>Organizador:</strong>
+                      <br />
+                      {event.organizador || 'Maripneitor Cycling'}
+                    </Col>
+                    <Col sm={6}>
+                      <strong>Categorías:</strong>
+                      <br />
+                      {event.categorias || 'Todas las categorías'}
                     </Col>
                   </Row>
-
-                  <div className="mt-4">
-                    <h5 className="mb-2">Progreso de inscripciones</h5>
-                    <ProgressBar 
-                      now={(event.participantes_inscritos / event.cupo_maximo) * 100}
-                      label={`${Math.round((event.participantes_inscritos / event.cupo_maximo) * 100)}%`}
-                      variant={
-                        (event.participantes_inscritos / event.cupo_maximo) > 0.8 ? 'danger' :
-                        (event.participantes_inscritos / event.cupo_maximo) > 0.5 ? 'warning' : 'success'
-                      }
-                    />
-                  </div>
-                </Tab>
-
-                <Tab eventKey="route" title="Ruta">
-                  <div className="mt-3">
-                    <h5>Descripción de la Ruta</h5>
-                    <p>{event.descripcion_ruta || 'Información detallada de la ruta disponible próximamente.'}</p>
-                    
-                    {event.url_mapa && (
-                      <div className="mt-3">
-                        <Button 
-                          variant="outline-primary" 
-                          href={event.url_mapa}
-                          target="_blank"
-                        >
-                          Ver Mapa de la Ruta
-                        </Button>
-                      </div>
-                    )}
-                  </div>
                 </Tab>
 
                 <Tab eventKey="requirements" title="Requisitos">
+                  <ListGroup variant="flush" className="mt-2">
+                    <ListGroup.Item>
+                      <strong>Equipo obligatorio:</strong> Casco, luces delanteras y traseras
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <strong>Edad mínima:</strong> 18 años (o 16 con autorización)
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <strong>Seguro:</strong> Se requiere seguro de responsabilidad civil
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <strong>Bicicleta:</strong> En buen estado mecánico
+                    </ListGroup.Item>
+                  </ListGroup>
+                </Tab>
+
+                <Tab eventKey="route" title="Recorrido">
                   <div className="mt-3">
-                    <h5>Requisitos de Participación</h5>
-                    <ListGroup variant="flush">
-                      <ListGroup.Item>
-                        Edad mínima: 16 años
-                      </ListGroup.Item>
-                      <ListGroup.Item>
-                        Bicicleta en buen estado
-                      </ListGroup.Item>
-                      <ListGroup.Item>
-                        Casco obligatorio
-                      </ListGroup.Item>
-                      <ListGroup.Item>
-                        Seguro personal recomendado
-                      </ListGroup.Item>
-                    </ListGroup>
+                    <h6>Descripción del recorrido:</h6>
+                    <p>
+                      {event.descripcion_recorrido || 
+                        'Recorrido diseñado para disfrutar del paisaje y desafiar tus habilidades ciclistas. ' +
+                        'Incluye tramos variados con ascensos técnicos y descensos emocionantes.'}
+                    </p>
+                    
+                    <h6>Puntos de interés:</h6>
+                    <ul>
+                      <li>Salida: {event.punto_encuentro || 'Plaza Principal'}</li>
+                      <li>Meta: {event.punto_llegada || 'Mismo punto de salida'}</li>
+                      <li>Avituallamientos: 2 puntos durante el recorrido</li>
+                      <li>Asistencia médica: Disponible en ruta</li>
+                    </ul>
                   </div>
                 </Tab>
               </Tabs>
@@ -299,82 +312,78 @@ const EventDetailPage = () => {
         </Col>
 
         <Col lg={4}>
-          <Card className="sticky-top" style={{ top: '100px' }}>
+          <Card className="border-0 shadow-sm sticky-top" style={{ top: '100px' }}>
             <Card.Body className="p-4">
-              <div className="text-center mb-4">
-                <h3 className="h4 mb-2">Inscripción</h3>
-                <div className="price-display">
-                  <span className="h2 fw-bold text-primary">€{event.cuota_inscripcion}</span>
+              <h5 className="fw-bold mb-4">Información de Inscripción</h5>
+              
+              <div className="mb-4">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span className="text-muted">Cupos disponibles</span>
+                  <span className="fw-semibold">
+                    {event.participantes_inscritos || 0} / {event.cupo_maximo || 0}
+                  </span>
                 </div>
+                <ProgressBar 
+                  now={registrationProgress} 
+                  variant={
+                    registrationProgress >= 90 ? 'danger' :
+                    registrationProgress >= 70 ? 'warning' : 'success'
+                  }
+                  className="mb-3"
+                />
+                
+                {registrationProgress >= 90 && (
+                  <Alert variant="warning" className="py-2 small mb-0">
+                    ¡Últimos cupos disponibles!
+                  </Alert>
+                )}
               </div>
 
               <div className="mb-4">
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Cupos disponibles:</span>
-                  <strong>{event.cupo_maximo - event.participantes_inscritos}</strong>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span className="text-muted">Cuota de inscripción</span>
+                  <span className="h5 text-primary mb-0">
+                    €{event.cuota_inscripcion || 0}
+                  </span>
                 </div>
-                <ProgressBar 
-                  now={(event.participantes_inscritos / event.cupo_maximo) * 100}
-                  variant={
-                    (event.participantes_inscritos / event.cupo_maximo) > 0.8 ? 'danger' :
-                    (event.participantes_inscritos / event.cupo_maximo) > 0.5 ? 'warning' : 'success'
-                  }
-                />
+                <small className="text-muted">
+                  Incluye: Seguro, avituallamiento, playera conmemorativa
+                </small>
               </div>
 
               {isRegistered ? (
                 <Alert variant="success" className="text-center">
+                  <i className="bi bi-check-circle-fill me-2"></i>
                   Ya estás inscrito en este evento
-                </Alert>
-              ) : event.estado !== 'Próximo' ? (
-                <Alert variant="warning" className="text-center">
-                  Las inscripciones no están disponibles para este evento
-                </Alert>
-              ) : (event.cupo_maximo - event.participantes_inscritos) <= 0 ? (
-                <Alert variant="danger" className="text-center">
-                  Evento agotado
                 </Alert>
               ) : (
                 <div className="d-grid gap-2">
-                  {isAuthenticated ? (
-                    <Button 
-                      variant="primary" 
-                      size="lg"
-                      onClick={() => setShowRegistrationModal(true)}
-                    >
-                      Inscribirse Ahora
-                    </Button>
-                  ) : (
-                    <Button 
-                      variant="primary" 
-                      size="lg"
-                      onClick={() => navigate('/login', {
-                        state: { 
-                          from: `/evento/${id}`,
-                          message: 'Inicia sesión para inscribirte en este evento'
-                        }
-                      })}
-                    >
-                      Iniciar Sesión para Inscribirse
-                    </Button>
-                  )}
-                  
-                  <Button variant="outline-secondary">
-                    Compartir Evento
+                  <Button 
+                    variant="primary" 
+                    size="lg"
+                    onClick={handleRegisterClick}
+                    disabled={event.estado?.toLowerCase() === 'finalizado'}
+                  >
+                    {event.estado?.toLowerCase() === 'finalizado' 
+                      ? 'Evento Finalizado' 
+                      : 'Inscribirse Ahora'
+                    }
                   </Button>
+                  
+                  {event.estado?.toLowerCase() === 'finalizado' && (
+                    <small className="text-muted text-center">
+                      Este evento ya ha finalizado
+                    </small>
+                  )}
                 </div>
               )}
 
-              <div className="mt-4">
-                <h6 className="mb-3">Información del Organizador</h6>
-                <div className="d-flex align-items-center">
-                  <div>
-                    <strong>{event.organizador?.nombre || 'Maripneitor'}</strong>
-                    <div className="text-muted small">
-                      {event.organizador?.email || 'info@maripneitor.com'}
-                    </div>
-                  </div>
-                </div>
+              <hr className="my-4" />
+
+              <div className="text-center">
+                <small className="text-muted">
+                  ¿Tienes dudas? <a href="/contacto">Contáctanos</a>
+                </small>
               </div>
             </Card.Body>
           </Card>

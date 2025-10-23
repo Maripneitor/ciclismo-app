@@ -1,9 +1,9 @@
-// frontend/src/components/search/AdvancedSearchFilters.jsx - RESPONSIVO
-import React, { useState } from 'react';
-import { Row, Col, Form, Button, Card, Accordion } from 'react-bootstrap';
+// frontend/src/components/events/AdvancedSearchFilters.jsx - NUEVO COMPONENTE
+import React from 'react';
+import { Card, Form, Row, Col, Button } from 'react-bootstrap';
 
-const AdvancedSearchFilters = ({ onFiltersChange, loading = false }) => {
-  const [filters, setFilters] = useState({
+const AdvancedSearchFilters = ({ onFiltersChange, loading }) => {
+  const [filters, setFilters] = React.useState({
     tipo: '',
     dificultad: '',
     distanciaMin: '',
@@ -16,17 +16,17 @@ const AdvancedSearchFilters = ({ onFiltersChange, loading = false }) => {
     estado: ''
   });
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (name, value) => {
     const newFilters = {
       ...filters,
-      [key]: value
+      [name]: value
     };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
 
-  const handleReset = () => {
-    const resetFilters = {
+  const clearFilters = () => {
+    const clearedFilters = {
       tipo: '',
       dificultad: '',
       distanciaMin: '',
@@ -38,179 +38,162 @@ const AdvancedSearchFilters = ({ onFiltersChange, loading = false }) => {
       precioMax: '',
       estado: ''
     };
-    setFilters(resetFilters);
-    onFiltersChange(resetFilters);
+    setFilters(clearedFilters);
+    onFiltersChange(clearedFilters);
   };
 
+  const hasActiveFilters = Object.values(filters).some(value => value !== '');
+
   return (
-    <Card className="search-filters-card border-0 shadow-sm mb-4">
-      <Card.Body className="p-4">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h5 className="mb-0 fw-bold">Filtros de Búsqueda</h5>
-          <Button 
-            variant="outline-secondary" 
-            size="sm" 
-            onClick={handleReset}
-            disabled={loading}
-          >
-            Limpiar
-          </Button>
+    <Card className="border-0 shadow-sm">
+      <Card.Header className="bg-white border-0">
+        <div className="d-flex justify-content-between align-items-center">
+          <h6 className="mb-0">🔍 Filtros Avanzados</h6>
+          {hasActiveFilters && (
+            <Button 
+              variant="link" 
+              size="sm" 
+              onClick={clearFilters}
+              className="text-danger p-0"
+            >
+              Limpiar
+            </Button>
+          )}
         </div>
+      </Card.Header>
+      
+      <Card.Body>
+        <Form>
+          {/* Tipo de Evento */}
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold">Tipo de Evento</Form.Label>
+            <Form.Select
+              value={filters.tipo}
+              onChange={(e) => handleFilterChange('tipo', e.target.value)}
+              disabled={loading}
+            >
+              <option value="">Todos los tipos</option>
+              <option value="ruta">Ruta</option>
+              <option value="montaña">Montaña</option>
+              <option value="urbano">Urbano</option>
+              <option value="competitivo">Competitivo</option>
+              <option value="recreativo">Recreativo</option>
+            </Form.Select>
+          </Form.Group>
 
-        <Row className="g-3">
-          {/* Filtros principales - siempre visibles */}
-          <Col xs={12} md={6} lg={3}>
-            <Form.Group>
-              <Form.Label className="fw-semibold small">Tipo de Evento</Form.Label>
-              <Form.Select
-                value={filters.tipo}
-                onChange={(e) => handleFilterChange('tipo', e.target.value)}
-                disabled={loading}
-              >
-                <option value="">Todos los tipos</option>
-                <option value="ruta">Ruta</option>
-                <option value="montaña">Montaña</option>
-                <option value="urbano">Urbano</option>
-                <option value="competitivo">Competitivo</option>
-                <option value="recreativo">Recreativo</option>
-              </Form.Select>
-            </Form.Group>
-          </Col>
+          {/* Dificultad */}
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold">Dificultad</Form.Label>
+            <Form.Select
+              value={filters.dificultad}
+              onChange={(e) => handleFilterChange('dificultad', e.target.value)}
+              disabled={loading}
+            >
+              <option value="">Todas las dificultades</option>
+              <option value="baja">Baja</option>
+              <option value="media">Media</option>
+              <option value="alta">Alta</option>
+              <option value="extrema">Extrema</option>
+            </Form.Select>
+          </Form.Group>
 
-          <Col xs={12} md={6} lg={3}>
-            <Form.Group>
-              <Form.Label className="fw-semibold small">Dificultad</Form.Label>
-              <Form.Select
-                value={filters.dificultad}
-                onChange={(e) => handleFilterChange('dificultad', e.target.value)}
-                disabled={loading}
-              >
-                <option value="">Todas</option>
-                <option value="Baja">Baja</option>
-                <option value="Media">Media</option>
-                <option value="Alta">Alta</option>
-                <option value="Extrema">Extrema</option>
-              </Form.Select>
-            </Form.Group>
-          </Col>
+          {/* Estado */}
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold">Estado</Form.Label>
+            <Form.Select
+              value={filters.estado}
+              onChange={(e) => handleFilterChange('estado', e.target.value)}
+              disabled={loading}
+            >
+              <option value="">Todos los estados</option>
+              <option value="próximo">Próximo</option>
+              <option value="en curso">En Curso</option>
+              <option value="finalizado">Finalizado</option>
+            </Form.Select>
+          </Form.Group>
 
-          <Col xs={12} md={6} lg={3}>
-            <Form.Group>
-              <Form.Label className="fw-semibold small">Estado</Form.Label>
-              <Form.Select
-                value={filters.estado}
-                onChange={(e) => handleFilterChange('estado', e.target.value)}
-                disabled={loading}
-              >
-                <option value="">Todos</option>
-                <option value="Próximo">Próximo</option>
-                <option value="En curso">En curso</option>
-                <option value="Finalizado">Finalizado</option>
-              </Form.Select>
-            </Form.Group>
-          </Col>
+          {/* Ubicación */}
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold">Ubicación</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Ciudad o región..."
+              value={filters.ubicacion}
+              onChange={(e) => handleFilterChange('ubicacion', e.target.value)}
+              disabled={loading}
+            />
+          </Form.Group>
 
-          <Col xs={12} md={6} lg={3}>
-            <Form.Group>
-              <Form.Label className="fw-semibold small">Ubicación</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Ciudad, provincia..."
-                value={filters.ubicacion}
-                onChange={(e) => handleFilterChange('ubicacion', e.target.value)}
-                disabled={loading}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+          {/* Rango de Distancia */}
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold">Distancia (km)</Form.Label>
+            <Row className="g-2">
+              <Col>
+                <Form.Control
+                  type="number"
+                  placeholder="Mín"
+                  value={filters.distanciaMin}
+                  onChange={(e) => handleFilterChange('distanciaMin', e.target.value)}
+                  disabled={loading}
+                />
+              </Col>
+              <Col>
+                <Form.Control
+                  type="number"
+                  placeholder="Máx"
+                  value={filters.distanciaMax}
+                  onChange={(e) => handleFilterChange('distanciaMax', e.target.value)}
+                  disabled={loading}
+                />
+              </Col>
+            </Row>
+          </Form.Group>
 
-        {/* Filtros avanzados - en acordeón para móviles */}
-        <Accordion className="mt-3" flush>
-          <Accordion.Item eventKey="0" className="border-0">
-            <Accordion.Header className="p-0">
-              <span className="fw-semibold">Filtros Avanzados</span>
-            </Accordion.Header>
-            <Accordion.Body className="px-0 pt-3">
-              <Row className="g-3">
-                <Col xs={12} sm={6} lg={3}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold small">Distancia Mínima (km)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="0"
-                      value={filters.distanciaMin}
-                      onChange={(e) => handleFilterChange('distanciaMin', e.target.value)}
-                      disabled={loading}
-                    />
-                  </Form.Group>
-                </Col>
+          {/* Rango de Precio */}
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold">Precio (€)</Form.Label>
+            <Row className="g-2">
+              <Col>
+                <Form.Control
+                  type="number"
+                  placeholder="Mín"
+                  value={filters.precioMin}
+                  onChange={(e) => handleFilterChange('precioMin', e.target.value)}
+                  disabled={loading}
+                />
+              </Col>
+              <Col>
+                <Form.Control
+                  type="number"
+                  placeholder="Máx"
+                  value={filters.precioMax}
+                  onChange={(e) => handleFilterChange('precioMax', e.target.value)}
+                  disabled={loading}
+                />
+              </Col>
+            </Row>
+          </Form.Group>
 
-                <Col xs={12} sm={6} lg={3}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold small">Distancia Máxima (km)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="200"
-                      value={filters.distanciaMax}
-                      onChange={(e) => handleFilterChange('distanciaMax', e.target.value)}
-                      disabled={loading}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} sm={6} lg={3}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold small">Precio Mínimo (€)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="0"
-                      value={filters.precioMin}
-                      onChange={(e) => handleFilterChange('precioMin', e.target.value)}
-                      disabled={loading}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} sm={6} lg={3}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold small">Precio Máximo (€)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="100"
-                      value={filters.precioMax}
-                      onChange={(e) => handleFilterChange('precioMax', e.target.value)}
-                      disabled={loading}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} sm={6}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold small">Fecha Desde</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={filters.fechaInicio}
-                      onChange={(e) => handleFilterChange('fechaInicio', e.target.value)}
-                      disabled={loading}
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} sm={6}>
-                  <Form.Group>
-                    <Form.Label className="fw-semibold small">Fecha Hasta</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={filters.fechaFin}
-                      onChange={(e) => handleFilterChange('fechaFin', e.target.value)}
-                      disabled={loading}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
+          {/* Rango de Fechas */}
+          <Form.Group className="mb-3">
+            <Form.Label className="small fw-semibold">Rango de Fechas</Form.Label>
+            <Form.Control
+              type="date"
+              placeholder="Desde"
+              value={filters.fechaInicio}
+              onChange={(e) => handleFilterChange('fechaInicio', e.target.value)}
+              disabled={loading}
+              className="mb-2"
+            />
+            <Form.Control
+              type="date"
+              placeholder="Hasta"
+              value={filters.fechaFin}
+              onChange={(e) => handleFilterChange('fechaFin', e.target.value)}
+              disabled={loading}
+            />
+          </Form.Group>
+        </Form>
       </Card.Body>
     </Card>
   );

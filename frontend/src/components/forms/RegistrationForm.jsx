@@ -1,392 +1,298 @@
-// frontend/src/components/forms/RegistrationForm.jsx - CORREGIDO
+// frontend/src/components/forms/RegistrationForm.jsx - MEJORADO
 import React, { useState, useEffect } from 'react';
-import { Form, Row, Col, Button, Alert, Card, Spinner } from 'react-bootstrap';
-import { eventsAPI, registrationsAPI, teamsAPI } from '../../services/api';
+import { Form, Button, Row, Col, Alert, Spinner, Card } from 'react-bootstrap';
+import { registrationsAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const RegistrationForm = ({ event, onSuccess, onCancel }) => {
-    const [formData, setFormData] = useState({
-        categoria_id: '',
-        talla_playera_id: '',
-        equipo_id: '',
-        numero_telefono: '',
-        fecha_nacimiento: '',
-        genero: '',
-        nombre_contacto_emergencia: '',
-        telefono_contacto_emergencia: '',
-        url_identificacion: ''
-    });
+  const [formData, setFormData] = useState({
+    categoria_id: '',
+    talla_playera_id: '',
+    equipo_id: '',
+    condiciones_medicas: '',
+    alergias: '',
+    contacto_emergencia: '',
+    telefono_emergencia: '',
+    acepta_terminos: false
+  });
 
-    const [categories, setCategories] = useState([]);
-    const [tallas, setTallas] = useState([]);
-    const [teams, setTeams] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [loadingCategories, setLoadingCategories] = useState(false);
-    const [loadingTallas, setLoadingTallas] = useState(false);
-    const [loadingTeams, setLoadingTeams] = useState(false);
-    const [error, setError] = useState('');
-    const [errorLoading, setErrorLoading] = useState('');
-    const [fieldErrors, setFieldErrors] = useState({});
+  const [categories, setCategories] = useState([]);
+  const [tallas, setTallas] = useState([]);
+  const [userTeams, setUserTeams] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+  const [error, setError] = useState('');
+  const { user } = useAuth();
 
-    useEffect(() => {
-        loadFormData();
-    }, [event]);
+  useEffect(() => {
+    loadRegistrationData();
+  }, [event]);
 
-    const loadFormData = async () => {
-        try {
-            console.log('📝 Cargando datos del formulario para evento:', event?.evento_id);
-            
-            // Cargar categorías
-            setLoadingCategories(true);
-            try {
-                const cats = await registrationsAPI.getCategorias(event.evento_id);
-                setCategories(Array.isArray(cats) ? cats : []);
-                console.log('✅ Categorías cargadas:', cats.length);
-            } catch (catError) {
-                console.error('❌ Error cargando categorías:', catError);
-                setErrorLoading('Error cargando categorías del evento');
-            } finally {
-                setLoadingCategories(false);
-            }
+  const loadRegistrationData = async () => {
+    try {
+      setLoadingData(true);
+      
+      // Cargar categorías del evento
+      const categoriasData = await registrationsAPI.getCategorias(event.evento_id || event.id);
+      setCategories(categoriasData);
 
-            // Cargar tallas
-            setLoadingTallas(true);
-            try {
-                const tallasData = await registrationsAPI.getTallas();
-                setTallas(Array.isArray(tallasData) ? tallasData : []);
-                console.log('✅ Tallas cargadas:', tallasData.length);
-            } catch (tallasError) {
-                console.error('❌ Error cargando tallas:', tallasError);
-                setErrorLoading('Error cargando tallas disponibles');
-            } finally {
-                setLoadingTallas(false);
-            }
+      // Cargar tallas disponibles
+      const tallasData = await registrationsAPI.getTallas();
+      setTallas(tallasData);
 
-            // Cargar equipos
-            setLoadingTeams(true);
-            try {
-                const userTeams = await teamsAPI.getMyTeams();
-                setTeams(Array.isArray(userTeams) ? userTeams : []);
-                console.log('✅ Equipos cargados:', userTeams.length);
-            } catch (teamsError) {
-                console.error('❌ Error cargando equipos:', teamsError);
-                // No mostrar error para equipos ya que es opcional
-            } finally {
-                setLoadingTeams(false);
-            }
+      // Cargar equipos del usuario
+      const teamsData = await registrationsAPI.getUserTeams(); // Asumiendo que existe este endpoint
+      setUserTeams(teamsData);
 
-        } catch (error) {
-            console.error('❌ Error cargando datos del formulario:', error);
-            setErrorLoading('Error cargando datos del formulario');
-        }
-    };
+      // Establecer valores por defecto
+      if (categoriasData.length > 0) {
+        setFormData(prev => ({ ...prev, categoria_id: categoriasData[0].categoria_id }));
+      }
+      if (tallasData.length > 0) {
+        setFormData(prev => ({ ...prev, talla_playera_id: tallasData[0].talla_id }));
+      }
 
-    const calcularEdad = (fecha) => {
-        const hoy = new Date();
-        const nacimiento = new Date(fecha);
-        let edad = hoy.getFullYear() - nacimiento.getFullYear();
-        const mes = hoy.getMonth() - nacimiento.getMonth();
-        
-        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-            edad--;
-        }
-        
-        return edad;
-    };
+    } catch (error) {
+      console.error('Error loading registration data:', error);
+      setError('Error cargando datos de inscripción');
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
-    const validateForm = () => {
-        const errors = {};
-        
-        if (!formData.categoria_id) errors.categoria_id = 'Selecciona una categoría';
-        if (!formData.talla_playera_id) errors.talla_playera_id = 'Selecciona una talla';
-        if (!formData.numero_telefono) errors.numero_telefono = 'Teléfono requerido';
-        if (!formData.fecha_nacimiento) errors.fecha_nacimiento = 'Fecha requerida';
-        if (!formData.nombre_contacto_emergencia) errors.nombre_contacto_emergencia = 'Contacto de emergencia requerido';
-        if (!formData.telefono_contacto_emergencia) errors.telefono_contacto_emergencia = 'Teléfono de emergencia requerido';
-        
-        if (formData.fecha_nacimiento) {
-            const edad = calcularEdad(formData.fecha_nacimiento);
-            if (edad < 16) errors.fecha_nacimiento = 'Debes ser mayor de 16 años';
-        }
-        
-        return errors;
-    };
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.acepta_terminos) {
+      setError('Debes aceptar los términos y condiciones');
+      return;
+    }
 
-        const errors = validateForm();
-        if (Object.keys(errors).length > 0) {
-            setFieldErrors(errors);
-            setLoading(false);
-            return;
-        }
+    try {
+      setLoading(true);
+      setError('');
 
-        setFieldErrors({});
+      const registrationData = {
+        evento_id: event.evento_id || event.id,
+        categoria_id: formData.categoria_id,
+        talla_playera_id: formData.talla_playera_id,
+        equipo_id: formData.equipo_id || null,
+        condiciones_medicas: formData.condiciones_medicas,
+        alergias: formData.alergias,
+        contacto_emergencia: formData.contacto_emergencia,
+        telefono_emergencia: formData.telefono_emergencia
+      };
 
-        try {
-            const registrationData = {
-                ...formData,
-                evento_id: event.evento_id
-            };
+      const result = await registrationsAPI.registerForEvent(registrationData);
+      
+      onSuccess(`¡Inscripción exitosa! ${result.message || 'Te has registrado correctamente en el evento.'}`);
 
-            console.log('📤 Enviando inscripción:', registrationData);
-            
-            const result = await registrationsAPI.registerForEvent(registrationData);
-            onSuccess(result.message || '¡Inscripción exitosa!');
-            
-        } catch (error) {
-            console.error('❌ Error en inscripción:', error);
-            setError(error.message || 'Error en la inscripción');
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch (error) {
+      console.error('Error in registration:', error);
+      setError(error.message || 'Error al procesar la inscripción');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-        
-        if (fieldErrors[e.target.name]) {
-            setFieldErrors({
-                ...fieldErrors,
-                [e.target.name]: ''
-            });
-        }
-    };
-
+  if (loadingData) {
     return (
-        <Card>
-            <Card.Header>
-                <h5 className="mb-0">Inscripción: {event.nombre}</h5>
-            </Card.Header>
-            <Card.Body>
-                {error && (
-                    <Alert variant="danger" dismissible onClose={() => setError('')}>
-                        {error}
-                    </Alert>
-                )}
-
-                {errorLoading && (
-                    <Alert variant="warning" dismissible onClose={() => setErrorLoading('')}>
-                        {errorLoading}
-                    </Alert>
-                )}
-
-                <Form onSubmit={handleSubmit}>
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Categoría *</Form.Label>
-                                {loadingCategories ? (
-                                    <div className="text-center py-2">
-                                        <Spinner size="sm" /> Cargando categorías...
-                                    </div>
-                                ) : (
-                                    <Form.Select
-                                        name="categoria_id"
-                                        value={formData.categoria_id}
-                                        onChange={handleChange}
-                                        required
-                                        isInvalid={!!fieldErrors.categoria_id}
-                                    >
-                                        <option value="">Seleccionar categoría</option>
-                                        {categories.map(cat => (
-                                            <option key={cat.categoria_id} value={cat.categoria_id}>
-                                                {cat.nombre} - €{cat.cuota_categoria || event.cuota_inscripcion}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                )}
-                                <Form.Control.Feedback type="invalid">
-                                    {fieldErrors.categoria_id}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Talla de Playera *</Form.Label>
-                                {loadingTallas ? (
-                                    <div className="text-center py-2">
-                                        <Spinner size="sm" /> Cargando tallas...
-                                    </div>
-                                ) : (
-                                    <Form.Select
-                                        name="talla_playera_id"
-                                        value={formData.talla_playera_id}
-                                        onChange={handleChange}
-                                        required
-                                        isInvalid={!!fieldErrors.talla_playera_id}
-                                    >
-                                        <option value="">Seleccionar talla</option>
-                                        {tallas.map(talla => (
-                                            <option key={talla.talla_playera_id} value={talla.talla_playera_id}>
-                                                {talla.nombre} {talla.descripcion ? `(${talla.descripcion})` : ''}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                )}
-                                <Form.Control.Feedback type="invalid">
-                                    {fieldErrors.talla_playera_id}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Equipo (Opcional)</Form.Label>
-                        {loadingTeams ? (
-                            <div className="text-center py-2">
-                                <Spinner size="sm" /> Cargando equipos...
-                            </div>
-                        ) : (
-                            <Form.Select
-                                name="equipo_id"
-                                value={formData.equipo_id}
-                                onChange={handleChange}
-                            >
-                                <option value="">Individual (Sin equipo)</option>
-                                {teams.map(team => (
-                                    <option key={team.equipo_id} value={team.equipo_id}>
-                                        {team.nombre}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        )}
-                    </Form.Group>
-
-                    {/* Resto del formulario se mantiene igual */}
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Teléfono *</Form.Label>
-                                <Form.Control
-                                    type="tel"
-                                    name="numero_telefono"
-                                    value={formData.numero_telefono}
-                                    onChange={handleChange}
-                                    required
-                                    isInvalid={!!fieldErrors.numero_telefono}
-                                    placeholder="+34 600 000 000"
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {fieldErrors.numero_telefono}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Fecha de Nacimiento *</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    name="fecha_nacimiento"
-                                    value={formData.fecha_nacimiento}
-                                    onChange={handleChange}
-                                    required
-                                    isInvalid={!!fieldErrors.fecha_nacimiento}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {fieldErrors.fecha_nacimiento}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Género</Form.Label>
-                        <Form.Select
-                            name="genero"
-                            value={formData.genero}
-                            onChange={handleChange}
-                        >
-                            <option value="">Seleccionar</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Femenino">Femenino</option>
-                            <option value="Otro">Otro</option>
-                            <option value="Prefiero no decir">Prefiero no decir</option>
-                        </Form.Select>
-                    </Form.Group>
-
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Contacto de Emergencia *</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="nombre_contacto_emergencia"
-                                    value={formData.nombre_contacto_emergencia}
-                                    onChange={handleChange}
-                                    required
-                                    isInvalid={!!fieldErrors.nombre_contacto_emergencia}
-                                    placeholder="Nombre completo"
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {fieldErrors.nombre_contacto_emergencia}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Teléfono de Emergencia *</Form.Label>
-                                <Form.Control
-                                    type="tel"
-                                    name="telefono_contacto_emergencia"
-                                    value={formData.telefono_contacto_emergencia}
-                                    onChange={handleChange}
-                                    required
-                                    isInvalid={!!fieldErrors.telefono_contacto_emergencia}
-                                    placeholder="+34 600 000 000"
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {fieldErrors.telefono_contacto_emergencia}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    <Form.Group className="mb-4">
-                        <Form.Label>URL de Identificación (Opcional)</Form.Label>
-                        <Form.Control
-                            type="url"
-                            name="url_identificacion"
-                            value={formData.url_identificacion}
-                            onChange={handleChange}
-                            placeholder="https://ejemplo.com/identificacion.jpg"
-                        />
-                        <Form.Text className="text-muted">
-                            Enlace a documento de identificación (DNI, pasaporte)
-                        </Form.Text>
-                    </Form.Group>
-
-                    <div className="d-flex gap-2 justify-content-end">
-                        <Button variant="secondary" onClick={onCancel} disabled={loading}>
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm me-2" />
-                                    Procesando...
-                                </>
-                            ) : (
-                                'Confirmar Inscripción'
-                            )}
-                        </Button>
-                    </div>
-                </Form>
-            </Card.Body>
-        </Card>
+      <div className="text-center py-4">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-2">Cargando datos de inscripción...</p>
+      </div>
     );
+  }
+
+  return (
+    <Form onSubmit={handleSubmit}>
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError('')}>
+          {error}
+        </Alert>
+      )}
+
+      <Card className="mb-4">
+        <Card.Body>
+          <h6 className="fw-bold mb-3">Resumen del Evento</h6>
+          <Row>
+            <Col sm={6}>
+              <p><strong>Evento:</strong> {event.nombre}</p>
+              <p><strong>Fecha:</strong> {new Date(event.fecha).toLocaleDateString('es-ES')}</p>
+            </Col>
+            <Col sm={6}>
+              <p><strong>Ubicación:</strong> {event.ubicacion}</p>
+              <p><strong>Costo:</strong> €{event.cuota_inscripcion || 0}</p>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <Row>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Categoría *</Form.Label>
+            <Form.Select
+              name="categoria_id"
+              value={formData.categoria_id}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Seleccionar categoría</option>
+              {categories.map((categoria) => (
+                <option key={categoria.categoria_id} value={categoria.categoria_id}>
+                  {categoria.nombre} {categoria.descripcion ? `- ${categoria.descripcion}` : ''}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
+
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Talla de Playera *</Form.Label>
+            <Form.Select
+              name="talla_playera_id"
+              value={formData.talla_playera_id}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Seleccionar talla</option>
+              {tallas.map((talla) => (
+                <option key={talla.talla_id} value={talla.talla_id}>
+                  {talla.nombre}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
+      </Row>
+
+      {userTeams.length > 0 && (
+        <Form.Group className="mb-3">
+          <Form.Label>Equipo (Opcional)</Form.Label>
+          <Form.Select
+            name="equipo_id"
+            value={formData.equipo_id}
+            onChange={handleInputChange}
+          >
+            <option value="">Participar individualmente</option>
+            {userTeams.map((team) => (
+              <option key={team.equipo_id} value={team.equipo_id}>
+                {team.nombre}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+      )}
+
+      <Row>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Contacto de Emergencia</Form.Label>
+            <Form.Control
+              type="text"
+              name="contacto_emergencia"
+              value={formData.contacto_emergencia}
+              onChange={handleInputChange}
+              placeholder="Nombre completo"
+            />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Teléfono de Emergencia</Form.Label>
+            <Form.Control
+              type="tel"
+              name="telefono_emergencia"
+              value={formData.telefono_emergencia}
+              onChange={handleInputChange}
+              placeholder="Número de contacto"
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Condiciones Médicas</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={2}
+          name="condiciones_medicas"
+          value={formData.condiciones_medicas}
+          onChange={handleInputChange}
+          placeholder="Información médica relevante que debamos conocer..."
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Alergias</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={2}
+          name="alergias"
+          value={formData.alergias}
+          onChange={handleInputChange}
+          placeholder="Alergias a alimentos, medicamentos, etc."
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-4">
+        <Form.Check
+          type="checkbox"
+          name="acepta_terminos"
+          checked={formData.acepta_terminos}
+          onChange={handleInputChange}
+          label={
+            <span>
+              Acepto los{' '}
+              <a href="/terminos" target="_blank" rel="noopener noreferrer">
+                términos y condiciones
+              </a>
+              {' '}y la{' '}
+              <a href="/privacidad" target="_blank" rel="noopener noreferrer">
+                política de privacidad
+              </a>
+            </span>
+          }
+          required
+        />
+      </Form.Group>
+
+      <div className="d-flex gap-3">
+        <Button
+          variant="secondary"
+          onClick={onCancel}
+          disabled={loading}
+        >
+          Cancelar
+        </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={loading}
+          className="flex-grow-1"
+        >
+          {loading ? (
+            <>
+              <Spinner size="sm" className="me-2" />
+              Procesando...
+            </>
+          ) : (
+            `Inscribirse - €${event.cuota_inscripcion || 0}`
+          )}
+        </Button>
+      </div>
+    </Form>
+  );
 };
 
 export default RegistrationForm;
