@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const TallaPlayera = sequelize.define('TallaPlayera', {
+module.exports = (sequelize) => {
+  const TallaPlayera = sequelize.define('TallaPlayera', {
     talla_playera_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -15,9 +15,10 @@ const TallaPlayera = sequelize.define('TallaPlayera', {
     descripcion: {
         type: DataTypes.STRING(50)
     }
-}, {
+  }, {
     tableName: 'tallas_playera',
     timestamps: false
-});
+  });
 
-module.exports = TallaPlayera;
+  return TallaPlayera;
+};

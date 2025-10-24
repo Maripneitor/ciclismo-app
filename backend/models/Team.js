@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const Team = sequelize.define('Team', {
+module.exports = (sequelize) => {
+  const Team = sequelize.define('Team', {
     equipo_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -24,9 +24,10 @@ const Team = sequelize.define('Team', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
     }
-}, {
+  }, {
     tableName: 'equipos',
     timestamps: false
-});
+  });
 
-module.exports = Team;
+  return Team;
+};

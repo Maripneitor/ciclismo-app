@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const Route = sequelize.define('Route', {
+module.exports = (sequelize) => {
+  const Route = sequelize.define('Route', {
     ruta_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -21,9 +21,10 @@ const Route = sequelize.define('Route', {
         type: DataTypes.DECIMAL(6, 2),
         field: 'distancia_km'
     }
-}, {
+  }, {
     tableName: 'rutas',
     timestamps: false
-});
+  });
 
-module.exports = Route;
+  return Route;
+};

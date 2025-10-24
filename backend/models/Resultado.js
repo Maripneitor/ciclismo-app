@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const Resultado = sequelize.define('Resultado', {
+module.exports = (sequelize) => {
+  const Resultado = sequelize.define('Resultado', {
     resultado_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -36,9 +36,10 @@ const Resultado = sequelize.define('Resultado', {
         defaultValue: DataTypes.NOW,
         field: 'fecha_registro'
     }
-}, {
+  }, {
     tableName: 'resultados_evento',
     timestamps: false
-});
+  });
 
-module.exports = Resultado;
+  return Resultado;
+};

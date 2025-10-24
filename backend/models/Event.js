@@ -1,5 +1,6 @@
-// backend/models/Event.js - ACTUALIZADO CON DATOS DE RUTA
-module.exports = (sequelize, DataTypes) => {
+const { DataTypes } = require('sequelize');
+
+module.exports = (sequelize) => {
   const Event = sequelize.define('Event', {
     evento_id: {
       type: DataTypes.INTEGER,
@@ -54,18 +55,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       defaultValue: 'próximo'
     },
-    organizador: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
+    // CAMPOS COMENTADOS - ya están en las relaciones
+    // organizador: {
+    //   type: DataTypes.STRING(255),
+    //   allowNull: true
+    // },
     hora_inicio: {
       type: DataTypes.TIME,
       allowNull: true
     },
-    categorias: {
-      type: DataTypes.STRING(500),
-      allowNull: true
-    },
+    // categorias: {
+    //   type: DataTypes.STRING(500),
+    //   allowNull: true
+    // },
     imagen: {
       type: DataTypes.STRING(500),
       allowNull: true
@@ -109,13 +111,6 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
   });
-
-  Event.associate = function(models) {
-    Event.hasMany(models.Registration, {
-      foreignKey: 'evento_id',
-      as: 'registrations'
-    });
-  };
 
   return Event;
 };

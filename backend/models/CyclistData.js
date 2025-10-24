@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const CyclistData = sequelize.define('CyclistData', {
+module.exports = (sequelize) => {
+  const CyclistData = sequelize.define('CyclistData', {
     ciclista_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -64,9 +64,10 @@ const CyclistData = sequelize.define('CyclistData', {
         type: DataTypes.STRING(20),
         allowNull: true
     }
-}, {
+  }, {
     tableName: 'datos_ciclista',
     timestamps: false
-});
+  });
 
-module.exports = CyclistData;
+  return CyclistData;
+};

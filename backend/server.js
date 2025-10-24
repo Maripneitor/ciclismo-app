@@ -4,7 +4,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
-const { sequelize } = require('./config/database');
+
+// Usar la instancia única de sequelize
+const sequelize = require('./config/database');
 
 // Importar rutas
 const authRoutes = require('./routes/auth');
@@ -29,7 +31,11 @@ app.use(cors({
 }));
 
 // Middleware de logging
-app.use(morgan('combined'));
+if (process.env.NODE_ENV === 'production') {
+  app.use(morgan('combined'));
+} else {
+  app.use(morgan('dev'));
+}
 
 // Middleware para parsing JSON
 app.use(express.json({ limit: '10mb' }));
@@ -85,19 +91,38 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Sincronización de base de datos
+// Sincronización de base de datos MEJORADA
 const syncDatabase = async () => {
   try {
+    // Primero autenticar la conexión
+    await sequelize.authenticate();
+    console.log('✅ Conexión a BD establecida');
+    
     if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('🔄 Base de datos sincronizada (alter) en desarrollo');
+      // En desarrollo: usar force: false para evitar perder datos
+      await sequelize.sync({ force: false });
+      console.log('🔄 Base de datos sincronizada en desarrollo');
     } else {
+      // En producción: solo sincronizar sin alterar
       await sequelize.sync();
       console.log('✅ Base de datos sincronizada en producción');
     }
   } catch (error) {
     console.error('❌ Error sincronizando base de datos:', error);
-    process.exit(1);
+    
+    // Si hay error con ENUM, intentar sincronización más básica
+    if (error.name === 'SequelizeDatabaseError' && error.parent?.code === '42804') {
+      console.log('🔄 Intentando sincronización sin alterar tipos ENUM...');
+      try {
+        await sequelize.sync({ force: false });
+        console.log('✅ Base de datos sincronizada (modo seguro)');
+      } catch (safeError) {
+        console.error('❌ Error en sincronización segura:', safeError);
+        process.exit(1);
+      }
+    } else {
+      process.exit(1);
+    }
   }
 };
 

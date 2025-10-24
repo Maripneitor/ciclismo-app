@@ -1,19 +1,35 @@
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./User');
-const Event = require('./Event');
-const Team = require('./Team');
-const Registration = require('./Registration');
-const Category = require('./Category');
-const Route = require('./Route');
-const TallaPlayera = require('./TallaPlayera');
-const Resultado = require('./Resultado');
+
+// Importar modelos
+const User = require('./User')(sequelize, DataTypes);
+const Event = require('./Event')(sequelize, DataTypes);
+const Team = require('./Team')(sequelize, DataTypes);
+const Registration = require('./Registration')(sequelize, DataTypes);
+const Category = require('./Category')(sequelize, DataTypes);
+const Route = require('./Route')(sequelize, DataTypes);
+const TallaPlayera = require('./TallaPlayera')(sequelize, DataTypes);
+const Resultado = require('./Resultado')(sequelize, DataTypes);
+const CyclistData = require('./CyclistData')(sequelize, DataTypes);
 
 // Definir relaciones
-User.hasMany(Event, { foreignKey: 'organizador_id', as: 'eventosOrganizados' });
-Event.belongsTo(User, { foreignKey: 'organizador_id', as: 'organizador' });
+User.hasMany(Event, { 
+  foreignKey: 'organizador_id', 
+  as: 'userEventosOrganizados' 
+});
+Event.belongsTo(User, { 
+  foreignKey: 'organizador_id', 
+  as: 'eventOrganizador' 
+});
 
-User.hasMany(Team, { foreignKey: 'capitan_usuario_id', as: 'equiposCapitaneados' });
-Team.belongsTo(User, { foreignKey: 'capitan_usuario_id', as: 'capitan' });
+User.hasMany(Team, { 
+  foreignKey: 'capitan_usuario_id', 
+  as: 'userEquiposCapitaneados' 
+});
+Team.belongsTo(User, { 
+  foreignKey: 'capitan_usuario_id', 
+  as: 'teamCapitan' 
+});
 
 // Relacion muchos a muchos entre usuarios y equipos
 const TeamMember = sequelize.define('TeamMember', {}, { 
@@ -25,66 +41,99 @@ User.belongsToMany(Team, {
     through: TeamMember, 
     foreignKey: 'usuario_id', 
     otherKey: 'equipo_id', 
-    as: 'equipos' 
+    as: 'userEquipos' 
 });
 
 Team.belongsToMany(User, { 
     through: TeamMember, 
     foreignKey: 'equipo_id', 
     otherKey: 'usuario_id', 
-    as: 'miembros' 
+    as: 'teamMiembros' 
 });
 
-Event.hasMany(Registration, { foreignKey: 'evento_id', as: 'inscripciones' });
-Registration.belongsTo(Event, { foreignKey: 'evento_id', as: 'evento' });
+Event.hasMany(Registration, { 
+  foreignKey: 'evento_id', 
+  as: 'eventInscripciones' 
+});
+Registration.belongsTo(Event, { 
+  foreignKey: 'evento_id', 
+  as: 'registrationEvento' 
+});
 
-User.hasMany(Registration, { foreignKey: 'usuario_id', as: 'inscripciones' });
-Registration.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+User.hasMany(Registration, { 
+  foreignKey: 'usuario_id', 
+  as: 'userInscripciones' 
+});
+Registration.belongsTo(User, { 
+  foreignKey: 'usuario_id', 
+  as: 'registrationUsuario' 
+});
 
-Team.hasMany(Registration, { foreignKey: 'equipo_id', as: 'inscripciones' });
-Registration.belongsTo(Team, { foreignKey: 'equipo_id', as: 'equipo' });
+Team.hasMany(Registration, { 
+  foreignKey: 'equipo_id', 
+  as: 'teamInscripciones' 
+});
+Registration.belongsTo(Team, { 
+  foreignKey: 'equipo_id', 
+  as: 'registrationEquipo' 
+});
 
-Event.hasMany(Category, { foreignKey: 'evento_id', as: 'categorias' });
-Category.belongsTo(Event, { foreignKey: 'evento_id', as: 'evento' });
+Event.hasMany(Category, { 
+  foreignKey: 'evento_id', 
+  as: 'eventCategorias' 
+});
+Category.belongsTo(Event, { 
+  foreignKey: 'evento_id', 
+  as: 'categoryEvento' 
+});
 
-Event.hasMany(Route, { foreignKey: 'evento_id', as: 'rutas' });
-Route.belongsTo(Event, { foreignKey: 'evento_id', as: 'evento' });
+Event.hasMany(Route, { 
+  foreignKey: 'evento_id', 
+  as: 'eventRutas' 
+});
+Route.belongsTo(Event, { 
+  foreignKey: 'evento_id', 
+  as: 'routeEvento' 
+});
 
-Registration.belongsTo(TallaPlayera, { foreignKey: 'talla_playera_id', as: 'talla' });
-TallaPlayera.hasMany(Registration, { foreignKey: 'talla_playera_id', as: 'inscripciones' });
+Registration.belongsTo(TallaPlayera, { 
+  foreignKey: 'talla_playera_id', 
+  as: 'registrationTalla' 
+});
+TallaPlayera.hasMany(Registration, { 
+  foreignKey: 'talla_playera_id', 
+  as: 'tallaInscripciones' 
+});
 
-Event.hasMany(Resultado, { foreignKey: 'evento_id', as: 'resultados' });
-Resultado.belongsTo(Event, { foreignKey: 'evento_id', as: 'evento' });
+Event.hasMany(Resultado, { 
+  foreignKey: 'evento_id', 
+  as: 'eventResultados' 
+});
+Resultado.belongsTo(Event, { 
+  foreignKey: 'evento_id', 
+  as: 'resultadoEvento' 
+});
 
-User.hasMany(Resultado, { foreignKey: 'usuario_id', as: 'resultados' });
-Resultado.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
-
-module.exports = {
-    sequelize,
-    User,
-    Event,
-    Team,
-    Registration,
-    Category,
-    Route,
-    TallaPlayera,
-    Resultado,
-    TeamMember
-};
-
-const CyclistData = require('./CyclistData');
+User.hasMany(Resultado, { 
+  foreignKey: 'usuario_id', 
+  as: 'userResultados' 
+});
+Resultado.belongsTo(User, { 
+  foreignKey: 'usuario_id', 
+  as: 'resultadoUsuario' 
+});
 
 // Relación User - CyclistData (Uno a Uno)
 User.hasOne(CyclistData, { 
     foreignKey: 'usuario_id', 
-    as: 'datosCiclista' 
+    as: 'userDatosCiclista' 
 });
 CyclistData.belongsTo(User, { 
     foreignKey: 'usuario_id', 
-    as: 'usuario' 
+    as: 'ciclistaDataUsuario' 
 });
 
-module.exports = {
+const db = {
     sequelize,
     User,
     Event,
@@ -97,3 +146,5 @@ module.exports = {
     TeamMember,
     CyclistData
 };
+
+module.exports = db;

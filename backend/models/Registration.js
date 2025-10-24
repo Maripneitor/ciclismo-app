@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const Registration = sequelize.define('Registration', {
+module.exports = (sequelize) => {
+  const Registration = sequelize.define('Registration', {
     inscripcion_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -56,9 +56,10 @@ const Registration = sequelize.define('Registration', {
     url_identificacion: {
         type: DataTypes.TEXT
     }
-}, {
+  }, {
     tableName: 'inscripciones',
     timestamps: false
-});
+  });
 
-module.exports = Registration;
+  return Registration;
+};

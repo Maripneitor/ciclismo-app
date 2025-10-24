@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
-const User = sequelize.define('User', {
+module.exports = (sequelize) => {
+  const User = sequelize.define('User', {
     usuario_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -46,7 +46,7 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING(20),
         allowNull: true
     }
-}, {
+  }, {
     tableName: 'usuarios',
     timestamps: false,
     hooks: {
@@ -61,6 +61,7 @@ const User = sequelize.define('User', {
             }
         }
     }
-});
+  });
 
-module.exports = User;
+  return User;
+};
