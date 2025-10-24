@@ -1,4 +1,4 @@
-/* Hero Section - Versión Estable */
+/* Hero Section - Versión Estable CORREGIDA */
 
 .hero-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -127,7 +127,7 @@
   transform: translateY(-2px);
 }
 
-/* Animación del ciclista simplificada */
+/* CORREGIDO: Animación del ciclista mejorada */
 .hero-visual {
   display: flex;
   justify-content: center;
@@ -146,46 +146,125 @@
   left: 50%;
   transform: translate(-50%, -50%);
   animation: bikeMove 3s ease-in-out infinite;
+  width: 120px;
+  height: 80px;
 }
 
 .bike-frame {
-  width: 120px;
-  height: 80px;
-  border: 3px solid white;
-  border-radius: 20% 80% 20% 20%;
+  width: 100%;
+  height: 100%;
   position: relative;
 }
 
+/* CORREGIDO: Frame de la bicicleta mejorado */
+.frame-main {
+  position: absolute;
+  width: 80px;
+  height: 40px;
+  border: 3px solid white;
+  border-radius: 20px 80px 20px 20px;
+  top: 20px;
+  left: 0;
+}
+
+.frame-seat {
+  position: absolute;
+  width: 20px;
+  height: 10px;
+  background: white;
+  border-radius: 5px 5px 0 0;
+  top: 15px;
+  left: 60px;
+}
+
+.frame-handlebar {
+  position: absolute;
+  width: 30px;
+  height: 3px;
+  background: white;
+  top: 25px;
+  left: 75px;
+  transform: rotate(-20deg);
+}
+
+/* CORREGIDO: Ruedas mejoradas */
 .wheel {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border: 3px solid white;
   border-radius: 50%;
   animation: wheelSpin 1s linear infinite;
 }
 
 .front-wheel {
-  top: -20px;
-  right: -20px;
+  top: 18px;
+  right: -5px;
 }
 
 .back-wheel {
-  bottom: -20px;
-  left: -20px;
+  bottom: 18px;
+  left: -5px;
 }
 
+/* CORREGIDO: Ciclista mejorado */
 .cyclist {
   position: absolute;
-  top: -30px;
-  left: 30px;
+  top: 10px;
+  left: 35px;
+  z-index: 2;
+}
+
+.cyclist-head {
+  width: 15px;
+  height: 15px;
+  background: white;
+  border-radius: 50%;
+  margin-bottom: 2px;
 }
 
 .cyclist-body {
   width: 20px;
-  height: 40px;
+  height: 25px;
   background: white;
-  border-radius: 10px;
+  border-radius: 10px 10px 5px 5px;
+  position: relative;
+}
+
+.cyclist-arm {
+  position: absolute;
+  width: 15px;
+  height: 3px;
+  background: white;
+  top: 5px;
+}
+
+.arm-front {
+  right: -12px;
+  transform: rotate(-30deg);
+}
+
+.arm-back {
+  left: -12px;
+  transform: rotate(30deg);
+}
+
+.cyclist-leg {
+  position: absolute;
+  width: 20px;
+  height: 3px;
+  background: white;
+  bottom: 2px;
+}
+
+.leg-front {
+  right: -5px;
+  transform: rotate(-15deg);
+}
+
+.leg-back {
+  left: -5px;
+  transform: rotate(15deg);
 }
 
 .road {
@@ -198,9 +277,20 @@
   opacity: 0.5;
 }
 
+/* CORREGIDO: Animaciones mejoradas */
 @keyframes bikeMove {
-  0%, 100% { transform: translate(-50%, -50%) translateX(-10px); }
-  50% { transform: translate(-50%, -50%) translateX(10px); }
+  0%, 100% { 
+    transform: translate(-50%, -50%) translateX(-10px) rotate(0deg); 
+  }
+  25% { 
+    transform: translate(-50%, -50%) translateX(-5px) rotate(-1deg); 
+  }
+  50% { 
+    transform: translate(-50%, -50%) translateX(0px) rotate(0deg); 
+  }
+  75% { 
+    transform: translate(-50%, -50%) translateX(5px) rotate(1deg); 
+  }
 }
 
 @keyframes wheelSpin {
@@ -248,5 +338,9 @@
   .simple-cycling-animation {
     width: 250px;
     height: 150px;
+  }
+  
+  .bike {
+    transform: translate(-50%, -50%) scale(0.8);
   }
 }

@@ -6,9 +6,11 @@ import {
 } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext'; // AÑADIDO: Importar useTheme
 
 const EnhancedNavbar = ({ scrolled }) => {
   const { user, logout, isAuthenticated, isAdmin, isOrganizer } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme(); // AÑADIDO: Obtener tema
   const location = useLocation();
   const navigate = useNavigate();
   const [showOffcanvas, setShowOffcanvas] = useState(false);
@@ -153,6 +155,17 @@ const EnhancedNavbar = ({ scrolled }) => {
             </Nav>
 
             <Nav className="align-items-center user-actions">
+              {/* AÑADIDO: Botón de toggle de tema */}
+              <Button
+                variant="outline-primary"
+                className="theme-toggle me-2"
+                onClick={toggleDarkMode}
+                aria-label={darkMode ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+                size="sm"
+              >
+                {darkMode ? '☀️' : '🌙'}
+              </Button>
+
               {isAuthenticated ? (
                 <Dropdown align="end" className="user-dropdown">
                   <Dropdown.Toggle variant="outline-primary" className="user-toggle">
@@ -301,6 +314,18 @@ const EnhancedNavbar = ({ scrolled }) => {
           )}
 
           <div className="mobile-actions">
+            {/* AÑADIDO: Botón de tema en móvil */}
+            <div className="d-grid gap-2 mb-3">
+              <Button
+                variant="outline-secondary"
+                onClick={toggleDarkMode}
+                className="d-flex align-items-center justify-content-center"
+              >
+                <span className="me-2">{darkMode ? '☀️' : '🌙'}</span>
+                {darkMode ? 'Tema Claro' : 'Tema Oscuro'}
+              </Button>
+            </div>
+
             <div className="d-grid gap-2">
               {!isAuthenticated ? (
                 <>
@@ -363,6 +388,14 @@ const EnhancedNavbar = ({ scrolled }) => {
           width: 100%;
           height: 100%;
           object-fit: cover;
+        }
+
+        .theme-toggle {
+          transition: all 0.3s ease !important;
+        }
+
+        .theme-toggle:hover {
+          transform: rotate(15deg) scale(1.1);
         }
       `}</style>
     </>

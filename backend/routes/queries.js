@@ -7,14 +7,14 @@ router.get('/stats', async (req, res) => {
   try {
     console.log('🔍 Ejecutando consulta de estadísticas...');
     
-    // Usar los nombres correctos de las tablas (sin comillas dobles o con los nombres correctos)
+    // CORREGIDO: Usar nombres correctos de tablas (en minúsculas)
     const stats = await sequelize.query(`
       SELECT 
-        (SELECT COUNT(*) FROM users) as total_usuarios,
-        (SELECT COUNT(*) FROM events) as total_eventos,
-        (SELECT COUNT(*) FROM registrations) as total_inscripciones,
-        (SELECT COUNT(*) FROM users WHERE role = 'admin') as total_admins,
-        (SELECT COUNT(*) FROM users WHERE role = 'organizador') as total_organizadores
+        (SELECT COUNT(*) FROM usuarios) as total_usuarios,
+        (SELECT COUNT(*) FROM eventos) as total_eventos,
+        (SELECT COUNT(*) FROM inscripciones) as total_inscripciones,
+        (SELECT COUNT(*) FROM usuarios WHERE rol = 'admin') as total_admins,
+        (SELECT COUNT(*) FROM usuarios WHERE rol = 'organizador') as total_organizadores
     `, { type: sequelize.QueryTypes.SELECT });
 
     console.log('✅ Estadísticas obtenidas:', stats[0]);
@@ -32,18 +32,19 @@ router.get('/users-stats', auth, authorize('admin'), async (req, res) => {
   try {
     const userStats = await User.findAll({
       attributes: [
-        'role',
+        'rol',
         [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
         [sequelize.fn('MAX', sequelize.col('createdAt')), 'ultimo_registro']
       ],
-      group: ['role']
+      group: ['rol']
     });
 
+    // CORREGIDO: Usar nombres correctos de tabla y columna
     const growth = await sequelize.query(`
       SELECT 
         DATE("createdAt") as fecha,
         COUNT(*) as registros
-      FROM users
+      FROM usuarios
       WHERE "createdAt" >= CURRENT_DATE - INTERVAL '7 days'
       GROUP BY DATE("createdAt")
       ORDER BY fecha
@@ -101,6 +102,7 @@ router.get('/events-stats', async (req, res) => {
 
 router.get('/top-organizadores', async (req, res) => {
   try {
+    // CORREGIDO: Usar nombres correctos de tablas y columnas
     const topOrganizadores = await sequelize.query(`
       SELECT 
         u.id,
@@ -109,9 +111,9 @@ router.get('/top-organizadores', async (req, res) => {
         COUNT(e.id) as total_eventos,
         SUM(e.maxParticipantes) as capacidad_total,
         AVG(e.precio) as precio_promedio
-      FROM users u
-      LEFT JOIN events e ON u.id = e."organizadorId"
-      WHERE u.role IN ('organizador', 'admin')
+      FROM usuarios u
+      LEFT JOIN eventos e ON u.id = e.organization_id
+      WHERE u.rol IN ('organizador', 'admin')
       GROUP BY u.id, u.nombre, u.email
       ORDER BY total_eventos DESC
       LIMIT 10

@@ -1,8 +1,8 @@
-// frontend/src/components/home/FeaturedEvents.jsx - CONECTADO A API
+// frontend/src/components/home/FeaturedEvents.jsx - CORREGIDO
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { homeAPI } from '../../services/api';
+import { homeAPI, eventsAPI } from '../../services/api'; // IMPORTACIÓN CORREGIDA
 
 const FeaturedEvents = () => {
   const [featuredEvents, setFeaturedEvents] = useState([]);
@@ -29,16 +29,82 @@ const FeaturedEvents = () => {
       } catch (apiError) {
         console.warn('Error API eventos destacados, usando datos de respaldo:', apiError);
         // Fallback a datos de ejemplo solo si la API falla
-        const fallbackEvents = await eventsAPI.getAll();
-        setFeaturedEvents(fallbackEvents.slice(0, 3));
+        try {
+          const fallbackEvents = await eventsAPI.getAll(); // AHORA eventsAPI ESTÁ DEFINIDO
+          if (Array.isArray(fallbackEvents)) {
+            setFeaturedEvents(fallbackEvents.slice(0, 3));
+          } else {
+            // Si no hay eventos reales, usar datos de ejemplo
+            setFeaturedEvents(getFallbackEvents());
+          }
+        } catch (fallbackError) {
+          console.warn('Error en fallback, usando datos de ejemplo:', fallbackError);
+          setFeaturedEvents(getFallbackEvents());
+        }
       }
       
     } catch (error) {
       console.error('Error loading featured events:', error);
       setError('Error cargando eventos destacados');
+      // En caso de error total, usar datos de ejemplo
+      setFeaturedEvents(getFallbackEvents());
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función para obtener datos de ejemplo como último recurso
+  const getFallbackEvents = () => {
+    return [
+      {
+        id: 1,
+        nombre: 'Gran Fondo Montaña',
+        descripcion: 'Una emocionante ruta de montaña para ciclistas experimentados',
+        ubicacion: 'Sierra Nevada, Granada',
+        fecha: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        tipo: 'montaña',
+        estado: 'próximo',
+        dificultad: 'Alta',
+        distancia: 85,
+        elevacion: 1500,
+        cuota_inscripcion: 45,
+        participantes_inscritos: 45,
+        cupo_maximo: 100,
+        imagen: '/images/mountain-race.jpg'
+      },
+      {
+        id: 2,
+        nombre: 'Tour Urbano Nocturno',
+        descripcion: 'Recorrido urbano iluminado por la ciudad',
+        ubicacion: 'Centro Histórico, Madrid',
+        fecha: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+        tipo: 'urbano',
+        estado: 'próximo',
+        dificultad: 'Media',
+        distancia: 35,
+        elevacion: 200,
+        cuota_inscripcion: 20,
+        participantes_inscritos: 78,
+        cupo_maximo: 120,
+        imagen: '/images/night-tour.jpg'
+      },
+      {
+        id: 3,
+        nombre: 'Ruta Costera Relax',
+        descripcion: 'Paseo tranquilo junto al mar para todos los niveles',
+        ubicacion: 'Costa del Sol, Málaga',
+        fecha: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+        tipo: 'ruta',
+        estado: 'próximo',
+        dificultad: 'Baja',
+        distancia: 40,
+        elevacion: 150,
+        cuota_inscripcion: 15,
+        participantes_inscritos: 92,
+        cupo_maximo: 150,
+        imagen: '/images/coastal-ride.jpg'
+      }
+    ];
   };
 
   const getEventTypeIcon = (type) => {
@@ -84,7 +150,7 @@ const FeaturedEvents = () => {
     );
   }
 
-  if (error) {
+  if (error && featuredEvents.length === 0) {
     return (
       <section className="featured-events py-5">
         <Container>
@@ -121,18 +187,29 @@ const FeaturedEvents = () => {
             </Col>
           </Row>
         ) : (
-          <Row className="g-4">
-            {featuredEvents.map((event) => (
-              <Col key={event.evento_id || event.id} xs={12} md={6} lg={4}>
-                <EventCard 
-                  event={event} 
-                  getEventTypeIcon={getEventTypeIcon}
-                  getStatusVariant={getStatusVariant}
-                  formatDate={formatDate}
-                />
-              </Col>
-            ))}
-          </Row>
+          <>
+            {error && (
+              <Row className="mb-3">
+                <Col>
+                  <Alert variant="warning" className="mb-0">
+                    {error} - Mostrando datos de ejemplo
+                  </Alert>
+                </Col>
+              </Row>
+            )}
+            <Row className="g-4">
+              {featuredEvents.map((event) => (
+                <Col key={event.evento_id || event.id} xs={12} md={6} lg={4}>
+                  <EventCard 
+                    event={event} 
+                    getEventTypeIcon={getEventTypeIcon}
+                    getStatusVariant={getStatusVariant}
+                    formatDate={formatDate}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </>
         )}
 
         <Row className="mt-5">
@@ -159,7 +236,7 @@ const EventCard = ({ event, getEventTypeIcon, getStatusVariant, formatDate }) =>
   return (
     <Card className="event-featured-card h-100 border-0 shadow-hover">
       <div className="event-image-container">
-        {imageError ? (
+        {imageError || !event.imagen || event.imagen.startsWith('/images/') ? (
           <div className="event-image-fallback">
             <span className="event-icon-large">{getEventTypeIcon(event.tipo)}</span>
             <div className="fallback-text">Imagen no disponible</div>

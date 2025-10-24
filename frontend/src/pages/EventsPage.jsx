@@ -1,4 +1,3 @@
-// frontend/src/pages/EventsPage.jsx - MEJORADO CON API Y FILTROS
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container, Row, Col, Card, Button, Spinner, Alert, Form,
@@ -35,7 +34,6 @@ const EventsPage = () => {
   const [sortBy, setSortBy] = useState('fecha');
   const [loadingEvents, setLoadingEvents] = useState([]);
   const [registrationMessage, setRegistrationMessage] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
   const [showQuickView, setShowQuickView] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -45,7 +43,7 @@ const EventsPage = () => {
 
   useEffect(() => {
     filterAndSortEvents();
-  }, [events, filters, sortBy, searchQuery]);
+  }, [events, filters, sortBy]);
 
   const loadEvents = async () => {
     try {
@@ -55,26 +53,27 @@ const EventsPage = () => {
       
       const adaptedEvents = eventsData.map(event => ({
         id: event.evento_id || event.id,
-        evento_id: event.evento_id,
-        nombre: event.nombre,
-        descripcion: event.descripcion,
+        evento_id: event.evento_id || event.id,
+        nombre: event.nombre || 'Evento sin nombre',
+        descripcion: event.descripcion || 'Descripción no disponible',
         fecha: event.fecha,
-        ubicacion: event.ubicacion,
-        distancia_km: event.distancia_km,
-        tipo: event.tipo,
-        estado: event.estado,
-        cuota_inscripcion: event.cuota_inscripcion,
+        ubicacion: event.ubicacion || 'Ubicación no especificada',
+        distancia_km: event.distancia_km || event.distancia || 0,
+        tipo: event.tipo || 'general',
+        estado: event.estado || 'próximo',
+        cuota_inscripcion: event.cuota_inscripcion || event.precio || 0,
         participantes_inscritos: event.participantes_inscritos || 0,
-        cupo_maximo: event.cupo_maximo,
-        dificultad: event.dificultad,
-        elevacion: event.elevacion,
-        imagen: event.imagen
+        cupo_maximo: event.cupo_maximo || event.maxParticipantes || 100,
+        dificultad: event.dificultad || 'media',
+        elevacion: event.elevacion || 0,
+        imagen: event.imagen || '/default-event.jpg'
       }));
       
       setEvents(adaptedEvents);
     } catch (error) {
       console.error('Error loading events:', error);
-      setError('Error cargando eventos del servidor');
+      setError('Error cargando eventos del servidor: ' + (error.message || 'Error desconocido'));
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -83,7 +82,6 @@ const EventsPage = () => {
   const filterAndSortEvents = useCallback(() => {
     let filtered = [...events];
 
-    // Filtro de búsqueda por texto
     if (filters.search) {
       const query = filters.search.toLowerCase();
       filtered = filtered.filter(event =>
@@ -93,7 +91,6 @@ const EventsPage = () => {
       );
     }
 
-    // Filtros individuales
     if (filters.tipo) {
       filtered = filtered.filter(event => event.tipo === filters.tipo);
     }
@@ -112,7 +109,6 @@ const EventsPage = () => {
       );
     }
 
-    // Filtros numéricos
     if (filters.distanciaMin) {
       filtered = filtered.filter(event => 
         event.distancia_km >= parseFloat(filters.distanciaMin)
@@ -137,7 +133,6 @@ const EventsPage = () => {
       );
     }
 
-    // Filtros de fecha
     if (filters.fechaInicio) {
       const startDate = new Date(filters.fechaInicio);
       filtered = filtered.filter(event => new Date(event.fecha) >= startDate);
@@ -149,7 +144,6 @@ const EventsPage = () => {
       filtered = filtered.filter(event => new Date(event.fecha) <= endDate);
     }
 
-    // Ordenamiento
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'fecha':
@@ -176,13 +170,6 @@ const EventsPage = () => {
     setFilters(newFilters);
   };
 
-  const handleSearch = (query) => {
-    setFilters(prev => ({
-      ...prev,
-      search: query
-    }));
-  };
-
   const clearFilters = () => {
     setFilters({
       tipo: '',
@@ -198,7 +185,6 @@ const EventsPage = () => {
       search: ''
     });
     setSortBy('fecha');
-    setSearchQuery('');
   };
 
   const handleRegister = async (event) => {
@@ -346,11 +332,10 @@ const EventsPage = () => {
             loading={loading}
           />
           
-          {/* Búsqueda rápida por texto */}
           <Card className="mb-4">
             <Card.Body>
               <Form.Group>
-                <Form.Label className="fw-semibold">🔍 Búsqueda rápida</Form.Label>
+                <Form.Label className="fw-semibold">Búsqueda rápida</Form.Label>
                 <InputGroup>
                   <Form.Control
                     type="text"
@@ -366,7 +351,7 @@ const EventsPage = () => {
                       variant="outline-secondary" 
                       onClick={() => handleFiltersChange({...filters, search: ''})}
                     >
-                      ✕
+                      X
                     </Button>
                   )}
                 </InputGroup>
@@ -374,11 +359,10 @@ const EventsPage = () => {
             </Card.Body>
           </Card>
 
-          {/* Botón Limpiar Todo */}
           {activeFiltersCount > 0 && (
             <div className="d-grid">
               <Button variant="outline-danger" onClick={clearFilters}>
-                🗑️ Limpiar Todos los Filtros ({activeFiltersCount})
+                Limpiar Todos los Filtros ({activeFiltersCount})
               </Button>
             </div>
           )}

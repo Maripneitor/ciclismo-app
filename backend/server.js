@@ -1,4 +1,4 @@
-// server.js - Configuración mejorada CON RUTAS DE QUERIES
+// server.js - Configuración mejorada CON CORS CORREGIDO
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -14,7 +14,7 @@ const userRoutes = require('./routes/users');
 const eventRoutes = require('./routes/events');
 const registrationRoutes = require('./routes/registrations');
 const teamRoutes = require('./routes/teams');
-const queryRoutes = require('./routes/queries'); // AÑADIR ESTA LÍNEA
+const queryRoutes = require('./routes/queries');
 
 const app = express();
 
@@ -23,12 +23,35 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Middleware CORS configurado
+// Middleware CORS configurado CORREGIDO
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Lista de orígenes permitidos
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:5173',
+      'http://127.0.0.1:5173'
+    ];
+    
+    // Añadir FRONTEND_URL si está definido
+    if (process.env.FRONTEND_URL) {
+      allowedOrigins.push(process.env.FRONTEND_URL);
+    }
+    
+    // Permitir requests sin origen (como mobile apps o curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('⚠️  Origen bloqueado por CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token']
 }));
 
 // Middleware de logging
@@ -51,7 +74,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/teams', teamRoutes);
-app.use('/api/queries', queryRoutes); // AÑADIR ESTA LÍNEA
+app.use('/api/queries', queryRoutes);
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {
@@ -114,6 +137,13 @@ app.use((error, req, res, next) => {
     });
   }
   
+  // Manejar errores de CORS
+  if (error.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      error: 'Origen no permitido por CORS'
+    });
+  }
+  
   res.status(error.status || 500).json({
     error: error.message || 'Error interno del servidor'
   });
@@ -165,6 +195,14 @@ const startServer = async () => {
       console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
       console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
       console.log(`📊 Base de datos: ${process.env.DB_NAME || 'maripneitor_cycling'}`);
+      console.log(`🔗 Orígenes CORS permitidos:`);
+      console.log(`   - http://localhost:3000`);
+      console.log(`   - http://127.0.0.1:3000`);
+      console.log(`   - http://localhost:5173`);
+      console.log(`   - http://127.0.0.1:5173`);
+      if (process.env.FRONTEND_URL) {
+        console.log(`   - ${process.env.FRONTEND_URL}`);
+      }
       console.log(`🔍 Rutas disponibles:`);
       console.log(`   - GET /api/health`);
       console.log(`   - GET /api/db-test`);

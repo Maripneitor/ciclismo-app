@@ -13,20 +13,31 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
+    // Intentar obtener del localStorage
     const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
+    if (saved !== null) {
+      return JSON.parse(saved);
+    }
+    // Si no hay valor guardado, usar preferencia del sistema
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
   useEffect(() => {
+    // Guardar en localStorage
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
     
     // Aplicar tema al documento
+    const htmlElement = document.documentElement;
+    const bodyElement = document.body;
+    
     if (darkMode) {
-      document.documentElement.setAttribute('data-bs-theme', 'dark');
-      document.body.classList.add('dark-mode');
+      htmlElement.setAttribute('data-bs-theme', 'dark');
+      bodyElement.classList.add('dark-mode');
+      bodyElement.classList.remove('light-mode');
     } else {
-      document.documentElement.removeAttribute('data-bs-theme');
-      document.body.classList.remove('dark-mode');
+      htmlElement.setAttribute('data-bs-theme', 'light');
+      bodyElement.classList.add('light-mode');
+      bodyElement.classList.remove('dark-mode');
     }
   }, [darkMode]);
 
