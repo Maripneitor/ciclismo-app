@@ -10,15 +10,14 @@ const UserAccountLayout = () => {
   const menuItems = [
     { path: '/cuenta/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/cuenta/perfil', label: 'Mi Perfil', icon: '👤' },
-    { path: '/cuenta/historial', label: 'Mi Historial', icon: '📈' },
-    { path: '/cuenta/eventos', label: 'Mis Eventos', icon: '🚴' },
+    { path: '/cuenta/inscripciones', label: 'Mis Inscripciones', icon: '📝' },
+    { path: '/cuenta/equipos', label: 'Mis Equipos', icon: '🚴' },
     { path: '/cuenta/configuracion', label: 'Configuración', icon: '⚙️' },
   ];
 
   return (
     <Container fluid className="py-4">
       <Row>
-        {/* Sidebar */}
         <Col md={3} lg={2}>
           <Card className="shadow-sm">
             <Card.Header className="bg-primary text-white">
@@ -44,7 +43,6 @@ const UserAccountLayout = () => {
           </Card>
         </Col>
 
-        {/* Contenido principal */}
         <Col md={9} lg={10}>
           <Outlet />
         </Col>

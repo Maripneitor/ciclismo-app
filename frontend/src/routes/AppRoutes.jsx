@@ -16,7 +16,6 @@ import ContactPage from '../pages/ContactPage';
 import SubscriptionPage from '../pages/SubscriptionPage';
 import EnhancedDashboardPage from '../pages/user/EnhancedDashboardPage';
 import ProfilePage from '../pages/user/ProfilePage';
-import HistoryPage from '../pages/user/HistoryPage';
 import MyRegistrationsPage from '../pages/user/MyRegistrationsPage';
 import MyTeamsPage from '../pages/user/MyTeamsPage';
 import OrganizerDashboardPage from '../pages/organizer/OrganizerDashboardPage';
@@ -45,7 +44,6 @@ const AppRoutes = () => {
                     <Route path="/cuenta/*" element={<Layout><UserAccountLayout /></Layout>}>
                         <Route path="dashboard" element={<EnhancedDashboardPage />} />
                         <Route path="perfil" element={<ProfilePage />} />
-                        <Route path="historial" element={<HistoryPage />} />
                         <Route path="inscripciones" element={<MyRegistrationsPage />} />
                         <Route path="equipos" element={<MyTeamsPage />} />
                         <Route path="configuracion" element={<div>Configuración - Próximamente</div>} />
