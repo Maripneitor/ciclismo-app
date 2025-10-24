@@ -1,26 +1,18 @@
-/* frontend/src/styles/theme.css - MEJORADO */
+/* frontend/src/styles/theme.css - VARIABLES CSS CONSOLIDADAS */
 :root {
-  --primary-color: #2563eb;
-  --primary-rgb: 37, 99, 235;
-  --secondary-color: #059669;
+  /* Colores base */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-900: #1e3a8a;
+  
+  --secondary-500: #059669;
   --success-color: #198754;
   --warning-color: #d97706;
   --danger-color: #dc2626;
-  --light-color: #f8f9fa;
-  --dark-color: #212529;
-  --body-bg: #ffffff;
-  --body-color: #212529;
-  --card-bg: #ffffff;
-  --card-bg-rgb: 255, 255, 255;
-  --border-color: #dee2e6;
-  --header-bg: #ffffff;
-  --text-muted: #6c757d;
-  --text-dark: #212529;
-  --text-light: #f8f9fa;
-  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --accent-color: #ea580c;
+  
+  /* Escala de grises */
   --neutral-50: #fafafa;
   --neutral-100: #f4f4f5;
   --neutral-200: #e4e4e7;
@@ -31,79 +23,73 @@
   --neutral-700: #3f3f46;
   --neutral-800: #27272a;
   --neutral-900: #18181b;
+
+  /* Tema claro (default) */
+  --body-bg: #ffffff;
+  --body-color: #212529;
+  --card-bg: #ffffff;
+  --header-bg: #ffffff;
+  --border-color: #dee2e6;
+  --text-muted: #6c757d;
+  --text-dark: #212529;
+  --text-light: #f8f9fa;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
+  
+  /* Efectos */
+  --blur-intensity: blur(10px);
+  --transition-standard: all 0.3s ease;
 }
 
+/* Tema oscuro */
 [data-bs-theme="dark"] {
-  --primary-color: #3b82f6;
-  --primary-rgb: 59, 130, 246;
-  --secondary-color: #10b981;
-  --success-color: #198754;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --light-color: #f8f9fa;
-  --dark-color: #212529;
-  --body-bg: #121212;
+  --body-bg: #0f172a;
   --body-color: #ffffff;
-  --card-bg: #1e1e1e;
-  --card-bg-rgb: 30, 30, 30;
-  --border-color: #444;
-  --header-bg: #1e1e1e;
-  --text-muted: #adb5bd;
+  --card-bg: #1e293b;
+  --header-bg: #1e293b;
+  --border-color: #334155;
+  --text-muted: #94a3b8;
   --text-dark: #ffffff;
-  --text-light: #f8f9fa;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  
   --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --shadow-color: rgba(0, 0, 0, 0.3);
-  --accent-color: #fb923c;
   --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-/* Aplicar transiciones de tema */
+/* Aplicar variables a elementos Bootstrap */
 body {
   background-color: var(--body-bg) !important;
   color: var(--body-color) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .card {
   background-color: var(--card-bg) !important;
-  border: 1px solid var(--border-color) !important;
+  border-color: var(--border-color) !important;
   color: var(--body-color) !important;
-  transition: all 0.3s ease;
 }
 
 .navbar {
   background-color: var(--header-bg) !important;
-  border-bottom: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.btn-outline-primary {
-  color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  background: transparent;
-  transition: all 0.3s ease;
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  border-color: var(--primary-color) !important;
+  border-bottom-color: var(--border-color) !important;
 }
 
 .form-control {
   background-color: var(--card-bg) !important;
   border-color: var(--border-color) !important;
   color: var(--body-color) !important;
-  transition: all 0.3s ease;
 }
 
-/* Animación del toggle de tema */
-.theme-toggle {
-  transition: all 0.3s ease !important;
+.btn-outline-primary {
+  color: var(--primary-600) !important;
+  border-color: var(--primary-600) !important;
 }
 
-.theme-toggle:hover {
-  transform: rotate(15deg) scale(1.1);
+.btn-outline-primary:hover {
+  background-color: var(--primary-600) !important;
+  color: white !important;
 }

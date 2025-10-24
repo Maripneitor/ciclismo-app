@@ -1,4 +1,4 @@
-// frontend/src/context/ThemeContext.jsx - MEJORADO
+// frontend/src/context/ThemeContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext();
@@ -32,12 +32,10 @@ export const ThemeProvider = ({ children }) => {
     
     if (darkMode) {
       htmlElement.setAttribute('data-bs-theme', 'dark');
-      bodyElement.classList.add('dark-mode');
-      bodyElement.classList.remove('light-mode');
+      bodyElement.setAttribute('data-theme', 'dark');
     } else {
       htmlElement.setAttribute('data-bs-theme', 'light');
-      bodyElement.classList.add('light-mode');
-      bodyElement.classList.remove('dark-mode');
+      bodyElement.setAttribute('data-theme', 'light');
     }
   }, [darkMode]);
 

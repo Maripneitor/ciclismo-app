@@ -1,4 +1,4 @@
-// frontend/src/App.jsx - CORREGIDO Y ESTABILIZADO
+// frontend/src/App.jsx
 import React from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from "./context/ThemeContext";
