@@ -14,7 +14,7 @@ git status
 git add .
 
 # 4. Hacer commit con mensaje descriptivo
-git commit -m "cambios 3"
+git commit -m "cambios 4"
 
 
 # 5. Subir los cambios al repositorio remoto

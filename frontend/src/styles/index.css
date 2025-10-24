@@ -1,4 +1,4 @@
-/* frontend/src/styles/index.css - LIMPIO Y CORREGIDO */
+/* frontend/src/styles/index.css - CONSOLIDADO Y MEJORADO */
 @import './theme.css';
 @import './animations.css';
 @import './hero-stable.css';
@@ -6,7 +6,7 @@
 @import './components/navigation.css';
 @import './components/events.css';
 
-/* Reset y estilos base */
+/* Reset y estilos base - Consolidados desde src/index.css */
 * {
   margin: 0;
   padding: 0;
@@ -37,6 +37,31 @@ body {
   color: var(--body-color);
 }
 
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mejoras de accesibilidad - Consolidadas desde src/index.css */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Asegurar que todos los componentes hereden los colores - Consolidado */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
 /* Contenedores responsivos */
 .container {
   width: 100%;
@@ -59,26 +84,6 @@ body {
 
 .heading-responsive {
   font-size: clamp(1.5rem, 4vw, 3rem);
-}
-
-/* Mejoras de accesibilidad */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-/* Transiciones suaves para tema */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Utilidades para imágenes responsivas */
