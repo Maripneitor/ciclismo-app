@@ -6,7 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { eventsAPI, registrationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import EnhancedEventCard from '../components/events/EnhancedEventCard';
+import EventCard from '../components/common/EventCard';
 import AdvancedSearchFilters from '../components/events/AdvancedSearchFilters';
 
 const EventsPage = () => {
@@ -406,12 +406,13 @@ const EventsPage = () => {
                 <Row className="g-4">
                   {filteredEvents.map((event) => (
                     <Col key={event.evento_id || event.id} xs={12} lg={6} xl={4}>
-                      <EnhancedEventCard
+                      <EventCard
                         event={event}
                         onRegister={handleRegister}
                         onQuickView={handleQuickView}
                         isLoading={loadingEvents.includes(event.evento_id || event.id)}
                         isAuthenticated={isAuthenticated}
+                        layoutVariant="enhanced"
                       />
                     </Col>
                   ))}
