@@ -1,8 +1,9 @@
-// frontend/src/pages/EventDetailPage.jsx - CON MAPA Y SECTORES
+// frontend/src/pages/EventDetailPage.jsx - CON MAPA Y SECTORES MEJORADO
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Row, Col, Card, Button, Badge, Alert, 
-  Modal, Spinner, Tabs, Tab, ListGroup, ProgressBar
+  Modal, Spinner, Tabs, Tab, ListGroup, ProgressBar,
+  Accordion
 } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { eventsAPI, registrationsAPI } from '../services/api';
@@ -23,6 +24,8 @@ const EventDetailPage = () => {
   const [registrationSuccess, setRegistrationSuccess] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
+  const [sectorsData, setSectorsData] = useState([]);
+  const [selectedSector, setSelectedSector] = useState(null);
 
   useEffect(() => {
     loadEvent();
@@ -38,7 +41,7 @@ const EventDetailPage = () => {
       
       const eventData = await eventsAPI.getById(id);
       
-      // Enriquecer datos con información de ruta si no existe
+      // Enriquecer datos con información de ruta y sectores
       const enrichedEvent = {
         ...eventData,
         route_data: eventData.route_data || {
@@ -49,15 +52,58 @@ const EventDetailPage = () => {
             [40.4198, -3.7338]
           ],
           sectors: [
-            { name: 'Inicio', distance: 0, elevation: 650 },
-            { name: 'Subida Collado', distance: 25, elevation: 950 },
-            { name: 'Descenso Técnico', distance: 45, elevation: 720 },
-            { name: 'Llegada', distance: eventData.distancia_km || 70, elevation: 650 }
+            { 
+              id: 1, 
+              name: 'Inicio - Salida Urbana', 
+              distance: 0, 
+              elevation: 650,
+              difficulty: 'fácil',
+              description: 'Salida desde el centro urbano con tráfico controlado',
+              estimatedTime: '0:15',
+              coordinates: [[40.4168, -3.7038], [40.4170, -3.7050]]
+            },
+            { 
+              id: 2, 
+              name: 'Subida Collado Verde', 
+              distance: 25, 
+              elevation: 950,
+              difficulty: 'difícil',
+              description: 'Ascenso constante de 8% de pendiente promedio',
+              estimatedTime: '1:30',
+              coordinates: [[40.4170, -3.7050], [40.4180, -3.7100]]
+            },
+            { 
+              id: 3, 
+              name: 'Descenso Técnico', 
+              distance: 45, 
+              elevation: 720,
+              difficulty: 'medio',
+              description: 'Descenso técnico con curvas cerradas',
+              estimatedTime: '0:45',
+              coordinates: [[40.4180, -3.7100], [40.4190, -3.7200]]
+            },
+            { 
+              id: 4, 
+              name: 'Llegada - Sprint Final', 
+              distance: eventData.distancia_km || 70, 
+              elevation: 650,
+              difficulty: 'fácil',
+              description: 'Recta final hacia la línea de meta',
+              estimatedTime: '0:20',
+              coordinates: [[40.4190, -3.7200], [40.4198, -3.7338]]
+            }
+          ],
+          elevation_profile: [
+            { distance: 0, elevation: 650 },
+            { distance: 25, elevation: 950 },
+            { distance: 45, elevation: 720 },
+            { distance: 70, elevation: 650 }
           ]
         }
       };
       
       setEvent(enrichedEvent);
+      setSectorsData(enrichedEvent.route_data?.sectors || []);
       
     } catch (error) {
       console.error('Error cargando evento:', error);
@@ -103,22 +149,40 @@ const EventDetailPage = () => {
     loadEvent();
   };
 
+  const handleSectorSelect = (sector) => {
+    setSelectedSector(sector);
+    // Aquí podrías filtrar el mapa para mostrar solo el sector seleccionado
+  };
+
   const getStatusVariant = (status) => {
     switch (status?.toLowerCase()) {
       case 'próximo': return 'warning';
       case 'en curso': return 'success';
       case 'finalizado': return 'secondary';
+      case 'cancelado': return 'danger';
       default: return 'secondary';
     }
   };
 
   const getDifficultyVariant = (difficulty) => {
     switch (difficulty?.toLowerCase()) {
-      case 'baja': return 'success';
-      case 'media': return 'warning';
-      case 'alta': return 'danger';
+      case 'baja': 
+      case 'fácil': return 'success';
+      case 'media': 
+      case 'medio': return 'warning';
+      case 'alta': 
+      case 'difícil': return 'danger';
       case 'extrema': return 'dark';
       default: return 'secondary';
+    }
+  };
+
+  const getDifficultyIcon = (difficulty) => {
+    switch (difficulty?.toLowerCase()) {
+      case 'fácil': return '🟢';
+      case 'medio': return '🟡';
+      case 'difícil': return '🔴';
+      default: return '⚪';
     }
   };
 
@@ -156,6 +220,7 @@ const EventDetailPage = () => {
     <Container className="py-5">
       {registrationSuccess && (
         <Alert variant="success" dismissible onClose={() => setRegistrationSuccess('')}>
+          <i className="bi bi-check-circle-fill me-2"></i>
           {registrationSuccess}
         </Alert>
       )}
@@ -246,72 +311,144 @@ const EventDetailPage = () => {
               </div>
 
               <p className="lead">{event.descripcion}</p>
+            </Card.Body>
+          </Card>
 
-              <Tabs 
-                activeKey={activeTab} 
-                onSelect={(tab) => setActiveTab(tab)} 
-                className="mb-3"
+          {/* Pestañas de contenido */}
+          <Card className="border-0 shadow-sm">
+            <Card.Body className="p-0">
+              <Tabs
+                activeKey={activeTab}
+                onSelect={(k) => setActiveTab(k)}
+                className="px-3 pt-3"
+                fill
               >
                 <Tab eventKey="details" title="📋 Detalles">
-                  <Row className="g-3 mt-2">
-                    <Col sm={6}>
-                      <strong>Fecha del evento:</strong>
-                      <br />
-                      {new Date(event.fecha).toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </Col>
-                    <Col sm={6}>
-                      <strong>Hora de inicio:</strong>
-                      <br />
-                      {event.hora_inicio || 'Por definir'}
-                    </Col>
-                    <Col sm={6}>
-                      <strong>Organizador:</strong>
-                      <br />
-                      {event.organizador || 'Maripneitor Cycling'}
-                    </Col>
-                    <Col sm={6}>
-                      <strong>Categorías:</strong>
-                      <br />
-                      {event.categorias || 'Todas las categorías'}
-                    </Col>
-                  </Row>
-                </Tab>
-
-                <Tab eventKey="route" title="🗺️ Ruta">
-                  <div className="mt-3">
-                    <h6>Mapa del Recorrido</h6>
-                    <div style={{ height: '400px', borderRadius: '8px', overflow: 'hidden' }}>
-                      <EventMap 
-                        route={event.route_data?.coordinates} 
-                        eventLocation={event.ubicacion}
-                      />
-                    </div>
-                    
-                    <h6 className="mt-4">Sectores del Recorrido</h6>
-                    <RouteSectors sectors={event.route_data?.sectors} />
+                  <div className="p-3">
+                    <Row className="g-4">
+                      <Col md={6}>
+                        <h5>Información del Evento</h5>
+                        <ListGroup variant="flush">
+                          <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                            <span>Fecha y Hora</span>
+                            <strong>
+                              {new Date(event.fecha).toLocaleDateString('es-ES', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </strong>
+                          </ListGroup.Item>
+                          <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                            <span>Ubicación</span>
+                            <strong>{event.ubicacion}</strong>
+                          </ListGroup.Item>
+                          <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                            <span>Tipo</span>
+                            <Badge bg="primary">{event.tipo}</Badge>
+                          </ListGroup.Item>
+                          <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                            <span>Dificultad</span>
+                            <Badge bg={getDifficultyVariant(event.dificultad)}>
+                              {event.dificultad}
+                            </Badge>
+                          </ListGroup.Item>
+                        </ListGroup>
+                      </Col>
+                      <Col md={6}>
+                        <h5>Estadísticas</h5>
+                        <ListGroup variant="flush">
+                          <ListGroup.Item>
+                            <div className="d-flex justify-content-between mb-2">
+                              <span>Cupo Disponible</span>
+                              <span>
+                                {event.participantes_inscritos || 0} / {event.cupo_maximo || '∞'}
+                              </span>
+                            </div>
+                            <ProgressBar 
+                              now={registrationProgress} 
+                              variant={
+                                registrationProgress > 90 ? 'danger' : 
+                                registrationProgress > 75 ? 'warning' : 'success'
+                              }
+                            />
+                          </ListGroup.Item>
+                          <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                            <span>Distancia Total</span>
+                            <strong>{event.distancia_km || event.distancia} km</strong>
+                          </ListGroup.Item>
+                          <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                            <span>Elevación</span>
+                            <strong>{event.elevacion || 'N/A'} m</strong>
+                          </ListGroup.Item>
+                          <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                            <span>Cuota</span>
+                            <strong>€{event.cuota_inscripcion || 'Gratis'}</strong>
+                          </ListGroup.Item>
+                        </ListGroup>
+                      </Col>
+                    </Row>
                   </div>
                 </Tab>
 
-                <Tab eventKey="requirements" title="⚡ Requisitos">
-                  <ListGroup variant="flush" className="mt-2">
-                    <ListGroup.Item>
-                      <strong>Equipo obligatorio:</strong> Casco, luces delanteras y traseras
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                      <strong>Edad mínima:</strong> 18 años (o 16 con autorización)
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                      <strong>Seguro:</strong> Se requiere seguro de responsabilidad civil
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                      <strong>Bicicleta:</strong> En buen estado mecánico
-                    </ListGroup.Item>
-                  </ListGroup>
+                <Tab eventKey="route" title="🗺️ Ruta y Sectores">
+                  <div className="p-3">
+                    <div className="mb-4">
+                      <h5>Mapa de la Ruta</h5>
+                      <EventMap 
+                        coordinates={event.route_data?.coordinates}
+                        sectors={sectorsData}
+                        selectedSector={selectedSector}
+                        height="300px"
+                      />
+                    </div>
+
+                    <div>
+                      <h5>Sectores de la Ruta</h5>
+                      <p className="text-muted mb-3">
+                        La ruta está dividida en {sectorsData.length} sectores con diferentes características
+                      </p>
+                      
+                      <RouteSectors 
+                        sectors={sectorsData}
+                        onSectorSelect={handleSectorSelect}
+                        selectedSector={selectedSector}
+                      />
+                    </div>
+                  </div>
+                </Tab>
+
+                <Tab eventKey="requirements" title="📝 Requisitos">
+                  <div className="p-3">
+                    <h5>Requisitos de Participación</h5>
+                    <ListGroup variant="flush">
+                      <ListGroup.Item>
+                        <i className="bi bi-check-circle text-success me-2"></i>
+                        Equipo de ciclismo en buen estado
+                      </ListGroup.Item>
+                      <ListGroup.Item>
+                        <i className="bi bi-check-circle text-success me-2"></i>
+                        Casco obligatorio
+                      </ListGroup.Item>
+                      <ListGroup.Item>
+                        <i className="bi bi-check-circle text-success me-2"></i>
+                        Kit básico de reparación
+                      </ListGroup.Item>
+                      <ListGroup.Item>
+                        <i className="bi bi-check-circle text-success me-2"></i>
+                        Hidratación suficiente
+                      </ListGroup.Item>
+                      {event.cuota_inscripcion > 0 && (
+                        <ListGroup.Item>
+                          <i className="bi bi-credit-card text-primary me-2"></i>
+                          Pago de cuota de inscripción: €{event.cuota_inscripcion}
+                        </ListGroup.Item>
+                      )}
+                    </ListGroup>
+                  </div>
                 </Tab>
               </Tabs>
             </Card.Body>
@@ -319,91 +456,95 @@ const EventDetailPage = () => {
         </Col>
 
         <Col lg={4}>
+          {/* Panel de inscripción */}
           <Card className="border-0 shadow-sm sticky-top" style={{ top: '100px' }}>
+            <Card.Header className="bg-primary text-white">
+              <h5 className="mb-0">Inscripción</h5>
+            </Card.Header>
             <Card.Body className="p-4">
-              <h5 className="fw-bold mb-4">Información de Inscripción</h5>
-              
-              <div className="mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted">Cupos disponibles</span>
-                  <span className="fw-semibold">
-                    {event.participantes_inscritos || 0} / {event.cupo_maximo || 0}
-                  </span>
-                </div>
-                <ProgressBar 
-                  now={registrationProgress} 
-                  variant={
-                    registrationProgress >= 90 ? 'danger' :
-                    registrationProgress >= 70 ? 'warning' : 'success'
-                  }
-                  className="mb-3"
-                />
-                
-                {registrationProgress >= 90 && (
-                  <Alert variant="warning" className="py-2 small mb-0">
-                    ¡Últimos cupos disponibles!
-                  </Alert>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted">Cuota de inscripción</span>
-                  <span className="h5 text-primary mb-0">
-                    €{event.cuota_inscripcion || 0}
-                  </span>
-                </div>
-                <small className="text-muted">
-                  Incluye: Seguro, avituallamiento, playera conmemorativa
-                </small>
-              </div>
-
               {isRegistered ? (
-                <Alert variant="success" className="text-center">
-                  <i className="bi bi-check-circle-fill me-2"></i>
-                  Ya estás inscrito en este evento
-                </Alert>
-              ) : (
-                <div className="d-grid gap-2">
+                <div className="text-center">
+                  <div className="text-success mb-3">
+                    <i className="bi bi-check-circle display-4"></i>
+                  </div>
+                  <h5>¡Ya estás inscrito!</h5>
+                  <p className="text-muted">
+                    Te has inscrito exitosamente en este evento.
+                  </p>
                   <Button 
-                    variant="primary" 
-                    size="lg"
-                    onClick={handleRegisterClick}
-                    disabled={event.estado?.toLowerCase() === 'finalizado'}
+                    variant="outline-primary" 
+                    onClick={() => navigate('/cuenta/mis-eventos')}
                   >
-                    {event.estado?.toLowerCase() === 'finalizado' 
-                      ? 'Evento Finalizado' 
-                      : 'Inscribirse Ahora'
-                    }
+                    Ver Mis Eventos
                   </Button>
-                  
-                  {event.estado?.toLowerCase() === 'finalizado' && (
-                    <small className="text-muted text-center">
-                      Este evento ya ha finalizado
-                    </small>
-                  )}
                 </div>
+              ) : (
+                <>
+                  <div className="text-center mb-4">
+                    <h4 className="text-primary">€{event.cuota_inscripcion || 0}</h4>
+                    <p className="text-muted">Cuota de inscripción</p>
+                  </div>
+
+                  {event.estado?.toLowerCase() === 'próximo' ? (
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="w-100 py-3 fw-bold"
+                      onClick={handleRegisterClick}
+                    >
+                      Inscribirse Ahora
+                    </Button>
+                  ) : (
+                    <Alert variant="warning" className="text-center">
+                      <i className="bi bi-exclamation-triangle me-2"></i>
+                      Las inscripciones no están disponibles para este evento
+                    </Alert>
+                  )}
+
+                  <div className="mt-3">
+                    <small className="text-muted">
+                      <i className="bi bi-info-circle me-1"></i>
+                      Al inscribirte aceptas los términos y condiciones del evento
+                    </small>
+                  </div>
+                </>
               )}
+            </Card.Body>
+          </Card>
 
-              <hr className="my-4" />
-
-              <div className="text-center">
-                <small className="text-muted">
-                  ¿Tienes dudas? <a href="/contacto">Contáctanos</a>
-                </small>
+          {/* Información del organizador */}
+          <Card className="border-0 shadow-sm mt-4">
+            <Card.Header className="bg-light">
+              <h6 className="mb-0">Organizador</h6>
+            </Card.Header>
+            <Card.Body>
+              <div className="d-flex align-items-center">
+                <div className="flex-shrink-0">
+                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                       style={{width: '50px', height: '50px'}}>
+                    <span className="fw-bold">O</span>
+                  </div>
+                </div>
+                <div className="flex-grow-1 ms-3">
+                  <h6 className="mb-1">Organizador del Evento</h6>
+                  <small className="text-muted">
+                    {event.organizador?.nombre || 'Maripneitor Cycling'}
+                  </small>
+                </div>
               </div>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
+      {/* Modal de inscripción */}
       <Modal 
         show={showRegistrationModal} 
         onHide={() => setShowRegistrationModal(false)}
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Inscripción: {event.nombre}</Modal.Title>
+          <Modal.Title>Inscripción en {event.nombre}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <RegistrationForm
