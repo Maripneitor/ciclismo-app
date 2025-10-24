@@ -62,6 +62,25 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Ruta de prueba de base de datos
+app.get('/api/db-test', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.json({ 
+      status: 'OK', 
+      message: 'Conexión a la base de datos establecida correctamente',
+      database: process.env.DB_NAME || 'maripneitor_cycling'
+    });
+  } catch (error) {
+    console.error('❌ Error de conexión a BD:', error);
+    res.status(500).json({ 
+      status: 'ERROR', 
+      message: 'Error conectando a la base de datos',
+      error: error.message 
+    });
+  }
+});
+
 // Manejo de errores 404
 app.use('*', (req, res) => {
   res.status(404).json({ 
@@ -85,6 +104,13 @@ app.use((error, req, res, next) => {
     return res.status(409).json({
       error: 'Conflicto de datos únicos',
       details: error.errors.map(err => err.message)
+    });
+  }
+
+  if (error.name === 'SequelizeDatabaseError') {
+    return res.status(500).json({
+      error: 'Error de base de datos',
+      details: error.message
     });
   }
   
@@ -139,6 +165,11 @@ const startServer = async () => {
       console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
       console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
       console.log(`📊 Base de datos: ${process.env.DB_NAME || 'maripneitor_cycling'}`);
+      console.log(`🔍 Rutas disponibles:`);
+      console.log(`   - GET /api/health`);
+      console.log(`   - GET /api/db-test`);
+      console.log(`   - GET /api/queries/stats`);
+      console.log(`   - GET /api/queries/debug-tables`);
     });
   } catch (error) {
     console.error('❌ Error iniciando servidor:', error);

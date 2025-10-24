@@ -5,18 +5,26 @@ const { auth, authorize } = require('../middleware/auth');
 
 router.get('/stats', async (req, res) => {
   try {
+    console.log('🔍 Ejecutando consulta de estadísticas...');
+    
+    // Usar los nombres correctos de las tablas (sin comillas dobles o con los nombres correctos)
     const stats = await sequelize.query(`
       SELECT 
-        (SELECT COUNT(*) FROM "Users") as total_usuarios,
-        (SELECT COUNT(*) FROM "Events") as total_eventos,
-        (SELECT COUNT(*) FROM "Registrations") as total_inscripciones,
-        (SELECT COUNT(*) FROM "Users" WHERE role = 'admin') as total_admins,
-        (SELECT COUNT(*) FROM "Users" WHERE role = 'organizador') as total_organizadores
+        (SELECT COUNT(*) FROM users) as total_usuarios,
+        (SELECT COUNT(*) FROM events) as total_eventos,
+        (SELECT COUNT(*) FROM registrations) as total_inscripciones,
+        (SELECT COUNT(*) FROM users WHERE role = 'admin') as total_admins,
+        (SELECT COUNT(*) FROM users WHERE role = 'organizador') as total_organizadores
     `, { type: sequelize.QueryTypes.SELECT });
 
+    console.log('✅ Estadísticas obtenidas:', stats[0]);
     res.json(stats[0]);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('❌ Error en consulta de estadísticas:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      details: error.message 
+    });
   }
 });
 
@@ -35,7 +43,7 @@ router.get('/users-stats', auth, authorize('admin'), async (req, res) => {
       SELECT 
         DATE("createdAt") as fecha,
         COUNT(*) as registros
-      FROM "Users"
+      FROM users
       WHERE "createdAt" >= CURRENT_DATE - INTERVAL '7 days'
       GROUP BY DATE("createdAt")
       ORDER BY fecha
@@ -46,7 +54,11 @@ router.get('/users-stats', auth, authorize('admin'), async (req, res) => {
       crecimiento: growth
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('❌ Error en users-stats:', error);
+    res.status(500).json({ 
+      error: 'Error obteniendo estadísticas de usuarios',
+      details: error.message 
+    });
   }
 });
 
@@ -79,7 +91,11 @@ router.get('/events-stats', async (req, res) => {
       proximos_eventos: proximosEventos
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('❌ Error en events-stats:', error);
+    res.status(500).json({ 
+      error: 'Error obteniendo estadísticas de eventos',
+      details: error.message 
+    });
   }
 });
 
@@ -93,8 +109,8 @@ router.get('/top-organizadores', async (req, res) => {
         COUNT(e.id) as total_eventos,
         SUM(e.maxParticipantes) as capacidad_total,
         AVG(e.precio) as precio_promedio
-      FROM "Users" u
-      LEFT JOIN "Events" e ON u.id = e."organizadorId"
+      FROM users u
+      LEFT JOIN events e ON u.id = e."organizadorId"
       WHERE u.role IN ('organizador', 'admin')
       GROUP BY u.id, u.nombre, u.email
       ORDER BY total_eventos DESC
@@ -103,7 +119,11 @@ router.get('/top-organizadores', async (req, res) => {
 
     res.json(topOrganizadores);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('❌ Error en top-organizadores:', error);
+    res.status(500).json({ 
+      error: 'Error obteniendo top organizadores',
+      details: error.message 
+    });
   }
 });
 
@@ -133,7 +153,32 @@ router.get('/event-details/:id', async (req, res) => {
 
     res.json(eventDetails);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('❌ Error en event-details:', error);
+    res.status(500).json({ 
+      error: 'Error obteniendo detalles del evento',
+      details: error.message 
+    });
+  }
+});
+
+// Ruta de prueba para verificar nombres de tablas
+router.get('/debug-tables', async (req, res) => {
+  try {
+    const tableInfo = await sequelize.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+      ORDER BY table_name;
+    `, { type: sequelize.QueryTypes.SELECT });
+
+    res.json({ tables: tableInfo });
+  } catch (error) {
+    console.error('❌ Error en debug-tables:', error);
+    res.status(500).json({ 
+      error: 'Error obteniendo información de tablas',
+      details: error.message 
+    });
   }
 });
 
