@@ -55,24 +55,14 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING(50),
       defaultValue: 'próximo'
     },
-    // CAMPOS COMENTADOS - ya están en las relaciones
-    // organizador: {
-    //   type: DataTypes.STRING(255),
-    //   allowNull: true
-    // },
     hora_inicio: {
       type: DataTypes.TIME,
       allowNull: true
     },
-    // categorias: {
-    //   type: DataTypes.STRING(500),
-    //   allowNull: true
-    // },
     imagen: {
       type: DataTypes.STRING(500),
       allowNull: true
     },
-    // NUEVOS CAMPOS PARA RUTAS Y MAPAS
     route_data: {
       type: DataTypes.JSON,
       allowNull: true,
@@ -93,14 +83,23 @@ module.exports = (sequelize) => {
     end_coordinates: {
       type: DataTypes.JSON,
       allowNull: true
+    },
+    // AÑADIDO: Campo para relación con organizador
+    organization_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'usuarios',
+        key: 'id'
+      }
     }
   }, {
-    tableName: 'events',
+    // CORREGIDO: Nombre de tabla explícito
+    tableName: 'eventos',
     timestamps: true,
     underscored: true,
     hooks: {
       beforeCreate: (event) => {
-        // Inicializar datos de ruta si no existen
         if (!event.route_data) {
           event.route_data = {
             coordinates: [],
@@ -111,6 +110,22 @@ module.exports = (sequelize) => {
       }
     }
   });
+
+  // AÑADIDO: Asociaciones para evitar errores
+  Event.associate = function(models) {
+    Event.belongsTo(models.User, {
+      foreignKey: 'organization_id',
+      as: 'organizador'
+    });
+    Event.hasMany(models.Category, {
+      foreignKey: 'evento_id',
+      as: 'categorias'
+    });
+    Event.hasMany(models.Registration, {
+      foreignKey: 'evento_id',
+      as: 'inscripciones'
+    });
+  };
 
   return Event;
 };

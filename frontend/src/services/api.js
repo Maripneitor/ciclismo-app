@@ -45,6 +45,7 @@ api.interceptors.response.use(
 
 export const eventsAPI = {
   getAll: () => api.get('/events'),
+  getFeatured: () => api.get('/events/featured'), // NUEVA FUNCIÓN
   getById: (id) => api.get(`/events/${id}`),
   getCategories: (eventId) => api.get(`/events/${eventId}/categories`),
   registerToEvent: (registrationData) => api.post('/registrations', registrationData),
@@ -112,7 +113,8 @@ export const queriesAPI = {
 
 export const homeAPI = {
   getHomeStats: () => api.get('/queries/stats'),
-  getFeaturedEvents: () => api.get('/events?featured=true&limit=3')
+  // CORREGIDO: Usar la nueva ruta específica para eventos destacados
+  getFeaturedEvents: () => api.get('/events/featured?limit=3')
 };
 
 export default api;
