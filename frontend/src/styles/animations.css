@@ -1,15 +1,148 @@
-/* frontend/src/styles/animations.css - Nuevo archivo */
-/* Animaciones de carga */
-@keyframes bike-spin {
-  0% { transform: translateX(-100%) rotate(0deg); }
-  100% { transform: translateX(100vw) rotate(360deg); }
+/* frontend/src/styles/animations.css - ANIMACIONES CONSOLIDADAS */
+/* Animaciones de carga y transiciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.loading-bike {
-  animation: bike-spin 2s linear infinite;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Hover effects */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animaciones de escritura y cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.typing-cursor {
+  animation: blink 1s infinite;
+  color: var(--warning-color);
+}
+
+/* Animaciones de flotación */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(100px);
+    opacity: 0;
+  }
+}
+
+/* Animaciones de pulso y latido */
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0,0,0);
+  }
+  40%, 43% {
+    transform: translate3d(0,-8px,0);
+  }
+  70% {
+    transform: translate3d(0,-4px,0);
+  }
+  90% {
+    transform: translate3d(0,-2px,0);
+  }
+}
+
+/* Animaciones de movimiento */
+@keyframes bikeMove {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-5px) rotate(-2deg); }
+  75% { transform: translateY(5px) rotate(2deg); }
+}
+
+@keyframes roadMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes wheelSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Animaciones de entrada escalonadas */
+.animate-fade-in {
+  animation: fadeIn 1s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.8s ease-out;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.8s ease-out;
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+
+/* Hover effects reutilizables */
 .btn-sport {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -59,18 +192,6 @@
   100% { background-position: -200% 0; }
 }
 
-/* Page transitions */
-.page-enter {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.3s, transform 0.3s;
-}
-
 /* Floating elements */
 .floating {
   animation: floating 3s ease-in-out infinite;
@@ -81,99 +202,30 @@
   50% { transform: translateY(-10px); }
 }
 
-/* frontend/src/styles/animations.css o en tu index.css */
-.animate-fade-in {
-  animation: fadeIn 1s ease-out;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.8s ease-out;
-}
-
-.delay-1 {
-  animation-delay: 0.3s;
-}
-
-.delay-2 {
-  animation-delay: 0.6s;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.typing-cursor {
-  animation: blink 1s infinite;
-  color: #ffc107;
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-.highlight-word {
-  background: linear-gradient(45deg, #ffc107, #ff6b00);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.cycling-animation {
-  position: relative;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bike-icon {
-  font-size: 4rem;
-  display: block;
-  z-index: 2;
-  position: relative;
-}
-
-.moving-road {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, #ffc107, transparent);
-  animation: roadMove 2s linear infinite;
-}
-
-@keyframes roadMove {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-.hero-stats {
+/* Badge animations */
+.badge-pop-in {
   opacity: 0;
-  animation: fadeInStats 0.5s ease-out 1s forwards;
+  transform: scale(0.8) translateY(-20px);
+  animation: badgePopIn 0.8s ease-out forwards;
 }
 
-@keyframes fadeInStats {
+@keyframes badgePopIn {
   to {
     opacity: 1;
+    transform: scale(1) translateY(0);
   }
+}
+
+.badge-popular {
+  animation: bounce 1s ease infinite;
+}
+
+/* Scroll indicator */
+@keyframes scrollBounce {
+  0%, 100% { transform: rotate(45deg) translateY(0); }
+  50% { transform: rotate(45deg) translateY(-10px); }
+}
+
+.scroll-arrow {
+  animation: scrollBounce 2s infinite;
 }

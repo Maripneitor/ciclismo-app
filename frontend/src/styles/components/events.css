@@ -1,14 +1,14 @@
-/* frontend/src/styles/components/events.css */
+/* frontend/src/styles/components/events.css - ESTILOS ESPECÍFICOS DE EVENTOS */
 /* Enhanced Event Cards */
 .enhanced-event-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px;
+  transition: var(--transition-standard);
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
 
 .enhanced-event-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px var(--shadow-color);
 }
 
 /* Event Card Header */
@@ -22,7 +22,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
 }
 
 .event-image-placeholder {
@@ -68,7 +68,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
   color: white;
 }
 
@@ -102,11 +102,6 @@
   animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
 /* Difficulty Badge */
 .difficulty-badge {
   position: absolute;
@@ -133,7 +128,7 @@
   background: rgba(255, 255, 255, 0.9);
   padding: 4px 8px;
   border-radius: 8px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--blur-intensity);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -165,8 +160,8 @@
 
 /* Quick Stats */
 .event-quick-stats {
-  border-top: 1px solid #e5e7eb;
-  border-bottom: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
   padding: 12px 0;
 }
 
@@ -206,7 +201,7 @@
 
 /* Event Detail Page Styles */
 .event-gallery {
-  border-radius: 12px;
+  border-radius: var(--border-radius);
   overflow: hidden;
 }
 
@@ -223,7 +218,7 @@
 }
 
 .gallery-image {
-  border-radius: 8px;
+  border-radius: var(--border-radius);
 }
 
 .gallery-thumbnails {
@@ -233,15 +228,15 @@
 .thumbnail {
   width: 80px;
   height: 60px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   border: 2px solid transparent;
-  transition: all 0.3s ease;
+  transition: var(--transition-standard);
   flex-shrink: 0;
 }
 
 .thumbnail.active {
-  border-color: #2563eb;
+  border-color: var(--primary-600);
   transform: scale(1.05);
 }
 
@@ -252,7 +247,7 @@
 .thumbnail-video {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -272,24 +267,51 @@
 
 /* Event Stats Small */
 .event-stats-small {
-  background: #f8f9fa;
+  background: var(--neutral-100);
   padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
 }
 
 /* Tabs Personalizados */
 .nav-tabs .nav-link {
   border: none;
-  color: #6b7280;
+  color: var(--neutral-500);
   font-weight: 500;
   padding: 12px 16px;
 }
 
 .nav-tabs .nav-link.active {
-  color: #2563eb;
-  border-bottom: 2px solid #2563eb;
+  color: var(--primary-600);
+  border-bottom: 2px solid var(--primary-600);
   background: transparent;
+}
+
+/* Date Highlight */
+.event-date-highlight {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.event-day {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--primary-600);
+}
+
+.event-month {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--neutral-500);
 }
 
 /* Responsive */
@@ -333,26 +355,6 @@
     width: 60px;
     height: 45px;
   }
-}
-
-/* Animaciones para badges especiales */
-@keyframes bounce {
-  0%, 20%, 53%, 80%, 100% {
-    transform: translate3d(0,0,0);
-  }
-  40%, 43% {
-    transform: translate3d(0,-8px,0);
-  }
-  70% {
-    transform: translate3d(0,-4px,0);
-  }
-  90% {
-    transform: translate3d(0,-2px,0);
-  }
-}
-
-.badge-popular {
-  animation: bounce 1s ease infinite;
 }
 
 /* Efectos de hover mejorados */
