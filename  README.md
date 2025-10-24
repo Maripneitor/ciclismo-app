@@ -14,7 +14,7 @@ git status
 git add .
 
 # 4. Hacer commit con mensaje descriptivo
-git commit -m "Cambios con fase-subfase 3.3 sigue la fase 3.4 correccion1 de 19"
+git commit -m "Cambios con fase-subfase 3.3 sigue la fase 3.4 correccion 1.1 de 19"
 
 
 # 5. Subir los cambios al repositorio remoto

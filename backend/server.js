@@ -1,4 +1,4 @@
-// server.js - Configuración mejorada
+// server.js - Configuración mejorada CON RUTAS DE QUERIES
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -14,6 +14,7 @@ const userRoutes = require('./routes/users');
 const eventRoutes = require('./routes/events');
 const registrationRoutes = require('./routes/registrations');
 const teamRoutes = require('./routes/teams');
+const queryRoutes = require('./routes/queries'); // AÑADIR ESTA LÍNEA
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/queries', queryRoutes); // AÑADIR ESTA LÍNEA
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

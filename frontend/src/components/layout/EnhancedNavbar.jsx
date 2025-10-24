@@ -1,4 +1,4 @@
-// frontend/src/components/layout/EnhancedNavbar.jsx - ACTUALIZADO
+// frontend/src/components/layout/EnhancedNavbar.jsx - CORREGIDO
 import React, { useState, useEffect } from 'react';
 import { 
   Navbar, Nav, Container, Button, Dropdown, Badge, 
@@ -336,7 +336,7 @@ const EnhancedNavbar = ({ scrolled }) => {
 
       <div className="navbar-spacer"></div>
 
-      <style jsx>{`
+      <style>{`
         .user-avatar {
           border-radius: 50%;
           display: flex;
